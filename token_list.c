@@ -23,14 +23,14 @@ void print_token_list(t_token **head)
     current = *head;  // Use a temporary pointer
     while (current)
     {
-        printf("%s %d\n", current->token, current->type);
+        printf("%s %d %d\n", current->token, current->type, current->space_after);
         current = current->next;
     }
 }
 
 #include <string.h>
 
-int	add_token(t_token **head, char *token, int type, int quoted)
+int	add_token(t_token **head, char *token, int type, int quoted, int space)
 {
 	t_token	*new_node;	
 	t_token	*tmp;
@@ -41,6 +41,7 @@ int	add_token(t_token **head, char *token, int type, int quoted)
 	memset(new_node, 0, sizeof(t_token));
 	new_node->token = token;
 	new_node->type = type;
+	new_node->space_after = space;
 	if (quoted)
 		new_node->quoted = 1;
 	if (!*head)

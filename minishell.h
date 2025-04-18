@@ -40,6 +40,7 @@ typedef struct tokens {
     char    *token;
     t_tokentype type;
     int quoted;
+    int space_after;
     struct tokens   *next;
     struct tokens   *prev;
 } t_token;
@@ -48,7 +49,7 @@ char    **split(const char *s, const char *delim);
 void    lexer(char *s);
 void    free_token_list(t_token **head);
 void    print_token_list(t_token **head);
-int add_token(t_token **head, char *token, int type, int quoted);
+int add_token(t_token **head, char *token, int type, int quoted, int space);
 
 int check_quotes(char *s);
 

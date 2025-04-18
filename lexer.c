@@ -98,13 +98,23 @@ int handle_quotes(char *s, int i, t_token **head)
 {
     char quote = s[i++];
     int start = i;
+    int space = 0;
     
     /* Skip until matching closing quote or end of string */
     while (s[i] && s[i] != quote)
         i++;
+    /*check for space after token*/
+    if (ft_isspace(s[i + 1]))
+        space = 1;
     /* Create token from quoted content */
     char *token = ft_strndup(&s[start], i - start);
-    add_token(head, token, (quote == '\'' ? S_QUOTE : D_QUOTE), 1);
+    /*add_token(head, token, (quote == '\'' ? S_QUOTE : D_QUOTE), 1);*/
+    int type;
+    if (quote == '\'')
+        type = S_QUOTE;
+    else
+        type = D_QUOTE;
+    add_token(head, token, type, 1, space);
     /* Move past closing quote if present */
     if (s[i] == quote)
         i++;
@@ -114,14 +124,20 @@ int handle_quotes(char *s, int i, t_token **head)
 /* Handle AND operator tokenization */
 int handle_and_operator(char *s, int i, t_token **head)
 {
+    int space = 0;
+
     if (s[i + 1] == '&')
     {
-        add_token(head, strdup("&&"), AND_IF, 0);
+        if (ft_isspace(s[i + 2]))
+            space = 1;
+        add_token(head, strdup("&&"), AND_IF, 0, space);
         return i + 2;
     }
     else
     {
-        add_token(head, strdup("&"), AND, 0);
+        if (ft_isspace(s[i + 2]))
+            space = 1;
+        add_token(head, strdup("&"), AND, 0, space);
         return i + 1;
     }
 }
@@ -129,14 +145,20 @@ int handle_and_operator(char *s, int i, t_token **head)
 /* Handle OR and PIPE operator tokenization */
 int handle_or_pipe_operator(char *s, int i, t_token **head)
 {
+    int space = 0;
+
     if (s[i + 1] == '|')
     {
-        add_token(head, strdup("||"), OR_IF, 0);
+        if (ft_isspace(s[i + 2]))
+            space = 1;
+        add_token(head, strdup("||"), OR_IF, 0, space);
         return i + 2;
     }
     else
     {
-        add_token(head, strdup("|"), PIPE, 0);
+        if (ft_isspace(s[i + 1]))
+            space = 1;
+        add_token(head, strdup("|"), PIPE, 0, space);
         return i + 1;
     }
 }
@@ -144,14 +166,20 @@ int handle_or_pipe_operator(char *s, int i, t_token **head)
 /* Handle output redirection tokenization */
 int handle_output_redirection(char *s, int i, t_token **head)
 {
+    int space = 0;
+
     if (s[i + 1] == '>')
     {
-        add_token(head, strdup(">>"), APPEND, 0);
+        if (ft_isspace(s[i + 2]))
+            space = 1;
+        add_token(head, strdup(">>"), APPEND, 0, space);
         return i + 2;
     }
     else
     {
-        add_token(head, strdup(">"), REDIRECTION_OUT, 0);
+        if (ft_isspace(s[i + 1]))
+            space = 1;
+        add_token(head, strdup(">"), REDIRECTION_OUT, 0, space);
         return i + 1;
     }
 }
@@ -159,14 +187,20 @@ int handle_output_redirection(char *s, int i, t_token **head)
 /* Handle input redirection tokenization */
 int handle_input_redirection(char *s, int i, t_token **head)
 {
+    int space = 0;
+
     if (s[i + 1] == '<')
     {
-        add_token(head, strdup("<<"), HERE_ODC, 0);
+        if (ft_isspace(s[i + 2]))
+            space = 1;
+        add_token(head, strdup("<<"), HERE_ODC, 0, space);
         return i + 2;
     }
     else
     {
-        add_token(head, strdup("<"), REDIRECTION_INT, 0);
+        if (ft_isspace(s[i + 1]))
+            space = 1;
+        add_token(head, strdup("<"), REDIRECTION_INT, 0, space);
         return i + 1;
     }
 }
@@ -174,14 +208,20 @@ int handle_input_redirection(char *s, int i, t_token **head)
 /* Handle parentheses tokenization (for bonus) */
 int handle_parentheses(char *s, int i, t_token **head)
 {
+    int space = 0;
+
     if (s[i] == '(')
     {
-        add_token(head, strdup("("), OPEN_PER, 0);
+        if (ft_isspace(s[i + 1]))
+            space = 1;
+        add_token(head, strdup("("), OPEN_PER, 0, space);
         return i + 1;
     }
     else if (s[i] == ')')
     {
-        add_token(head, strdup(")"), CLOSE_PER, 0);
+        if (ft_isspace(s[i + 1]))
+            space = 1;
+        add_token(head, strdup(")"), CLOSE_PER, 0, space);
         return i + 1;
     }
     return i;
@@ -190,30 +230,44 @@ int handle_parentheses(char *s, int i, t_token **head)
 /* Handle assignment operator tokenization */
 int handle_assignment(char *s, int i, t_token **head)
 {
-    add_token(head, strdup("="), ASSIGN, 0);
+    int space = 0;
+
+    if (ft_isspace(s[i + 1]))
+            space = 1;
+    add_token(head, strdup("="), ASSIGN, 0, space);
     return i + 1;
 }
 
 /* Handle wildcard tokenization (for bonus) */
 int handle_wildcard(char *s, int i, t_token **head)
 {
-    add_token(head, strdup("*"), WILDCARD, 0);
+    int space = 0;
+
+    if (ft_isspace(s[i + 1]))
+            space = 1;
+    add_token(head, strdup("*"), WILDCARD, 0, space);
     return i + 1;
 }
 
 /* Handle dollar sign for environment variables and exit status */
 int handle_dollar(char *s, int i, t_token **head)
 {
+    int space = 0;
+
     /* Check for $? (exit status) */
     if (s[i + 1] == '?')
     {
-        add_token(head, strdup("$?"), EXIT_STATUS, 0);
+        if (ft_isspace(s[i + 2]))
+            space = 1;
+        add_token(head, strdup("$?"), EXIT_STATUS, 0, space);
         return i + 2;
     }
     else
     {
+        if (ft_isspace(s[i + 1]))
+            space = 1;
         /* Regular environment variable - just mark the $ */
-        add_token(head, strdup("$"), DOLLAR, 0);
+        add_token(head, strdup("$"), DOLLAR, 0, space);
         return i + 1;
     }
 }
@@ -222,34 +276,36 @@ int handle_dollar(char *s, int i, t_token **head)
 int handle_word(char *s, int i, t_token **head)
 {
     int start = i;
-    
+    int space = 0;
+
     /* Keep going until we hit a special character or whitespace */
     while (s[i] && !ft_isspace(s[i]) && !ft_is_operator_char(s[i]) && 
            !ft_is_quote(s[i]) && s[i] != '$')
         i++;
-    
+    if (ft_isspace(s[i]))
+        space = 1;
     /* Create token from characters */
     char *token = ft_strndup(&s[start], i - start);
     
     /* Check if this is a built-in command */
     if (strcmp(token, "echo") == 0)
-        add_token(head, token, BUILTIN_ECHO, 0);
+        add_token(head, token, BUILTIN_ECHO, 0, space);
     else if (strcmp(token, "cd") == 0)
-        add_token(head, token, BUILTIN_CD, 0);
+        add_token(head, token, BUILTIN_CD, 0, space);
     else if (strcmp(token, "pwd") == 0)
-        add_token(head, token, BUILTIN_PWD, 0);
+        add_token(head, token, BUILTIN_PWD, 0, space);
     else if (strcmp(token, "export") == 0)
-        add_token(head, token, BUILTIN_EXPORT, 0);
+        add_token(head, token, BUILTIN_EXPORT, 0, space);
     else if (strcmp(token, "unset") == 0)
-        add_token(head, token, BUILTIN_UNSET, 0);
+        add_token(head, token, BUILTIN_UNSET, 0, space);
     else if (strcmp(token, "env") == 0)
-        add_token(head, token, BUILTIN_ENV, 0);
+        add_token(head, token, BUILTIN_ENV, 0, space);
     else if (strcmp(token, "exit") == 0)
-        add_token(head, token, BUILTIN_EXIT, 0);
+        add_token(head, token, BUILTIN_EXIT, 0, space);
     else
-        add_token(head, token, WORD, 0);
+        add_token(head, token, WORD, 0, space);
     
-    return i;
+    return (i);
 }
 
 /*
@@ -298,16 +354,7 @@ void tokenize_input(char *s, t_token **head)
             i = handle_word(s, i, head);
     }
 }
-
-/*
- * lex:
- * Lexing entry point that delegates to tokenize_input
- */
-void lex(char *s, t_token **head)
-{
-    tokenize_input(s, head);
-}
-
+  
 /*
  * lexer:
  * Creates the token list by calling the tokenizer.
