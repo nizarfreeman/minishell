@@ -5,10 +5,12 @@
 # include <string.h>
 # include <signal.h>
 # include <unistd.h>
+# include <stdbool.h>
 # include <readline/readline.h>
 # include <readline/history.h>
 
-typedef enum e_tokentype {
+typedef enum e_tokentype
+{
     WORD,
     HIPHEN, // -
     PIPE, // |
@@ -36,7 +38,8 @@ typedef enum e_tokentype {
     BUILTIN_EXIT
 } t_tokentype;
 
-typedef struct tokens {
+typedef struct tokens
+{
     char    *token;
     t_tokentype type;
     int quoted;
@@ -45,13 +48,36 @@ typedef struct tokens {
     struct tokens   *prev;
 } t_token;
 
-char    **split(const char *s, const char *delim);
-void    lexer(char *s);
-void    free_token_list(t_token **head);
-void    print_token_list(t_token **head);
-int add_token(t_token **head, char *token, int type, int quoted, int space);
+typedef struct dsa
+{
+    struct dsa *left;
+    struct dsa *right;
+    int type;
+    char *cmd;
+    char **args;
+    char **files;
+} t_tree;
 
 int check_quotes(char *s);
 
+/*tokenizer*/
+char    **split(const char *s, const char *delim);
+t_token   *lexer(char *s);
+void    free_token_list(t_token **head);
+void    print_token_list(t_token **head);
+int add_token(t_token **head, char *token, int type, int quoted, int space);
+int is_there_char(char *s, char c);
+
+/*parser*/
+t_tree	*parse_expression(t_token *head);
+
+/*tree print functions*/
+int get_height(t_tree *root);
+void print_node_data(t_tree *node);
+void print_spaces(int count);
+void print_level(t_tree *root, int level, int space_width);
+void print_tree(t_tree *root);
+void print_tree_horizontal(t_tree *root, int level, char *prefix, int is_left);
+void print_tree_h(t_tree *root);
 
 #endif

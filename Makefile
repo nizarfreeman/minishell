@@ -7,7 +7,9 @@ OBJ_DIR = obj
 SRCS = main.c\
         split.c\
         lexer.c\
-        token_list.c
+        token_list.c\
+        parser.c\
+		print_tree.c
 OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.c=.o))
 
 all: $(NAME)

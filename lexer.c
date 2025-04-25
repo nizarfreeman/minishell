@@ -360,11 +360,13 @@ void tokenize_input(char *s, t_token **head)
  * Creates the token list by calling the tokenizer.
  * Then prints and frees the list.
  */
-void lexer(char *s)
+t_token *lexer(char *s)
 {
     t_token *head = NULL;
     
     tokenize_input(s, &head);
-    print_token_list(&head);
-    free_token_list(&head);
+    return (head);
+
+    /*print_token_list(&head);
+    free_token_list(&head);*/
 }
