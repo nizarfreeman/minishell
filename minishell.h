@@ -18,7 +18,7 @@ typedef enum e_tokentype
     AND_IF, // &&
     OR_IF, // ||
     REDIRECTION_OUT, // >
-    REDIRECTION_INT, // <
+    REDIRECTION_IN, // <
     APPEND, // >>
     HERE_ODC, // <<
     S_QUOTE, // ''
@@ -78,6 +78,7 @@ void print_spaces(int count);
 void print_level(t_tree *root, int level, int space_width);
 void print_tree(t_tree *root);
 void print_tree_horizontal(t_tree *root, int level, char *prefix, int is_left);
-void print_tree_h(t_tree *root);
+// void print_tree_h(t_tree *root);
+void print_ast(t_tree *root);
 
 #endif

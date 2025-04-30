@@ -123,6 +123,49 @@ int	grab_main_level(t_token *head)
 	return 0;
 }
 
+// int get_root(t_token *head)
+// {
+// 	t_token *curr = head;
+// 	int position = 0;
+// 	int root_position = -1;
+// 	int paren_level = 0;
+// 	int lowest_precedence = 100;
+
+// 	while (curr)
+// 	{
+// 		if (curr->type == OPEN_PER)
+// 			paren_level++;
+// 		else if (curr->type == CLOSE_PER)
+// 			paren_level--;
+// 		if (paren_level == 0)
+// 		{
+// 			int curr_precedence = 100;
+
+// 			if (curr->type == OR_IF)
+// 				curr_precedence = 1;
+// 			else if (curr->type == AND_IF)
+// 				curr_precedence = 2;
+// 			else if (curr->type == PIPE)
+// 				curr_precedence = 3;
+// 			else if (curr->type == REDIRECTION_OUT || curr->type == REDIRECTION_IN
+// 						|| curr->type == APPEND || curr->type == HERE_ODC)
+// 						curr_precedence = 4;
+			
+// 			if (curr_precedence < 100)
+// 			{
+// 				if (curr_precedence <= lowest_precedence)
+// 				{
+// 					lowest_precedence = curr_precedence;
+// 					root_position = position;
+// 				}
+// 			}
+// 		}
+// 		curr = curr->next;
+// 		position++;
+// 	}
+// 	return (root_position);
+// }
+
 int main(int argc, char const *argv[])
 {
 	struct sigaction sa;
@@ -152,14 +195,15 @@ int main(int argc, char const *argv[])
 			continue ;
 		}
 		head = lexer(s);
-		//root = parse_expression(head);
-		print_token_list(&head);
-		// if (root)
-		// {
-		// 	printf("\n\n");
-		// 	print_tree(root);
-    	// 	free_token_list(&head);
-		// }
+		root = parse_expression(head);
+		//print_token_list(&head);
+		if (root)
+		{
+			printf("\n\n");
+			//print_tree(root);
+    		print_ast(root);
+			free_token_list(&head);
+		}
 		free(s);
 	}
 

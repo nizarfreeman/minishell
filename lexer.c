@@ -200,7 +200,7 @@ int handle_input_redirection(char *s, int i, t_token **head)
     {
         if (ft_isspace(s[i + 1]))
             space = 1;
-        add_token(head, strdup("<"), REDIRECTION_INT, 0, space);
+        add_token(head, strdup("<"), REDIRECTION_IN, 0, space);
         return i + 1;
     }
 }

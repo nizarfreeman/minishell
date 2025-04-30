@@ -106,62 +106,323 @@ t_tree	*insert_command(t_token *head)
 	return (new_node);
 }
 
-/*splits the command using a binary tree*/
+int get_root_pos(t_token *head)
+{
+	t_token *curr = head;
+	int position = 0;
+	int root_position = -1;
+	int paren_level = 0;
+	int lowest_precedence = 100;
+
+	while (curr)
+	{
+		if (curr->type == OPEN_PER)
+			paren_level++;
+		else if (curr->type == CLOSE_PER)
+			paren_level--;
+		if (paren_level == 0)
+		{
+			int curr_precedence = 100;
+
+			if (curr->type == OR_IF || curr->type == AND_IF)
+				curr_precedence = 1;
+			else if (curr->type == PIPE)
+				curr_precedence = 3;
+			else if (curr->type == REDIRECTION_OUT || curr->type == REDIRECTION_IN
+						|| curr->type == APPEND || curr->type == HERE_ODC)
+						curr_precedence = 4;
+			if (curr_precedence < 100)
+			{
+				if (curr_precedence <= lowest_precedence)
+				{
+					lowest_precedence = curr_precedence;
+					root_position = position;
+				}
+			}
+		}
+		curr = curr->next;
+		position++;
+	}
+	return (root_position);
+}
+
+// /*extracts the root token*/
+t_tree *root(t_token *head, int root_pos)
+{
+	t_tree *new_node;
+	int i;
+
+	i = 0;
+	while (i != root_pos)
+	{
+		head = head->next;
+		i++;
+	}
+	new_node = malloc(sizeof(t_tree));
+	if (!new_node)
+		return (NULL);
+	new_node->left = NULL;
+	new_node->right = NULL;
+	new_node->type = head->type;
+	new_node->cmd = strdup(head->token);
+	new_node->args = NULL;
+	new_node->files = NULL;
+	return (new_node);
+}
+
+// t_tree *make_left(t_token *head, int root_pos)
+// {
+// 	int i;
+// 	t_token *left;
+
+// 	i = 0;
+// 	left = NULL;
+// 	while (i < root_pos)
+// 	{
+// 		if (!add_token(&left, head->token, head->type, head->quoted, head->space_after))
+// 			return (NULL);
+// 		head = head->next;
+// 		i++;
+// 	}
+// 	return (left);
+// }
+
+// t_tree *make_right(t_token *head, int root_pos)
+// {
+// 	int i;
+// 	t_token *left;
+
+// 	i = 0;
+// 	while (i)
+// 	left = NULL;
+// 	while (i < root_pos)
+// 	{
+// 		if (!add_token(&left, head->token, head->type, head->quoted, head->space_after))
+// 			return (NULL);
+// 		head = head->next;
+// 		i++;
+// 	}
+// 	return (left);
+// }
+
+// /*splits the command using a binary tree*/
+// t_tree	*build_tree(t_token *head)
+// {
+// 	int root_pos;
+// 	t_tree *root;
+// 	t_tree *right;
+// 	t_tree *left;
+
+// 	t_token *left_rest;
+// 	t_token *right_rest;
+
+// 	root_pos = get_root_pos(head);
+// 	root = add_tree_node(head, root_pos);
+// 	root->left = make_left(head, root_pos);
+//  	root->right = make_right(head, root_pos);
+// }
+
+
+/* Helper function to free the tree */
+void free_tree(t_tree *root)
+{
+    if (!root)
+        return;
+    
+    /* Free subtrees recursively */
+    free_tree(root->left);
+    free_tree(root->right);
+    
+    /* Free node contents */
+    if (root->cmd)
+        free(root->cmd);
+    
+    /* Free arguments array */
+    if (root->args)
+    {
+        int i = 0;
+        while (root->args[i])
+        {
+            free(root->args[i]);
+            i++;
+        }
+        free(root->args);
+    }
+    
+    /* Free files list if implemented */
+    /* TODO: Implement file list freeing if needed */
+    
+    /* Free the node itself */
+    free(root);
+}
+
 t_tree	*build_tree(t_token *head)
 {
+	t_tree	*node;
+	int root_pos;
+	t_token	*left_tokens = NULL;
+	t_token	*right_tokens = NULL;
+	int	i;
+
+	/* Base case: empty token list */
+	if (!head)
+		return (NULL);
+
+	/* If command is simple (no operators), create a command node */
+	if (is_simple(head))
+		return (insert_command(head));
 	
+	/* Find the root operator with the lowest precedence */
+	root_pos = get_root_pos(head);
+	//printf("%d\n", root_pos);
+    
+	/* If no operator found (should not happen if syntax check passed) */
+	if (root_pos == -1)
+		return (NULL);
+
+	/* Create the root node for the current operator */
+	node = root(head, root_pos);
+	if (!node)
+		return (NULL);
+
+	/* Build left side tokens */
+	i = 0;
+	t_token *curr = head;
+	while (i < root_pos)
+	{
+		if (!add_token(&left_tokens, curr->token, curr->type, curr->quoted, curr->space_after))
+		{
+			/* Free everything and return NULL on error */
+			free_tree(node);
+			free_token_list(&left_tokens);
+			return (NULL);
+		}
+		curr = curr->next;
+		i++;
+	}
+
+	/* Skip the root operator */
+	curr = curr->next;
+
+	/* Build right side tokens */
+	while (curr)
+	{
+		if (!add_token(&right_tokens, curr->token, curr->type, curr->quoted, curr->space_after))
+		{
+			/* Free everything and return NULL on error */
+			free_tree(node);
+			free_token_list(&left_tokens);
+			free_token_list(&right_tokens);
+			return (NULL);
+		}
+		curr = curr->next;
+	}
+
+	/* Recursively build left subtree if there are tokens */
+	if (left_tokens)
+		node->left = build_tree(left_tokens);
+	else
+		node->left = NULL;
+
+	/* Recursively build right subtree if there are tokens */
+	if (right_tokens)
+		node->right = build_tree(right_tokens);
+	else
+		node->right = NULL;
+
+	/* Check if both subtrees were created successfully when needed */
+	if ((left_tokens && !node->left) || (right_tokens && !node->right))
+	{
+		free_tree(node);
+		return NULL;
+	}
+	return (node);
 }
 
-/*splits the command containing parenthesis using a binary tree, meaning command with 
-multiple execution levels*/
-t_tree	*build_tree_paren(t_token *head)
+/* Handle parenthesized expressions */
+t_tree *build_tree_paren(t_token *head)
 {
-	
+    t_token *inner_tokens = NULL;
+    t_token *curr = head;
+    int paren_level = 0;
+    
+    /* Skip opening parenthesis */
+    if (curr && curr->type == OPEN_PER)
+    {
+        curr = curr->next;
+        paren_level = 1;
+        
+        /* Extract tokens inside parentheses */
+        while (curr)
+        {
+            if (curr->type == OPEN_PER)
+                paren_level++;
+            else if (curr->type == CLOSE_PER)
+            {
+                paren_level--;
+                if (paren_level == 0)
+                    break;  /* Found matching closing parenthesis */
+            }
+            
+            /* Copy token to inner_tokens */
+            if (!add_token(&inner_tokens, curr->token, curr->type, curr->quoted, curr->space_after))
+            {
+                free_token_list(&inner_tokens);
+                return NULL;
+            }
+            
+            curr = curr->next;
+        }
+        
+        /* Recursively parse the contents within parentheses */
+        if (inner_tokens)
+            return build_tree(inner_tokens);
+    }
+    
+    /* If not properly enclosed in parentheses, fall back to regular parsing */
+    return build_tree(head);
 }
 
-int	 with_paren(t_token *head)
+/* Helper function to check if token list starts with parenthesis */
+int with_paren(t_token *head)
 {
-	t_token *tail = head;
-	int count = 1;
+    if (!head)
+        return 0;
+    
+    return (head->type == OPEN_PER);
+}
 
-	/*Find tail and count nodes*/
-	while (tail->next)
-	{
-		tail = tail->next;
-		count++;
-	}
-	/*Try skipping one outer pair of parentheses*/
-	if (head->type == 13 && tail->type == 14) // 13 = '(', 14 = ')'
-	{
-		t_token *tmp = head->next;
-		int paren = 1;
+/* Helper function to add a tree node */
+t_tree *add_tree_node(t_token *head, int root_pos)
+{
+    t_token *curr = head;
+    int i = 0;
+    
+    /* Navigate to the root position */
+    while (i < root_pos && curr)
+    {
+        curr = curr->next;
+        i++;
+    }
+    
+    /* Create and return the node */
+    if (curr)
+    {
+        t_tree *node = malloc(sizeof(t_tree));
+        if (!node)
+            return NULL;
+        
+        node->left = NULL;
+        node->right = NULL;
+        node->type = curr->type;
+        node->cmd = strdup(curr->token);
+        node->args = NULL;
+        node->files = NULL;
+        
+        return node;
+    }
 
-		while (tmp && tmp != tail)
-		{
-			if (tmp->type == 13)
-				paren++;
-			else if (tmp->type == 14)
-				paren--;
-			if (paren == 0)
-				break;
-			tmp = tmp->next;
-		}
-		/*If the closing parenthesis is tail itself, they enclose the whole expression*/
-		if (tmp == tail)
-		{
-			head = head->next;
-			tail = tail->prev;
-			count -= 2;
-		}
-	}
-	/*Scan again: return 1 if any remaining parens*/
-	while (count--)
-	{
-		if (head->type == 13 || head->type == 14)
-			return 1;
-		head = head->next;
-	}
-	return 0;
+    return NULL;
 }
 
 /*main parsing functions that triggers all parsing mechanisms*/
@@ -179,7 +440,9 @@ t_tree	*parse_expression(t_token *head)
 		return (insert_command(head));
 	if (with_paren(head))
 		root = build_tree_paren(head);
-	else
-		root = build_tree(head);
+	// else
+	// 	root = build_tree(head);
+	root = build_tree(head);
+	return (root);
 	return (NULL);
 }
