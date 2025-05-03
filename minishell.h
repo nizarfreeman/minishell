@@ -8,7 +8,7 @@
 # include <stdbool.h>
 # include <readline/readline.h>
 # include <readline/history.h>
-
+#define SUBSHELL 13 
 typedef enum e_tokentype
 {
     WORD,
