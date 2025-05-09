@@ -11,27 +11,296 @@
 /* ************************************************************************** */
 #include "minishell.h"
 
-/*performs an initial syntax check. looks for logical operators
-in the first and last nodes, if they exist if flags a syntax error*/
-int	initial_syntax_check(t_token *head)
+int	check_start_end(t_token *head)
 {
 	t_token *tail;
-	char a[2] = "|&";
-	int	i;
-	int y;
 
+	if (!head)
+		return (1);
 	tail = head;
-	while (tail->next)
+	while (tail && tail->next)
 		tail = tail->next;
-	if (strcmp(head->token, "(") == 0) 
-		head = head->next;
-	if (strcmp(tail->token, "(") == 0)
-		tail = tail->prev;
-	i = head->type;
-	y = tail->type;
-	if (i == 15 || (i >= 2 && i <= 5))
+	if (head->type == PIPE || head->type == AND ||
+		head->type == AND_IF || head->type == OR_IF)
+	{
+		printf("syntax error near unexpected token `%s'\n", head->token);
 		return (0);
-	if (y >= 2 && y <= 5)
+	}
+	if (tail && (tail->type == PIPE || tail->type == AND ||
+		tail->type == AND_IF || tail->type == OR_IF))
+	{
+		printf("syntax error near unexpected token `newline'\n");
+		return (0);
+	}
+	return (1);
+}
+
+/*
+** check_parentheses:
+** Validates balanced parentheses and subshell syntax
+*/
+int	check_parentheses(t_token *head)
+{
+	t_token *current;
+	int     count;
+
+	count = 0;
+	current = head;
+	while (current)
+	{
+		if (current->type == OPEN_PER)
+			count++;
+		else if (current->type == CLOSE_PER)
+		{
+			count--;
+			if (count < 0)
+			{
+				printf("syntax error: unexpected closing parenthesis ')'\n");
+				return (0);
+			}
+		}
+		if (current->type == OPEN_PER && current->next &&
+			current->next->type == CLOSE_PER)
+		{
+			printf("syntax error: empty subshell ()\n");
+			return (0);
+		}
+		current = current->next;
+	}
+	if (count > 0)
+	{
+		printf("syntax error: unexpected EOF while looking for matching `)'\n");
+		return (0);
+	}
+	return (1);
+}
+
+/*
+** check_redirection_target:
+** Checks if a redirection token has a valid target
+*/
+int	check_redirection_target(t_token *redir)
+{
+	t_token *next;
+
+	if (!redir->next)
+	{
+		printf("syntax error near unexpected token `newline'\n");
+		return (0);
+	}
+	next = redir->next;
+	if (next->type == PIPE || next->type == AND || next->type == AND_IF ||
+		next->type == OR_IF || next->type == REDIRECTION_IN ||
+		next->type == REDIRECTION_OUT || next->type == APPEND ||
+		next->type == HERE_ODC || next->type == CLOSE_PER)
+	{
+		printf("syntax error near unexpected token `%s'\n", next->token);
+		return (0);
+	}
+	return (1);
+}
+
+/*
+** check_redirections:
+** Checks for ambiguous and invalid redirections
+*/
+int	check_redirections(t_token *head)
+{
+	t_token *current;
+
+	current = head;
+	while (current)
+	{
+		if (current->type == REDIRECTION_IN || current->type == REDIRECTION_OUT ||
+			current->type == APPEND || current->type == HERE_ODC)
+		{
+			if (!check_redirection_target(current))
+				return (0);
+			if ((current->type == REDIRECTION_IN ||
+				current->type == REDIRECTION_OUT) && current->next &&
+				(current->next->type == REDIRECTION_IN ||
+				current->next->type == REDIRECTION_OUT))
+			{
+				printf("syntax error: ambiguous redirection\n");
+				return (0);
+			}
+		}
+		current = current->next;
+	}
+	return (1);
+}
+
+/*
+** check_operators:
+** Validates pipe and logical operators
+*/
+int	check_operators(t_token *head)
+{
+	t_token *current;
+
+	current = head;
+	while (current)
+	{
+		if (current->type == PIPE || current->type == AND ||
+			current->type == AND_IF || current->type == OR_IF)
+		{
+			if (current->next && (current->next->type == PIPE ||
+				current->next->type == AND || current->next->type == AND_IF ||
+				current->next->type == OR_IF))
+			{
+				printf("syntax error near unexpected token `%s'\n",
+					current->next->token);
+				return (0);
+			}
+			if (current->next && current->next->type == CLOSE_PER)
+			{
+				printf("syntax error near unexpected token `)'\n");
+				return (0);
+			}
+			if (!current->next)
+			{
+				printf("syntax error near unexpected token `newline'\n");
+				return (0);
+			}
+		}
+		current = current->next;
+	}
+	return (1);
+}
+
+/*
+** check_assignments:
+** Validates assignment syntax
+*/
+int	check_assignments(t_token *head)
+{
+	t_token *current;
+
+	current = head;
+	while (current)
+	{
+		if (current->type == ASSIGN)
+		{
+			if (current == head && (current->prev == NULL ||
+				(current->prev->type != WORD && !current->prev->quoted)))
+			{
+				printf("syntax error near unexpected token `='\n");
+				return (0);
+			}
+			if (!current->next)
+			{
+				printf("syntax error near unexpected token `newline'\n");
+				return (0);
+			}
+		}
+		current = current->next;
+	}
+	return (1);
+}
+
+/*
+** check_heredoc:
+** Validates here-document syntax
+*/
+int	check_heredoc(t_token *head)
+{
+	t_token *current;
+
+	current = head;
+	while (current)
+	{
+		if (current->type == HERE_ODC)
+		{
+			if (!current->next)
+			{
+				printf("syntax error: missing delimiter for here-document\n");
+				return (0);
+			}
+			if (current->next->type != WORD && current->next->type != S_QUOTE &&
+				current->next->type != D_QUOTE)
+			{
+				printf("syntax error near unexpected token `%s'\n",
+					current->next->token);
+				return (0);
+			}
+		}
+		current = current->next;
+	}
+	return (1);
+}
+
+/*
+** is_command_token:
+** Helper function to check if token can start a command
+*/
+int	is_command_token(t_token *token)
+{
+	return (token->type == WORD ||
+		(token->type >= BUILTIN_ECHO && token->type <= BUILTIN_EXIT) ||
+		token->type == OPEN_PER);
+}
+
+/*
+** check_cmd_sequences:
+** Validates command sequences
+*/
+int	check_cmd_sequences(t_token *head)
+{
+	t_token *current;
+	int     expect_cmd;
+	int     found_cmd;
+
+	current = head;
+	expect_cmd = 1;
+	found_cmd = 0;
+	while (current)
+	{
+		if (current->type == PIPE || current->type == AND_IF ||
+			current->type == OR_IF)
+		{
+			expect_cmd = 1;
+			found_cmd = 0;
+		}
+		if (expect_cmd && is_command_token(current))
+		{
+			expect_cmd = 0;
+			found_cmd = 1;
+		}
+		if (current->type == REDIRECTION_IN || current->type == REDIRECTION_OUT ||
+			current->type == APPEND || current->type == HERE_ODC)
+		{
+			if (current->next)
+				current = current->next;
+		}
+		current = current->next;
+	}
+	if (expect_cmd && !found_cmd)
+	{
+		printf("syntax error: incomplete command\n");
+		return (0);
+	}
+	return (1);
+}
+
+/*
+** initial_syntax_check:
+** Main function for syntax validation
+*/
+int initial_syntax_check(t_token *head)
+{
+	if (!check_start_end(head))
+		return (0);
+	if (!check_parentheses(head))
+		return (0);
+	if (!check_redirections(head))
+		return (0);
+	if (!check_operators(head))
+		return (0);
+	if (!check_assignments(head))
+		return (0);
+	if (!check_heredoc(head))
+		return (0);
+	if (!check_cmd_sequences(head))
 		return (0);
 	return (1);
 }
@@ -106,7 +375,7 @@ t_tree	*insert_command(t_token *head)
 	return (new_node);
 }
 
-int get_root_pos(t_token *head)
+int	get_root_pos(t_token *head)
 {
 	t_token *curr = head;
 	int position = 0;
@@ -124,16 +393,19 @@ int get_root_pos(t_token *head)
 		{
 			int curr_precedence = 100;
 
-			if (curr->type == OR_IF || curr->type == AND_IF)
+			if (curr->type == OR_IF)
 				curr_precedence = 1;
+			else if (curr->type == AND_IF)
+				curr_precedence = 2;
 			else if (curr->type == PIPE)
 				curr_precedence = 3;
-			else if (curr->type == REDIRECTION_OUT || curr->type == REDIRECTION_IN
-						|| curr->type == APPEND || curr->type == HERE_ODC)
-						curr_precedence = 4;
+			else if (curr->type == REDIRECTION_OUT || curr->type == REDIRECTION_IN ||
+				curr->type == APPEND || curr->type == HERE_ODC)
+				curr_precedence = 4;
 			if (curr_precedence < 100)
 			{
-				if (curr_precedence <= lowest_precedence)
+				if (curr_precedence < lowest_precedence ||
+					(curr_precedence == lowest_precedence && curr_precedence <= 3))
 				{
 					lowest_precedence = curr_precedence;
 					root_position = position;
@@ -143,10 +415,38 @@ int get_root_pos(t_token *head)
 		curr = curr->next;
 		position++;
 	}
-	return (root_position);
+	return root_position;
 }
 
-// /*extracts the root token*/
+int	is_enclosed_in_parentheses(t_token *head)
+{
+	if (!head || !head->next)
+		return 0;
+
+	t_token *first = head;
+	t_token *last = head;
+	while (last->next)
+		last = last->next;
+	if (first->type != OPEN_PER || last->type != CLOSE_PER)
+		return 0;
+	int level = 1;
+	t_token *curr = first->next;
+	while (curr != last)
+	{
+		if (curr->type == OPEN_PER)
+			level++;
+		else if (curr->type == CLOSE_PER)
+		{
+			level--;
+			if (level == 0 && curr != last)
+				return 0;
+		}
+		curr = curr->next;
+	}
+	return (level == 1);
+}
+
+/*extracts the root token*/
 t_tree *root(t_token *head, int root_pos)
 {
 	t_tree *new_node;
@@ -170,19 +470,16 @@ t_tree *root(t_token *head, int root_pos)
 	return (new_node);
 }
 
-/* Helper function to free the tree */
+/* function to free the tree */
 void	free_tree(t_tree *root)
 {
 	if (!root)
 		return;
 
-	/* Free subtrees recursively */
 	free_tree(root->left);
 	free_tree(root->right);
-	/* Free node contents */
 	if (root->cmd)
 		free(root->cmd);
-	/* Free arguments array */
 	if (root->args)
 	{
 		int i = 0;
@@ -193,179 +490,131 @@ void	free_tree(t_tree *root)
 		}
 		free(root->args);
 	}
-	/* Free files list if implemented */
-	/* TODO: Implement file list freeing if needed */
-	/* Free the node itself */
 	free(root);
 }
 
+t_token	*deep_copy_tokens(t_token *start, t_token *end)
+{
+	t_token *result = NULL;
+	t_token *current = start;
+
+	while (current && current != end)
+	{
+		if (!add_token(&result, strdup(current->token), current->type, 
+			current->quoted, current->space_after))
+		{
+			free_token_list(&result);
+			return NULL;
+		}
+		current = current->next;
+	}
+	return result;
+}
+
+// Improved parenthesis content extraction
+t_token	*extract_paren_content(t_token *head)
+{
+	if (!head || head->type != OPEN_PER)
+		return (NULL);
+
+	t_token *start = head->next;
+	t_token *end = head;
+	int paren_level = 1;
+    
+	while (end->next)
+	{
+		end = end->next;
+		if (end->type == OPEN_PER)
+			paren_level++;
+		else if (end->type == CLOSE_PER)
+		{
+			paren_level--;
+			if (paren_level == 0)
+				break;
+		}
+	}
+	if (paren_level != 0)
+		return NULL;
+	return (deep_copy_tokens(start, end));
+}
+
+// Completely revised build_tree function with careful memory management
 t_tree	*build_tree(t_token *head)
 {
-	t_tree	*node;
+	t_tree *node = NULL;
 	int root_pos;
-	t_token	*left_tokens = NULL;
-	t_token	*right_tokens = NULL;
-	int	i;
 
-	/* Base case: empty token list */
 	if (!head)
 		return (NULL);
-	/* If command is simple (no operators), create a command node */
+	if (is_enclosed_in_parentheses(head))
+	{
+		t_token *inner_tokens = extract_paren_content(head);
+		if (inner_tokens)
+		{
+			node = build_tree(inner_tokens);
+			free_token_list(&inner_tokens);
+			return (node);
+		}
+	}
 	if (is_simple(head))
 		return (insert_command(head));
-	/* Find the root operator with the lowest precedence */
 	root_pos = get_root_pos(head);
-	/* If no operator found (should not happen if syntax check passed) */
 	if (root_pos == -1)
 		return (NULL);
-	/* Create the root node for the current operator */
 	node = root(head, root_pos);
 	if (!node)
 		return (NULL);
-	/* Build left side tokens */
-	i = 0;
+	t_token *left_side = NULL;
+	t_token *right_side = NULL;
+
 	t_token *curr = head;
-	while (i < root_pos)
+	for (int i = 0; i < root_pos && curr; i++)
 	{
-		if (!add_token(&left_tokens, curr->token, curr->type, curr->quoted, curr->space_after))
+		if (!add_token(&left_side, strdup(curr->token), curr->type,
+			curr->quoted, curr->space_after))
 		{
-			/* Free everything and return NULL on error */
 			free_tree(node);
-			free_token_list(&left_tokens);
+			free_token_list(&left_side);
 			return (NULL);
 		}
 		curr = curr->next;
-		i++;
 	}
-	/* Skip the root operator */
 	curr = curr->next;
-	/* Build right side tokens */
 	while (curr)
 	{
-		if (!add_token(&right_tokens, curr->token, curr->type, curr->quoted, curr->space_after))
+		if (!add_token(&right_side, strdup(curr->token), curr->type,
+			curr->quoted, curr->space_after))
 		{
-			/* Free everything and return NULL on error */
 			free_tree(node);
-			free_token_list(&left_tokens);
-			free_token_list(&right_tokens);
+			free_token_list(&left_side);
+			free_token_list(&right_side);
 			return (NULL);
 		}
 		curr = curr->next;
 	}
-	/* Recursively build left subtree if there are tokens */
-	if (left_tokens)
-		node->left = build_tree(left_tokens);
-	else
-		node->left = NULL;
-	/* Recursively build right subtree if there are tokens */
-	if (right_tokens)
-		node->right = build_tree(right_tokens);
-	else
-		node->right = NULL;
-
-	/* Check if both subtrees were created successfully when needed */
-	if ((left_tokens && !node->left) || (right_tokens && !node->right))
+	if (left_side)
+	{
+		node->left = build_tree(left_side);
+		free_token_list(&left_side);
+	}
+	if (right_side)
+	{
+		node->right = build_tree(right_side);
+		free_token_list(&right_side);
+	}
+	if ((node->type == PIPE && (!node->left || !node->right)) ||
+		((node->type == AND_IF || node->type == OR_IF) && !node->right))
 	{
 		free_tree(node);
-		return NULL;
+		return (NULL);
 	}
 	return (node);
-}
-
-/* Handle parenthesized expressions */
-t_tree	*build_tree_paren(t_token *head)
-{
-	t_token *inner_tokens = NULL;
-	t_token *curr = head;
-	int paren_level = 0;
-	/* Skip opening parenthesis */
-	if (curr && curr->type == OPEN_PER)
-	{
-		curr = curr->next;
-		paren_level = 1;       
-		/* Extract tokens inside parentheses */
-		while (curr)
-		{
-			if (curr->type == OPEN_PER)
-				paren_level++;
-			else if (curr->type == CLOSE_PER)
-			{
-				paren_level--;
-				if (paren_level == 0)
-				break;  /* Found matching closing parenthesis */
-			}
-			/* Copy token to inner_tokens */
-			if (!add_token(&inner_tokens, curr->token, curr->type, curr->quoted, curr->space_after))
-			{
-				free_token_list(&inner_tokens);
-				return NULL;
-			}
-			curr = curr->next;
-		}
-		/* Recursively parse the contents within parentheses */
-		if (inner_tokens)
-			return build_tree(inner_tokens);
-	}
-	/* If not properly enclosed in parentheses, fall back to regular parsing */
-	return build_tree(head);
-}
-
-/* Helper function to check if token list starts with parenthesis */
-int	with_paren(t_token *head)
-{
-	if (!head)
-		return 0;
-	return (head->type == OPEN_PER);
-}
-
-/* Helper function to add a tree node */
-t_tree	*add_tree_node(t_token *head, int root_pos)
-{
-	t_token *curr = head;
-	int i = 0;
-
-	/* Navigate to the root position */
-	while (i < root_pos && curr)
-	{
-		curr = curr->next;
-		i++;
-	}
-	/* Create and return the node */
-	if (curr)
-	{
-		t_tree *node = malloc(sizeof(t_tree));
-		if (!node)
-			return NULL;
-
-		node->left = NULL;
-		node->right = NULL;
-		node->type = curr->type;
-		node->cmd = strdup(curr->token);
-		node->args = NULL;
-		node->files = NULL;
-		return node;
-	}
-	return NULL;
 }
 
 /*main parsing functions that triggers all parsing mechanisms*/
 t_tree	*parse_expression(t_token *head)
 {
-	t_tree *root;
-
-	root = NULL;
 	if (!initial_syntax_check(head))
-	{
-		printf("minishell: syntax error\n");
 		return (NULL);
-	}
-	if (is_simple(head))
-		return (insert_command(head));
-	if (with_paren(head))
-		root = build_tree_paren(head);
-	// else
-	// 	root = build_tree(head);
-	root = build_tree(head);
-	return (root);
-	return (NULL);
-}`
+	return (build_tree(head));
+}

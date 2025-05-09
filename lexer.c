@@ -36,7 +36,6 @@ int ft_is_quote(int c)
     return (c == '\'' || c == '\"');
 }
 
-/* Compute length of string */
 size_t ft_strlen(char *s)
 {
     size_t len = 0;
@@ -100,22 +99,17 @@ int handle_quotes(char *s, int i, t_token **head)
     int start = i;
     int space = 0;
     
-    /* Skip until matching closing quote or end of string */
     while (s[i] && s[i] != quote)
         i++;
-    /*check for space after token*/
     if (ft_isspace(s[i + 1]))
         space = 1;
-    /* Create token from quoted content */
     char *token = ft_strndup(&s[start], i - start);
-    /*add_token(head, token, (quote == '\'' ? S_QUOTE : D_QUOTE), 1);*/
     int type;
     if (quote == '\'')
         type = S_QUOTE;
     else
         type = D_QUOTE;
     add_token(head, token, type, 1, space);
-    /* Move past closing quote if present */
     if (s[i] == quote)
         i++;
     return i;
@@ -254,7 +248,6 @@ int handle_dollar(char *s, int i, t_token **head)
 {
     int space = 0;
 
-    /* Check for $? (exit status) */
     if (s[i + 1] == '?')
     {
         if (ft_isspace(s[i + 2]))
@@ -266,7 +259,6 @@ int handle_dollar(char *s, int i, t_token **head)
     {
         if (ft_isspace(s[i + 1]))
             space = 1;
-        /* Regular environment variable - just mark the $ */
         add_token(head, strdup("$"), DOLLAR, 0, space);
         return i + 1;
     }
@@ -278,16 +270,12 @@ int handle_word(char *s, int i, t_token **head)
     int start = i;
     int space = 0;
 
-    /* Keep going until we hit a special character or whitespace */
     while (s[i] && !ft_isspace(s[i]) && !ft_is_operator_char(s[i]) && 
            !ft_is_quote(s[i]) && s[i] != '$')
         i++;
     if (ft_isspace(s[i]))
         space = 1;
-    /* Create token from characters */
     char *token = ft_strndup(&s[start], i - start);
-    
-    /* Check if this is a built-in command */
     if (strcmp(token, "echo") == 0)
         add_token(head, token, BUILTIN_ECHO, 0, space);
     else if (strcmp(token, "cd") == 0)
@@ -308,58 +296,37 @@ int handle_word(char *s, int i, t_token **head)
     return (i);
 }
 
-/*
- * tokenize_input:
- * Tokenizes the complete input string into individual tokens.
- * Handles all types of tokens defined in the minishell.h
- */
 void tokenize_input(char *s, t_token **head)
 {
     int i = 0;
 
     while (s[i])
     {
-        /* Skip whitespace */
         if (ft_isspace(s[i]))
             i++;
-        /* Handle quoted strings */
         else if (ft_is_quote(s[i]))
             i = handle_quotes(s, i, head);
-        /* Handle parentheses (for bonus) */
         else if (s[i] == '(' || s[i] == ')')
             i = handle_parentheses(s, i, head);
-        /* Handle AND operator */
         else if (s[i] == '&')
             i = handle_and_operator(s, i, head);
-        /* Handle OR and PIPE operators */
         else if (s[i] == '|')
             i = handle_or_pipe_operator(s, i, head);
-        /* Handle output redirection */
         else if (s[i] == '>')
             i = handle_output_redirection(s, i, head);
-        /* Handle input redirection */
         else if (s[i] == '<')
             i = handle_input_redirection(s, i, head);
-        /* Handle assignment operator */
         else if (s[i] == '=')
             i = handle_assignment(s, i, head);
-        /* Handle wildcard */
         else if (s[i] == '*')
             i = handle_wildcard(s, i, head);
-        /* Handle dollar sign (environment vars and exit status) */
         else if (s[i] == '$')
             i = handle_dollar(s, i, head);
-        /* Handle regular words */
         else
             i = handle_word(s, i, head);
     }
 }
-  
-/*
- * lexer:
- * Creates the token list by calling the tokenizer.
- * Then prints and frees the list.
- */
+
 t_token *lexer(char *s)
 {
     t_token *head = NULL;

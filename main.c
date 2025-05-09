@@ -20,8 +20,6 @@ int check_partner(char *s, char c, int i)
 	return (-1);
 }
 
-/*this function checks if quotes are matching meanign every quote have
-a closing quote*/
 int check_quotes(char *s)
 {
 	int i = 0;
@@ -44,57 +42,20 @@ int check_quotes(char *s)
 	return (1);
 }
 
-/*this functions checks for parenthesis matching meaning every opening parenthesis should
-have a closing parenthesis*/
-int	check_parentheses(const char *text)
-{
-	int		stack_size;
-	char	*stack;
-	int		top;
-	int		i;
-
-	stack_size = strlen(text);
-	stack = (char *)malloc(stack_size * sizeof(char));
-	if (!stack)
-		return (0);
-	top = -1;
-	i = 0;
-	while (text[i] != '\0')
-	{
-		if (text[i] == '(')
-			stack[++top] = text[i];
-		else if (text[i] == ')')
-		{
-			if (top < 0)
-			{
-				free(stack);
-				return (0);
-			}
-			top--;
-		}
-		i++;
-	}
-	free(stack);
-	return (top == -1);
-}
-
 int	grab_main_level(t_token *head)
 {
 	t_token *tail = head;
 	int count = 1;
 
-	/*Find tail and count nodes*/
 	while (tail->next)
 	{
 		tail = tail->next;
 		count++;
 	}
-	/*Try skipping one outer pair of parentheses*/
-	if (head->type == 13 && tail->type == 14) // 13 = '(', 14 = ')'
+	if (head->type == 13 && tail->type == 14)
 	{
 		t_token *tmp = head->next;
 		int paren = 1;
-
 		while (tmp && tmp != tail)
 		{
 			if (tmp->type == 13)
@@ -105,7 +66,6 @@ int	grab_main_level(t_token *head)
 				break;
 			tmp = tmp->next;
 		}
-		/*If the closing parenthesis is tail itself, they enclose the whole expression*/
 		if (tmp == tail)
 		{
 			head = head->next;
@@ -113,7 +73,6 @@ int	grab_main_level(t_token *head)
 			count -= 2;
 		}
 	}
-	/*Scan again: return 1 if any remaining parens*/
 	while (count--)
 	{
 		if (head->type == 13 || head->type == 14)
@@ -122,49 +81,6 @@ int	grab_main_level(t_token *head)
 	}
 	return 0;
 }
-
-// int get_root(t_token *head)
-// {
-// 	t_token *curr = head;
-// 	int position = 0;
-// 	int root_position = -1;
-// 	int paren_level = 0;
-// 	int lowest_precedence = 100;
-
-// 	while (curr)
-// 	{
-// 		if (curr->type == OPEN_PER)
-// 			paren_level++;
-// 		else if (curr->type == CLOSE_PER)
-// 			paren_level--;
-// 		if (paren_level == 0)
-// 		{
-// 			int curr_precedence = 100;
-
-// 			if (curr->type == OR_IF)
-// 				curr_precedence = 1;
-// 			else if (curr->type == AND_IF)
-// 				curr_precedence = 2;
-// 			else if (curr->type == PIPE)
-// 				curr_precedence = 3;
-// 			else if (curr->type == REDIRECTION_OUT || curr->type == REDIRECTION_IN
-// 						|| curr->type == APPEND || curr->type == HERE_ODC)
-// 						curr_precedence = 4;
-			
-// 			if (curr_precedence < 100)
-// 			{
-// 				if (curr_precedence <= lowest_precedence)
-// 				{
-// 					lowest_precedence = curr_precedence;
-// 					root_position = position;
-// 				}
-// 			}
-// 		}
-// 		curr = curr->next;
-// 		position++;
-// 	}
-// 	return (root_position);
-// }
 
 int main(int argc, char const *argv[])
 {
@@ -184,13 +100,7 @@ int main(int argc, char const *argv[])
 			add_history(s);
 		if (!check_quotes(s))
 		{
-			printf("Error!syntax error: unclosed quote !\n");
-			free(s);
-			continue ;
-		}
-		if (!check_parentheses(s))
-		{
-			printf("Error! syntax error: unclosed prentheses!\n");
+			printf("Error! syntax error: unclosed quote !\n");
 			free(s);
 			continue ;
 		}
