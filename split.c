@@ -46,38 +46,6 @@ static int count_words(const char *s, const char *delim)
 	return (count);
 }
 
-
-/*static int	count_words(const char *s, const char *delim)
-{
-	int count = 0, flag = 0, in_quote = 0;
-	char quote_char = 0;
-
-	if (!s || !delim)
-		return (0);
-	while (*s)
-	{
-		if ((*s == '\'' || *s == '\"') && (!in_quote || *s == quote_char))
-		{
-			in_quote = !in_quote;
-			quote_char = in_quote ? *s : 0;
-			if (!flag && in_quote)
-			{
-				flag = 1;
-				count++;
-			}
-		}
-		else if (!in_quote && ft_strchr_custom(delim, *s))
-			flag = 0;
-		else if (!flag)
-		{
-			flag = 1;
-			count++;
-		}
-		s++;
-	}
-	return (count);
-}*/
-
 static int get_len(const char *s, const char *delim)
 {
 	int i = 0, in_quote = 0;
@@ -96,37 +64,6 @@ static int get_len(const char *s, const char *delim)
 	}
 	return (i);
 }
-
-
-/*static int	get_len(const char *s, const char *delim)
-{
-	int i = 0, in_quote = 0;
-	char quote_char = 0;
-
-	while (s[i])
-	{
-		if ((s[i] == '\'' || s[i] == '\"') && (!in_quote || s[i] == quote_char))
-		{
-			in_quote = !in_quote;
-			quote_char = in_quote ? s[i] : 0;
-			if (!in_quote)
-			{
-				i++;
-				if (s[i] && !ft_strchr_custom(delim, s[i]))
-				{
-					while (s[i] && !ft_strchr_custom(delim, s[i]) && 
-						s[i] != '\'' && s[i] != '\"')
-						i++;
-				}
-				break ;
-			}
-		}
-		else if (!in_quote && ft_strchr_custom(delim, s[i]))
-			break ;
-		i++;
-	}
-	return (i);
-}*/
 
 static void	free_array(char **arr)
 {

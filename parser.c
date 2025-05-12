@@ -372,6 +372,7 @@ t_tree	*insert_command(t_token *head)
 	new_node->cmd = strdup(head->token);
 	new_node->args = get_args(head);
 	new_node->files = NULL;
+	new_node->fd = -1;
 	return (new_node);
 }
 
@@ -382,6 +383,7 @@ int	get_root_pos(t_token *head)
 	int root_position = -1;
 	int paren_level = 0;
 	int lowest_precedence = 100;
+	int is_redirection = 0;
 
 	while (curr)
 	{
@@ -392,23 +394,29 @@ int	get_root_pos(t_token *head)
 		if (paren_level == 0)
 		{
 			int curr_precedence = 100;
-
-			if (curr->type == OR_IF)
+			int curr_is_redirection = 0;
+			if (curr->type == OR_IF || curr->type == AND_IF)
 				curr_precedence = 1;
-			else if (curr->type == AND_IF)
-				curr_precedence = 2;
+			// else if (curr->type == AND_IF)
+			// 	curr_precedence = 2;
 			else if (curr->type == PIPE)
 				curr_precedence = 3;
 			else if (curr->type == REDIRECTION_OUT || curr->type == REDIRECTION_IN ||
 				curr->type == APPEND || curr->type == HERE_ODC)
+			{
 				curr_precedence = 4;
+				curr_is_redirection = 1;
+			}
 			if (curr_precedence < 100)
 			{
 				if (curr_precedence < lowest_precedence ||
-					(curr_precedence == lowest_precedence && curr_precedence <= 3))
+					(curr_precedence == lowest_precedence &&
+					((curr_precedence <= 3) ||
+					(curr_is_redirection && curr_is_redirection == is_redirection))))
 				{
 					lowest_precedence = curr_precedence;
 					root_position = position;
+					is_redirection = curr_is_redirection;
 				}
 			}
 		}
@@ -520,7 +528,7 @@ t_token	*extract_paren_content(t_token *head)
 	t_token *start = head->next;
 	t_token *end = head;
 	int paren_level = 1;
-    
+
 	while (end->next)
 	{
 		end = end->next;
@@ -538,7 +546,6 @@ t_token	*extract_paren_content(t_token *head)
 	return (deep_copy_tokens(start, end));
 }
 
-// Completely revised build_tree function with careful memory management
 t_tree	*build_tree(t_token *head)
 {
 	t_tree *node = NULL;
