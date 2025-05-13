@@ -1,33 +1,31 @@
-CC = gcc
-C_FLAGS = -g
-LIBS = -lreadline
-NAME = minishell
-HEADER = minishell.h
-OBJ_DIR = obj
-SRCS = main.c\
-        split.c\
-        lexer.c\
-        token_list.c\
-        parser.c\
-		print_tree.c
-OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.c=.o))
+CC       = cc
+C_FLAGS  = -g -I. -I pars -Wall -Wextra -Werror
+LIBS     = -lreadline
+NAME     = minishell
+OBJ_DIR  = obj
+
+PARS_SRC := $(wildcard pars/*.c)
+EXC_SRC  := $(filter-out exc/main.c, $(wildcard exc/*.c))
+SRCS     := main.c $(PARS_SRC) $(EXC_SRC)
+
+OBJS := $(SRCS:%.c=$(OBJ_DIR)/%.o)
 
 all: $(NAME)
 
-$(OBJ_DIR):
-	mkdir -p $(OBJ_DIR)
-
-$(OBJ_DIR)/%.o: %.c $(HEADER) | $(OBJ_DIR)
+# pattern rule: any %.c → obj/%.o
+$(OBJ_DIR)/%.o: %.c
+	@mkdir -p $(dir $@)
 	$(CC) $(C_FLAGS) -c $< -o $@
 
+# link
 $(NAME): $(OBJS)
-	$(CC) $(C_FLAGS) $(OBJS) $(LIBS) -o $(NAME)
+	$(CC) $(C_FLAGS) $(OBJS) $(LIBS) -o $@
 
 clean:
 	rm -rf $(OBJ_DIR)
 
 fclean: clean
-	rm -rf $(NAME)
+	rm -f $(NAME)
 
 re: fclean all
 

@@ -1,12 +1,16 @@
-#include "minishell.h"
+#include "pars/minishell.h"
+#include "exc/s.h"
 
-void	signal_handler(int signal, siginfo_t *info, void *oldact)
-{
-	printf("\n");
-	rl_replace_line("", 0);
-    rl_on_new_line();
-    rl_redisplay();
-}
+// void	signal_handler(int signal, siginfo_t *info, void *oldact)
+// {
+// 	(void)signal;
+// 	(void)info;
+// 	(void)(oldact);
+// 	printf("\n");
+// 	rl_replace_line("", 0);
+//     rl_on_new_line();
+//     rl_redisplay();
+// }
 
 int check_partner(char *s, char c, int i)
 {
@@ -82,20 +86,27 @@ int	grab_main_level(t_token *head)
 	return 0;
 }
 
-int main(int argc, char const *argv[])
+int main(int argc, char const *argv[], char **envr)
 {
-	struct sigaction sa;
+	(void)argc;
+	(void)argv;
 	t_token *head = NULL;
 	t_tree *root;
+	env *env = creat_env(envr);
+	sig_han = 0;
+	signal(SIGQUIT, SIG_IGN);
+	signal(SIGINT, handle_int);
 
-	sa.sa_sigaction = signal_handler;
-	sa.sa_flags = SA_SIGINFO | SA_RESTART;
-	sigaction(SIGINT, &sa, NULL);
 	while (1)
 	{
+		sig_han = 1;
 		char *s = readline("$ ");
+		sig_han = 0;
 		if (!s)
-			break ;
+		{
+			write(1, "exit\n", 5);
+			exit(1);
+		}
 		if (*s)
 			add_history(s);
 		if (!check_quotes(s))
@@ -106,12 +117,13 @@ int main(int argc, char const *argv[])
 		}
 		head = lexer(s);
 		root = parse_expression(head);
-		print_token_list(&head);
+		//print_token_list(&head);
 		if (root)
 		{
 			printf("\n\n");
-			//print_tree(root);
+			// print_tree(root);
     		print_ast(root);
+			exec_tree(root, &env);
 			free_token_list(&head);
 		}
 		free(s);
@@ -120,3 +132,4 @@ int main(int argc, char const *argv[])
 	rl_clear_history();
 	return (0);
 }
+// cat ctrl C
