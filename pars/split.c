@@ -108,7 +108,7 @@ char	**split(const char *s, const char *delim)
 			return (NULL);
 		}
 		y = 0;
-		while (y < (size_t)len)
+		while (y < len)
 			res[i][y++] = *s++;
 		res[i++][y] = '\0';
 	}
