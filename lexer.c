@@ -327,13 +327,73 @@ void tokenize_input(char *s, t_token **head)
     }
 }
 
+int count_args(t_token *head)
+{
+    int i = 0;
+    t_token *current = head->next->next;
+    
+    while (current && (current->type == 0 || current->type >= 18))
+    {
+        i++;
+        current = current->next;
+    }
+    return (i);
+}
+
+void move_args(t_token **head)
+{
+    int args_count = count_args(*head);
+    if (args_count == 0)
+        return;
+    
+    t_token *redir_node = *head;
+    t_token *file_node = redir_node->next;
+    t_token *first_arg = file_node->next;
+    t_token *last_arg = first_arg;
+    t_token *after_args;
+    for (int i = 1; i < args_count; i++)
+        last_arg = last_arg->next;
+    after_args = last_arg->next;
+    file_node->next = after_args;
+    if (after_args)
+        after_args->prev = file_node;
+    t_token *before_redir = redir_node->prev;
+    first_arg->prev = before_redir;
+    last_arg->next = redir_node;
+    if (before_redir)
+        before_redir->next = first_arg;
+    else
+        *head = first_arg;
+    redir_node->prev = last_arg;
+}
+
+void revise_redirections(t_token **head)
+{
+    t_token *current = *head;
+    t_token *next;
+    
+    while (current)
+    {
+        next = current->next;
+        
+        if (current->type >= 6 && current->type <= 9 && current->next)
+        {
+            t_token *temp_head = current;
+            move_args(&temp_head);
+            if (temp_head != current && current == *head)
+                *head = temp_head;
+        }
+        
+        current = next;
+    }
+}
+
 t_token *lexer(char *s)
 {
     t_token *head = NULL;
     
     tokenize_input(s, &head);
+    revise_redirections(&head);
+    //print_token_list(&head);
     return (head);
-
-    /*print_token_list(&head);
-    free_token_list(&head);*/
 }
