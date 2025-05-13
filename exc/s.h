@@ -53,3 +53,5 @@ long long	ft_atoi(const char *str);
 int excute_cmd(char **cmd, env **env, int fd_in);
 int exce_pipe(t_tree *root, env **env);
 void handle_int(int sig);
+char **lst_to_arr2(env *env);
+char **lst_to_arr(env *env);

@@ -1,5 +1,5 @@
 CC       = cc
-C_FLAGS  = -g -I. -I pars -Wall -Wextra -Werror
+C_FLAGS  = -g -I. -I pars 
 LIBS     = -lreadline
 NAME     = minishell
 OBJ_DIR  = obj

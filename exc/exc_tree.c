@@ -27,9 +27,6 @@ int exec_tree(t_tree *root, env **env)
 }
 int pipe_left(t_tree *root, env **env, int  *fds)
 {
-	// unlink("pipe");
-	// int tmp;
-	// tmp = dup(STDOUT_FILENO);
 	pid_t pid;
 	int ex = 1;
 

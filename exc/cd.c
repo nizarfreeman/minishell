@@ -46,22 +46,10 @@ int echo(char **str)
 		str++;
 	while (*str)
 	{
+		// printf("\n", *str);
 		write(1, *str, ft_strlen(*str));
-		// printf("%s", *str);
 		if (*(str + 1))
-			printf(" ");
-	// if(*str && !echo_option(*str))
-	// {
-	// 	if(str[1])
-	// 		printf("%s", str[1]);
-	// }
-	// else
-	// {
-	// 	if (*str)
-	// 		printf("%s", *str);
-	// 	else
-	// 		printf("\n");
-	// }
+			write(1, " ", 1);
 	str++;	
 	}
 	if(opt)
