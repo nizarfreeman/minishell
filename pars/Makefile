@@ -18,10 +18,10 @@ $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
 $(OBJ_DIR)/%.o: %.c $(HEADER) | $(OBJ_DIR)
-	$(CC) $(C_FLAGS) -c $< -o $@
+	@ $(CC) $(C_FLAGS) -c $< -o $@
 
 $(NAME): $(OBJS)
-	$(CC) $(C_FLAGS) $(OBJS) $(LIBS) -o $(NAME)
+	 @ $(CC) $(C_FLAGS) $(OBJS) $(LIBS) -o $(NAME)
 
 clean:
 	rm -rf $(OBJ_DIR)

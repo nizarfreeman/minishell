@@ -120,9 +120,9 @@ int main(int argc, char const *argv[], char **envr)
 		//print_token_list(&head);
 		if (root)
 		{
-			printf("\n\n");
+			// printf("\n\n");
 			// print_tree(root);
-    		print_ast(root);
+    		// print_ast(root);
 			exec_tree(root, &env);
 			free_token_list(&head);
 		}
