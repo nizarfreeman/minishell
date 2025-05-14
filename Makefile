@@ -4,7 +4,7 @@ LIBS     = -lreadline
 NAME     = minishell
 OBJ_DIR  = obj
 
-PARS_SRC := $(wildcard pars/*.c)
+PARS_SRC := $(filter-out pars/main.c, $(wildcard pars/*.c))
 EXC_SRC  := $(filter-out exc/main.c, $(wildcard exc/*.c))
 SRCS     := main.c $(PARS_SRC) $(EXC_SRC)
 

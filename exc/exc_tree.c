@@ -40,17 +40,26 @@ int pipe_left(t_tree *root, env **env, int  *fds)
 		exit(ex);
 	}
 	close(fds[1]);
-	return ex;
+	return pid;
 }
 int exce_pipe(t_tree *root, env **env)
 {
 	int fds[2];
 	int ex;
 	pipe(fds);
+	int left_pid;
 
 	root->right->fd = fds[0];
-	pipe_left(root->left, env, fds);
-	ex = exec_tree(root->right, env);
-	wait(&ex);
+	left_pid = pipe_left(root->left, env, fds);
+	int pid = fork();
+	if (pid == 0)
+	{
+		ex = exec_tree(root->right, env);
+		exit(ex);
+	}
+	close(fds[0]);
+	waitpid(left_pid, &ex, 0);
+	waitpid(pid, &ex, 0);
+	
 	return ex; 
 }

@@ -121,16 +121,8 @@ int export2(char *arg ,env **envr)
 		tmp = get_value(*envr, spl[0]);
 		if (tmp == NULL)
 		{
-			printf("here\n");
-			// if (!ft_strcmp(spl[0], "PWD"))
-			// {
-			// 	tmp = ft_strjoin(ft_strdup(spl[0]), ft_strjoin(ft_strdup("="), getcwd(NULL, 0)));
-			// 	ft_lstnew(envr, tmp, 1);
-			// }
-			// else
 			ft_lstnew(envr, spl[0], 0);
 			free(tmp);
-			// free2d(spl);
 			return 0;
 		}
 	}
@@ -169,9 +161,11 @@ char **sort_arr(char **arr)
 
 void print_export(char **arr)
 {
+	char **s;
 	while (*arr)
 	{
-		printf("declare -x %s\n", *arr);
+		s = export_split(*arr);
+		printf("declare -x %s\"%s\"\n", *s, s[1]);
 		// write(1,"declare -x ", 11);
 		// write(1, *arr, ft_strlen(*arr));
 		// write(1,"\n", 1);

@@ -41,12 +41,12 @@ int echo_option(char *str)
 
 int echo(char **str)
 {
+
 	int opt = echo_option(*str);
-	if (!opt)
+	while(!echo_option(*str))
 		str++;
 	while (*str)
 	{
-		// printf("\n", *str);
 		write(1, *str, ft_strlen(*str));
 		if (*(str + 1))
 			write(1, " ", 1);
@@ -139,15 +139,15 @@ void search_replace(env *env, char *key, char *rep)
 	char *tmp;
 
 	tmp = ft_strjoin(ft_strdup(key), ft_strdup("="));
-	while (env && ft_strcmp(key, env->value) && ft_strncmp(env->value, key, ft_strlen(key)))
+	while (env && ft_strcmp(key, env->value) && ft_strncmp(env->value, tmp, ft_strlen(tmp)))
 		env = env->next;
 	// printf("%s\n", env->value);
 	if (!env)
 	{
-		free(tmp);
+		// free(tmp);
 		return ;
 	}
-	free(env->value);
+	// free(env->value);
 	env->value = NULL;
 	env->value = ft_strjoin(tmp, rep);
 	env->f = 1;
