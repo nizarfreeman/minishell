@@ -393,24 +393,32 @@ void revise_args(t_token **head)
     
     while (current)
     {
-        // Check if this token needs joining
         if ((current->type == 0 || current->type >= 19 || 
-             current->type == 10 || current->type == 11) && 
+             current->type == 10 || current->type == 11 || 
+             current->type == 12 || current->type == 17) && 
              current->space_after == 0)
         {
-            // Start building the combined token
             char *combined = strdup(current->token);
             if (!combined)
-                return; // Memory allocation error
-            
-            // Save start position for node replacement
+                return;
             t_token *start_node = current;
             t_token *next_node = current->next;
             t_token *last_joined = current;
-            
-            // Join all consecutive tokens without spaces
+            if (current->type == 12 && next_node && next_node->type == 0)
+            {
+                char *temp = combined;
+                combined = ft_strjoin(temp, next_node->token);
+                free(temp);
+                
+                if (!combined)
+                    return;
+                    
+                last_joined = next_node;
+                next_node = next_node->next;
+            }
             while (next_node && (next_node->type == 0 || next_node->type >= 19 || 
-                   next_node->type == 10 || next_node->type == 11 || next_node->type == 12 || next_node->type == 17) && 
+                   next_node->type == 10 || next_node->type == 11 || 
+                   next_node->type == 12 || next_node->type == 17) &&  
                    last_joined->space_after == 0)
             {
                 char *temp = combined;
@@ -418,27 +426,21 @@ void revise_args(t_token **head)
                 free(temp);
                 
                 if (!combined)
-                    return; // Memory allocation error
-                
+                    return;
+                    
                 last_joined = next_node;
                 next_node = next_node->next;
             }
             
-            // Create a new token with the combined string
             char *new_token_str = strdup(combined);
             if (!new_token_str)
             {
                 free(combined);
-                return; // Memory allocation error
+                return;
             }
             
-            // Get the space_after value from the last token in the group
             int space_after = last_joined->space_after;
-            
-            // Fix the list linkage to skip the nodes that will be removed
             t_token *prev_node = start_node->prev;
-            
-            // Remove all nodes from start_node to last_joined
             t_token *to_remove = start_node;
             while (to_remove != next_node)
             {
@@ -447,93 +449,42 @@ void revise_args(t_token **head)
                 free(to_remove);
                 to_remove = next_to_remove;
             }
-            
-            // Create a new node with the combined token
             t_token *new_node = malloc(sizeof(t_token));
             if (!new_node)
             {
                 free(combined);
                 free(new_token_str);
-                return; // Memory allocation error
+                return;
             }
             
-            // Initialize the new node
             memset(new_node, 0, sizeof(t_token));
             new_node->token = new_token_str;
-            new_node->type = 0; // Keep the type of the first token
+            new_node->type = 0;
             new_node->space_after = space_after;
             new_node->next = next_node;
             new_node->prev = prev_node;
-            
-            // Update the list connections
             if (prev_node)
                 prev_node->next = new_node;
             else
-                *head = new_node; // If we replaced the first node, update the head
+                *head = new_node;    
                 
             if (next_node)
                 next_node->prev = new_node;
                 
-            // For debugging
-            //printf("%s\n", combined);
             free(combined);
-            
-            // Move to the next token after our new combined token
             current = next_node;
         }
         else
-        {
-            // Move to the next token normally
             current = current->next;
-        }
     }
 }
-
-// void    revise_args(t_token **head)
-// {
-//     t_token *current = *head;
-//     t_token *tmp;
-//     char *s = NULL;
-
-//     while (current)
-//     {
-//         s = NULL;
-//         tmp = current;
-
-//         while (tmp && ((tmp->type == 0 || tmp->type >= 19 || tmp->type == 10 || tmp->type == 11) && tmp->space_after == 0))
-//         {
-//             char *new_s;
-//             if (s == NULL)
-//                 new_s = strdup(tmp->token);
-//             else
-//                 new_s = ft_strjoin(s, tmp->token);
-//             if (s)
-//                 free(s);
-//             s = new_s;
-//             tmp = tmp->next;
-//         }
-//         if (s)
-//         {
-//             printf("%s\n", s);
-//             free(s);
-//         }
-//         if (tmp && tmp != current)
-//         {
-//             current = tmp;
-//             // free(s);
-//             // tmp = NULL;
-//         }
-//         else
-//             current = current->next;
-//     }
-// }
 
 t_token *lexer(char *s)
 {
     t_token *head = NULL;
     
     tokenize_input(s, &head);
-    //exapnd_args(&head)
+    //exapnd_args(&rm head)
     revise_args(&head);
     revise_redirections(&head);
     //print_token_list(&head);

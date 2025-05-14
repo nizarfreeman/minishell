@@ -106,14 +106,14 @@ int main(int argc, char const *argv[])
 		}
 		head = lexer(s);
 		root = parse_expression(head);
-		print_token_list(&head);
-		// if (root)
-		// {
-		// 	printf("\n\n");
-		// 	//print_tree(root);
-  //   		print_ast(root);
-		// 	free_token_list(&head);
-		// }
+		//print_token_list(&head);
+		if (root)
+		{
+			printf("\n\n");
+			//print_tree(root);
+    		print_ast(root);
+			free_token_list(&head);
+		}
 		free(s);
 	}
 
