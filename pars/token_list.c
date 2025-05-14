@@ -23,7 +23,7 @@ void print_token_list(t_token **head)
     current = *head;  // Use a temporary pointer
     while (current)
     {
-        printf("%s %d %d\n", current->token, current->type, current->space_after);
+        printf("%s %d %d %d\n", current->token, current->type, current->space_after, current->quoted);
         current = current->next;
     }
 }
