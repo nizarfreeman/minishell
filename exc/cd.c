@@ -7,7 +7,7 @@ char *get_value(env *env, char *key)
 		return (NULL);
 	return (ft_strdup(env->value + ft_strlen(key)));
 }
-int pwd(env *env)
+int pwd(env *env, int *ex)
 {
 	char *s;
 
@@ -23,6 +23,7 @@ int pwd(env *env)
 
 	free(s);
 	s = NULL;
+	*ex = 0;
 	return 0;
 }
 int echo_option(char *str)
@@ -39,7 +40,7 @@ int echo_option(char *str)
 	return 1;
 }
 
-int echo(char **str)
+int echo(char **str, int *ex)
 {
 
 	int opt = echo_option(*str);
@@ -47,16 +48,20 @@ int echo(char **str)
 		str++;
 	while (*str)
 	{
-		write(1, *str, ft_strlen(*str));
-		if (*(str + 1))
-			write(1, " ", 1);
-	str++;	
+		if (**str)
+		{
+			write(1, *str, ft_strlen(*str));
+			if (*(str + 1))
+				write(1, " ", 1);
+		}
+		str++;	
 	}
 	if(opt)
 		printf("\n");
+	*ex = 0;
 	return 0;
 }
-int envr(env* env)
+int envr(env* env, int *ex)
 {
 	while (env)
 	{
@@ -64,13 +69,14 @@ int envr(env* env)
 		printf("%s\n", env->value);
 		env = env->next;
 	}
+	*ex = 0;
 	return 0;
 }
 
-int	cd(env *env, char *path)
+int	cd(env *env, char *path, int *ex)
 {
 	char *tmp;
-
+	// printf("%s\n", path);
 	if (!path)
 	{
 		tmp = get_value(env, "HOME=");
@@ -79,18 +85,22 @@ int	cd(env *env, char *path)
 			free(tmp);
 			tmp = NULL;
 			printf("cd: HOME not set\n");
+			*ex = 1;
 			return 1;
 		}
 		if (!*tmp)
 		{
 			free(tmp);
 			tmp = NULL;
+			*ex = 0;
 			return 0;
 		}
-		return cd2(env, tmp);
+		*ex = cd2(env, tmp);
+		return *ex;
 	}
 	else
-		return cd2(env, path);
+		*ex = cd2(env, path);
+	return *ex;
 }
 
 int	cd2(env *env, char *path)
@@ -99,6 +109,7 @@ int	cd2(env *env, char *path)
 	char *oldpwd;
 	char *tmp;
 	oldpwd = get_value(env, "PWD=");
+	// printf("%d |%s|\n", chdir(path), path);
 	if (chdir(path) == 0)
 	{
 		pwd = getcwd(NULL, 0);

@@ -90,6 +90,7 @@ int main(int argc, char const *argv[], char **envr)
 {
 	(void)argc;
 	(void)argv;
+	int ex = 0;
 	t_token *head = NULL;
 	t_tree *root;
 	env *env = creat_env(envr);
@@ -122,14 +123,14 @@ int main(int argc, char const *argv[], char **envr)
 		{
 			// printf("\n\n");
 			// print_tree(root);
-    		// print_ast(root);
-			exec_tree(root, &env);
+    		print_ast(root);
+			exec_tree(root, &env, &ex);
 			free_token_list(&head);
 		}
 		free(s);
 	}
 
 	rl_clear_history();
-	return (0);
+	return (ex);
 }
 // cat ctrl C

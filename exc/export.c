@@ -173,7 +173,7 @@ void print_export(char **arr)
 	}
 }
 
-int export(env **envr, char **args)
+int export(env **envr, char **args, int *ex)
 {
 	int flag;
 	flag = 0;
@@ -181,6 +181,7 @@ int export(env **envr, char **args)
 	{
 		// printf("here\n");
 		print_export(sort_arr(lst_to_arr2(*envr)));
+		*ex = 0;
 		return 0;
 	}
 	while (*args)
@@ -189,5 +190,6 @@ int export(env **envr, char **args)
 			flag = 1;
 		args++;
 	}
+	*ex = flag;
 	return flag;
 }

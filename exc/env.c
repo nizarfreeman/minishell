@@ -91,14 +91,19 @@ void remove_node(env **envrr, char *str)
 	free(envr);
 }
 
-int unset(env **env, char **str)
+int unset(env **env, char **str, int *ex)
 {
 	if (!str)
+	{
+		*ex = 0;
 		return 0;
+	}
 	while (*str)
 	{
-		remove_node(env, *str);
+		if (ft_strcmp("_", *str))
+			remove_node(env, *str);
 		str++;
 	}
+	*ex = 0;
 	return 0;
 }
