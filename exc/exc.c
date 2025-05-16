@@ -10,11 +10,8 @@ char **lst_to_arr2(env *env)
 	i = 0;
 	while (env)
 	{
-		// if (env->f)
-		// {
 			ret[i] = ft_strdup(env->value);
 			i++;
-		// }
 		env = env->next;
 	}
 	ret[i] = NULL;
@@ -72,10 +69,12 @@ int excute_cmd(char **cmd, env **env, int fd_in, int *status)
 		if (WTERMSIG(*status) == SIGQUIT)
 		{
 			write(1, "Quit (core dumped)\n", 20);
+			*status = 131;
 			return 131;
 		}
 		else if (WTERMSIG(*status) == SIGINT)
 		{
+			*status = 130;
 			write(1, "\n", 1);
 			return 130;
 		}
@@ -124,37 +123,57 @@ char *expand2(char *str, env *envr, int *ex)
 			return ret;
 		}
 	}
-	
-	// while(*str)
-	// {
-	// 	if (!s && *str != '$')
-	// 		s = str;
-	// 	if(*str == '$' && !expand_valid(*str))
-	// 	{
-	// 		 ret = ft_strjoin(ret, word(s, str));
-	// 	}
-	// }
+	return NULL;
 }
-void expand(char **args, env *envr, int *ex)
+char **expand_split(char **args)
 {
-	char *s;
+	env *ret;
+	ret = NULL;
+	char **tmp;
 	while (*args)
 	{
-		// printf("%s\n", *args);
-		*args = expand2(*args, envr, ex);
-		if (!*args || !**args)
+		tmp = ft_split(*args, ' ');
+		while (tmp && *tmp)
 		{
-			// printf("%sssss\n", *args);
-			*args = ft_strdup("");
+			// printf("%s\n", *tmp);
+			ft_lstnew(&ret, *tmp, 0);
+			tmp++;
 		}
 		args++;
 	}
+	return (lst_to_arr2(ret));
+}
+
+char **expand(char **args, env *envr, int *ex)
+{
+	char *s;
+	char **tmp = args;
+	while (tmp && *tmp)
+	{
+		repl1(' ', '\2', *tmp);
+		tmp++;
+	}
+	tmp = args;
+	while (*args)
+	{
+		*args = expand2(*args, envr, ex);
+		if (!*args || !**args)
+			*args = ft_strdup("");
+		args++;
+	}
+	args = expand_split(tmp);
+	tmp = args;
+	while (tmp && *tmp)
+	{
+		repl1('\2', ' ', *tmp);
+		tmp++;
+	}
+	return args;
 }
 
 int excute(char **cmd, env **env, int fd_in, int *ex)
 {
-	// int ex = 0;
-	expand(cmd, *env, ex);
+	cmd = expand(cmd, *env, ex);
 	if (!cmd)
 		return 1;
 	else if (!ft_strcmp(*cmd, "cd"))

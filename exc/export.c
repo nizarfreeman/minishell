@@ -165,10 +165,13 @@ void print_export(char **arr)
 	while (*arr)
 	{
 		s = export_split(*arr);
-		printf("declare -x %s\"%s\"\n", *s, s[1]);
-		// write(1,"declare -x ", 11);
-		// write(1, *arr, ft_strlen(*arr));
-		// write(1,"\n", 1);
+		// printf("declare -x %s\"%s\"\n", *s, s[1]);
+		write(1,"declare -x ", 11);
+		write(1, *s, ft_strlen(*s));
+		if (s[1])
+		write(1, *(s + 1), ft_strlen(*(s + 1)));
+		write(1,"\n", 1);
+
 		arr++;
 	}
 }

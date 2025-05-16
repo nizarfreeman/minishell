@@ -18,8 +18,8 @@ void no_env(env **ret)
 	s = get_value(*ret, "PWD");
 	if (!s)
 	{
-		s = ft_strjoin(ft_strdup("PWD="), getcwd(NULL, 0));
-		ft_lstnew(ret, s, 1);	
+		// s = ft_strjoin(ft_strdup("PWD="), getcwd(NULL, 0));
+		ft_lstnew(ret, ft_strjoin(ft_strdup("PWD="), getcwd(NULL, 0)), 1);	
 	}
 	else
 		search_replace(*ret, "PWD", getcwd(NULL, 0));

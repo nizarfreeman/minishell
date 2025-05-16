@@ -97,7 +97,10 @@ int main(int argc, char const *argv[], char **envr)
 	sig_han = 0;
 	signal(SIGQUIT, SIG_IGN);
 	signal(SIGINT, handle_int);
-
+	// char *s[] = {"export", "a=\"a b\"", NULL};
+	// char *t[] = {"env", NULL};
+	// excute(s, &env, -1, &ex);
+	// excute_cmd(t, &env, -1, &ex);
 	while (1)
 	{
 		sig_han = 1;
@@ -134,3 +137,4 @@ int main(int argc, char const *argv[], char **envr)
 	return (ex);
 }
 // cat ctrl C
+//export a="a b"
