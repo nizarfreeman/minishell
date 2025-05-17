@@ -484,7 +484,7 @@ t_token *lexer(char *s)
     t_token *head = NULL;
     
     tokenize_input(s, &head);
-    //exapnd_args(&rm head)
+    //exapnd_args(&head)
     revise_args(&head);
     revise_redirections(&head);
     //print_token_list(&head);

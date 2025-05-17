@@ -56,7 +56,7 @@ typedef struct dsa
     char *cmd;
     char **args;
     char **files;
-    int fd;
+    int fd; 
 } t_tree;
 
 int check_quotes(char *s);

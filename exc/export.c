@@ -13,7 +13,10 @@ char *ft_strchr(char *s, char c)
 int check_export_arg(char *arg)
 {
 	if (!(*arg >= 'a' && *arg <= 'z') && !(*arg >= 'A' && *arg <= 'Z') && *arg != '_')
+	{
+		// printf("%s\n", arg);
 		return (1);
+	}
 	arg++;
 	while (*arg && (*arg >= 'a' && *arg <= 'z') || (*arg >= 'A' && *arg <= 'Z') || *arg == '_' 
 		|| (*arg >= '0' && *arg <= '9'))
@@ -121,78 +124,33 @@ int export2(char *arg ,env **envr)
 		tmp = get_value(*envr, spl[0]);
 		if (tmp == NULL)
 		{
+			// if (!ft_strcmp(spl[0], "PWD"))
+			// {
+			// 	tmp = ft_strjoin(ft_strdup(spl[0]), ft_strjoin(ft_strdup("="), getcwd(NULL, 0)));
+			// 	ft_lstnew(envr, tmp, 1);
+			// }
+			// else
 			ft_lstnew(envr, spl[0], 0);
 			free(tmp);
+			// free2d(spl);
 			return 0;
 		}
 	}
 	return 0;
 		
 }
-void swap_strings(char **a, char **b)
-{
-    char *temp = *a;
-    *a = *b;
-    *b = temp;
-}
 
-char **sort_arr(char **arr)
-{
-	char **ret = arr;
-    int size = 0;
-    while (arr[size] != NULL)
-        size++;
-    
-    int i = 0;
-    while (i < size - 1)
-	{
-        int j = 0;
-        while (j < size - i - 1)
-		{
-            if (ft_strcmp(arr[j], arr[j + 1]) > 0) {
-                swap_strings(&arr[j], &arr[j + 1]);
-            }
-            j++;
-        }
-        i++;
-    }
-	return ret;
-}
-
-void print_export(char **arr)
-{
-	char **s;
-	while (*arr)
-	{
-		s = export_split(*arr);
-		// printf("declare -x %s\"%s\"\n", *s, s[1]);
-		write(1,"declare -x ", 11);
-		write(1, *s, ft_strlen(*s));
-		if (s[1])
-		write(1, *(s + 1), ft_strlen(*(s + 1)));
-		write(1,"\n", 1);
-
-		arr++;
-	}
-}
-
-int export(env **envr, char **args, int *ex)
+int export(env **envr, char **args)
 {
 	int flag;
 	flag = 0;
-	if ((args && !*args) || (args[1] && !*args[1]))
-	{
-		// printf("here\n");
-		print_export(sort_arr(lst_to_arr2(*envr)));
-		*ex = 0;
+	if (!args)
 		return 0;
-	}
 	while (*args)
 	{
 		if(export2(*args, envr))
 			flag = 1;
 		args++;
 	}
-	*ex = flag;
 	return flag;
 }

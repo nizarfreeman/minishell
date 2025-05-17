@@ -1,44 +1,17 @@
 #include "s.h"
 
-int is_all_num(char *s)
-{
-	if (!s)
-		return 0;
-	while (*s >= '0' && *s <= '9')
-		s++;
-	if (!*s)
-		return 1;
-	return 0;
-}
-
-void no_env(env **ret)
+env *no_env(void)
 {
 	char *s;
-
-	s = get_value(*ret, "PWD");
-	if (!s)
-	{
-		// s = ft_strjoin(ft_strdup("PWD="), getcwd(NULL, 0));
-		ft_lstnew(ret, ft_strjoin(ft_strdup("PWD="), getcwd(NULL, 0)), 1);	
-	}
-	else
-		search_replace(*ret, "PWD", getcwd(NULL, 0));
-	s = get_value(*ret, "OLDPWD");
-	if (!s)
-		ft_lstnew(ret, "OLDPWD", 0);
-	s = get_value(*ret, "_");
-	if (!s)
-		ft_lstnew(ret, "_=/usr/bin/env", 1);
-	s = get_value(*ret, "SHLVL");
-	if (!s)
-		ft_lstnew(ret, "SHLVL=1", 1);
-	else if(is_all_num(s + 1) && (int)ft_atoi(s + 1) >= 999)
-	{	
-		printf("bash: warning: shell level (%d) too high, resetting to 1\n", (int)ft_atoi(s + 1));
-		search_replace(*ret, "SHLVL", "1");
-	}
-	else 
-		search_replace(*ret, "SHLVL", ft_itoa(ft_atoi(s + 1) + 1));
+	env *ret;
+	s = ft_strjoin(ft_strdup("PWD="), getcwd(NULL, 0));
+	ft_lstnew(&ret, s, 1);
+	ft_lstnew(&ret, "OLDPWD", 0);
+	ft_lstnew(&ret, "SHLVL=1", 1);
+	free(s);
+	s = NULL;
+	ft_lstnew(&ret, "_=/usr/bin/env", 1);
+	return ret;
 }
 
 int check_value(char *str)
@@ -55,13 +28,13 @@ env *creat_env(char **envr)
 	env *tmp;
 	env *ret;
 	ret = NULL;
+	if (!*envr)
+		return no_env();
 	while (*envr)
 	{
 		ft_lstnew(&ret, *envr, check_value(*envr));
 		envr++;
 	}
-	// if (!*envr)
-	no_env(&ret);
 	// handle_shlvl(ret);
 	return ret;
 }
@@ -91,19 +64,14 @@ void remove_node(env **envrr, char *str)
 	free(envr);
 }
 
-int unset(env **env, char **str, int *ex)
+int unset(env **env, char **str)
 {
 	if (!str)
-	{
-		*ex = 0;
 		return 0;
-	}
 	while (*str)
 	{
-		if (ft_strcmp("_", *str))
-			remove_node(env, *str);
+		remove_node(env, *str);
 		str++;
 	}
-	*ex = 0;
 	return 0;
 }

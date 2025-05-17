@@ -7,7 +7,7 @@ char *get_value(env *env, char *key)
 		return (NULL);
 	return (ft_strdup(env->value + ft_strlen(key)));
 }
-int pwd(env *env, int *ex)
+int pwd(env *env)
 {
 	char *s;
 
@@ -23,7 +23,6 @@ int pwd(env *env, int *ex)
 
 	free(s);
 	s = NULL;
-	*ex = 0;
 	return 0;
 }
 int echo_option(char *str)
@@ -40,28 +39,36 @@ int echo_option(char *str)
 	return 1;
 }
 
-int echo(char **str, int *ex)
+int echo(char **str)
 {
-
 	int opt = echo_option(*str);
-	while(!echo_option(*str))
+	if (!opt)
 		str++;
 	while (*str)
 	{
-		if (**str)
-		{
-			write(1, *str, ft_strlen(*str));
-			if (*(str + 1))
-				write(1, " ", 1);
-		}
-		str++;	
+		write(1, *str, ft_strlen(*str));
+		// printf("%s", *str);
+		if (*(str + 1))
+			printf(" ");
+	// if(*str && !echo_option(*str))
+	// {
+	// 	if(str[1])
+	// 		printf("%s", str[1]);
+	// }
+	// else
+	// {
+	// 	if (*str)
+	// 		printf("%s", *str);
+	// 	else
+	// 		printf("\n");
+	// }
+	str++;	
 	}
 	if(opt)
 		printf("\n");
-	*ex = 0;
 	return 0;
 }
-int envr(env* env, int *ex)
+int envr(env* env)
 {
 	while (env)
 	{
@@ -69,14 +76,13 @@ int envr(env* env, int *ex)
 		printf("%s\n", env->value);
 		env = env->next;
 	}
-	*ex = 0;
 	return 0;
 }
 
-int	cd(env *env, char *path, int *ex)
+int	cd(env *env, char *path)
 {
 	char *tmp;
-	// printf("%s\n", path);
+
 	if (!path)
 	{
 		tmp = get_value(env, "HOME=");
@@ -85,22 +91,18 @@ int	cd(env *env, char *path, int *ex)
 			free(tmp);
 			tmp = NULL;
 			printf("cd: HOME not set\n");
-			*ex = 1;
 			return 1;
 		}
 		if (!*tmp)
 		{
 			free(tmp);
 			tmp = NULL;
-			*ex = 0;
 			return 0;
 		}
-		*ex = cd2(env, tmp);
-		return *ex;
+		return cd2(env, tmp);
 	}
 	else
-		*ex = cd2(env, path);
-	return *ex;
+		return cd2(env, path);
 }
 
 int	cd2(env *env, char *path)
@@ -109,7 +111,6 @@ int	cd2(env *env, char *path)
 	char *oldpwd;
 	char *tmp;
 	oldpwd = get_value(env, "PWD=");
-	// printf("%d |%s|\n", chdir(path), path);
 	if (chdir(path) == 0)
 	{
 		pwd = getcwd(NULL, 0);
@@ -150,15 +151,15 @@ void search_replace(env *env, char *key, char *rep)
 	char *tmp;
 
 	tmp = ft_strjoin(ft_strdup(key), ft_strdup("="));
-	while (env && ft_strcmp(key, env->value) && ft_strncmp(env->value, tmp, ft_strlen(tmp)))
+	while (env && ft_strcmp(key, env->value) && ft_strncmp(env->value, key, ft_strlen(key)))
 		env = env->next;
 	// printf("%s\n", env->value);
 	if (!env)
 	{
-		// free(tmp);
+		free(tmp);
 		return ;
 	}
-	// free(env->value);
+	free(env->value);
 	env->value = NULL;
 	env->value = ft_strjoin(tmp, rep);
 	env->f = 1;

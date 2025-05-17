@@ -94,6 +94,7 @@ int main(int argc, char const *argv[])
 	while (1)
 	{
 		char *s = readline("$ ");
+
 		if (!s)
 			break ;
 		if (*s)
@@ -111,7 +112,7 @@ int main(int argc, char const *argv[])
 		{
 			printf("\n\n");
 			//print_tree(root);
-    		print_ast(root);
+     		print_ast(root);
 			free_token_list(&head);
 		}
 		free(s);

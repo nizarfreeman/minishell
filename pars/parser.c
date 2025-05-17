@@ -376,6 +376,56 @@ t_tree	*insert_command(t_token *head)
 	return (new_node);
 }
 
+// int	get_root_pos(t_token *head)
+// {
+// 	t_token *curr = head;
+// 	int position = 0;
+// 	int root_position = -1;
+// 	int paren_level = 0;
+// 	int lowest_precedence = 100;
+// 	int is_redirection = 0;
+
+// 	while (curr)
+// 	{
+// 		if (curr->type == OPEN_PER)
+// 			paren_level++;
+// 		else if (curr->type == CLOSE_PER)
+// 			paren_level--;
+// 		if (paren_level == 0)
+// 		{
+// 			int curr_precedence = 100;
+// 			int curr_is_redirection = 0;
+// 			if (curr->type == OR_IF || curr->type == AND_IF)
+// 				curr_precedence = 1;
+// 			// else if (curr->type == AND_IF)
+// 			// 	curr_precedence = 2;
+// 			else if (curr->type == PIPE)
+// 				curr_precedence = 3;
+// 			else if (curr->type == REDIRECTION_OUT || curr->type == REDIRECTION_IN ||
+// 				curr->type == APPEND || curr->type == HERE_ODC)
+// 			{
+// 				curr_precedence = 4;
+// 				curr_is_redirection = 1;
+// 			}
+// 			if (curr_precedence < 100)
+// 			{
+// 				if (curr_precedence < lowest_precedence ||
+// 					(curr_precedence == lowest_precedence &&
+// 					((curr_precedence <= 3) ||
+// 					(curr_is_redirection && curr_is_redirection == is_redirection))))
+// 				{
+// 					lowest_precedence = curr_precedence;
+// 					root_position = position;
+// 					is_redirection = curr_is_redirection;
+// 				}
+// 			}
+// 		}
+// 		curr = curr->next;
+// 		position++;
+// 	}
+// 	return root_position;
+//}
+
 int	get_root_pos(t_token *head)
 {
 	t_token *curr = head;
@@ -384,6 +434,8 @@ int	get_root_pos(t_token *head)
 	int paren_level = 0;
 	int lowest_precedence = 100;
 	int is_redirection = 0;
+	int leftmost_redirection_pos = -1;
+	int leftmost_redirection_precedence = 100;
 
 	while (curr)
 	{
@@ -391,14 +443,14 @@ int	get_root_pos(t_token *head)
 			paren_level++;
 		else if (curr->type == CLOSE_PER)
 			paren_level--;
+		
 		if (paren_level == 0)
 		{
 			int curr_precedence = 100;
 			int curr_is_redirection = 0;
+			
 			if (curr->type == OR_IF || curr->type == AND_IF)
 				curr_precedence = 1;
-			// else if (curr->type == AND_IF)
-			// 	curr_precedence = 2;
 			else if (curr->type == PIPE)
 				curr_precedence = 3;
 			else if (curr->type == REDIRECTION_OUT || curr->type == REDIRECTION_IN ||
@@ -406,23 +458,38 @@ int	get_root_pos(t_token *head)
 			{
 				curr_precedence = 4;
 				curr_is_redirection = 1;
+				
+				/* For redirections, track the LEFTMOST occurrence at the lowest precedence level */
+				if (leftmost_redirection_pos == -1 || curr_precedence < leftmost_redirection_precedence)
+				{
+					leftmost_redirection_pos = position;
+					leftmost_redirection_precedence = curr_precedence;
+				}
 			}
-			if (curr_precedence < 100)
+			
+			/* For non-redirections, continue with the normal right-to-left approach */
+			if (!curr_is_redirection)
 			{
-				if (curr_precedence < lowest_precedence ||
-					(curr_precedence == lowest_precedence &&
-					((curr_precedence <= 3) ||
-					(curr_is_redirection && curr_is_redirection == is_redirection))))
+				if (curr_precedence < lowest_precedence)
 				{
 					lowest_precedence = curr_precedence;
 					root_position = position;
-					is_redirection = curr_is_redirection;
+					is_redirection = 0;
 				}
 			}
 		}
 		curr = curr->next;
 		position++;
 	}
+	
+	/* If we found a redirection and either have no other operator or the redirection has 
+	   higher precedence than other operators, use the leftmost redirection */
+	if (leftmost_redirection_pos != -1 && 
+	    (root_position == -1 || leftmost_redirection_precedence <= lowest_precedence))
+	{
+		return leftmost_redirection_pos;
+	}
+	
 	return root_position;
 }
 
@@ -618,7 +685,6 @@ t_tree	*build_tree(t_token *head)
 	return (node);
 }
 
-/*main parsing functions that triggers all parsing mechanisms*/
 t_tree	*parse_expression(t_token *head)
 {
 	if (!initial_syntax_check(head))

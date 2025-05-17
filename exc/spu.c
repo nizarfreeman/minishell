@@ -1,8 +1,7 @@
 #include "s.h"
 void	repl1(char c, char b, char *s)
 {
-	// printf("here\n");
-	while (s && *s)
+	while (*s)
 	{
 		if (*s == c)
 			*s = b;
