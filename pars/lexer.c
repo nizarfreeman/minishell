@@ -93,25 +93,35 @@ int is_there_char(char *s, char c)
 }
 
 /* Handle quoted string tokenization */
-int handle_quotes(char *s, int i, t_token **head)
+int handle_quotes(char *s, int i, t_token **head, int preserve_quotes)
 {
-    char quote = s[i++];
-    int start = i;
+    char quote = s[i];
+    int start_content = i + 1;
+    int start_with_quotes = i;
     int space = 0;
     
+    i++;
     while (s[i] && s[i] != quote)
         i++;
-    if (ft_isspace(s[i + 1]))
-        space = 1;
-    char *token = ft_strndup(&s[start], i - start);
-    int type;
-    if (quote == '\'')
-        type = S_QUOTE;
-    else
-        type = D_QUOTE;
-    add_token(head, token, type, 1, space);
+    int end_content = i;
     if (s[i] == quote)
         i++;
+    int end_with_quotes = i;
+    if (ft_isspace(s[i]))
+        space = 1;
+    char *token;
+    int type;
+    if (preserve_quotes)
+    {
+        token = ft_strndup(&s[start_with_quotes], end_with_quotes - start_with_quotes);
+        type = WORD;
+    }
+    else
+    {
+        token = ft_strndup(&s[start_content], end_content - start_content);
+        type = (quote == '\'') ? S_QUOTE : D_QUOTE;
+    }
+    add_token(head, token, type, preserve_quotes ? 0 : 1, space);
     return i;
 }
 
@@ -305,7 +315,7 @@ void tokenize_input(char *s, t_token **head)
         if (ft_isspace(s[i]))
             i++;
         else if (ft_is_quote(s[i]))
-            i = handle_quotes(s, i, head);
+            i = handle_quotes(s, i, head, 1);
         else if (s[i] == '(' || s[i] == ')')
             i = handle_parentheses(s, i, head);
         else if (s[i] == '&')
@@ -477,6 +487,38 @@ void revise_args(t_token **head)
         else
             current = current->next;
     }
+}
+
+char *unquote_string(char *str)
+{
+    int len = 0;
+    int i = 0;
+    int j = 0;
+    int in_dquote = 0;
+    int in_squote = 0;
+    char *ret = NULL;
+
+    len = strlen(str);
+    ret = malloc(len + 1);
+    if (!ret)
+        return (NULL);
+    while (i < len)
+    {
+        if (str[i] == '\"' && !in_squote)
+        {
+            in_dquote = !in_dquote;
+            i++;
+        }
+        else if (str[i] == '\'' && !in_dquote)
+        {
+            in_squote = !in_squote;
+            i++;
+        }
+        else
+            ret[j++] = str[i++];
+    }
+    ret[j] = '\0';
+    return (ret);
 }
 
 t_token *lexer(char *s)
