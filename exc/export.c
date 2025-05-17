@@ -180,7 +180,7 @@ int export(env **envr, char **args, int *ex)
 {
 	int flag;
 	flag = 0;
-	if (args && !*args)
+	if ((args && !*args) || (args[1] && !*args[1]))
 	{
 		// printf("here\n");
 		print_export(sort_arr(lst_to_arr2(*envr)));

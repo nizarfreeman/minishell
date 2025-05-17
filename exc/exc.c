@@ -173,7 +173,8 @@ char **expand(char **args, env *envr, int *ex)
 
 int excute(char **cmd, env **env, int fd_in, int *ex)
 {
-	cmd = expand(cmd, *env, ex);
+	// if(ft_strcmp(*cmd, "export") || ft_strcmp(expand2(*cmd, *env, ex), "export"))
+		cmd = expand(cmd, *env, ex);
 	if (!cmd)
 		return 1;
 	else if (!ft_strcmp(*cmd, "cd"))
