@@ -1,35 +1,32 @@
 #include "s.h"
 
-int exec_tree(t_tree *root, env **env)
+int exec_tree(t_tree *root, env **env, int *ex)
 {
 	int status;
 	if (root->type == WORD || root->type >= 18)
-		return (excute(root->args, env, root->fd));
+		return (excute(root->args, env, root->fd, ex));
 	if (root->type == AND_IF)
 	{
-		status = exec_tree(root->left, env);
+		status = exec_tree(root->left, env, ex);
 		if(!status)
-			return exec_tree(root->right, env);
+			return exec_tree(root->right, env, ex);
 		return status;
 	}
 	if (root->type == OR_IF)
 	{
-		status = exec_tree(root->left, env);
+		status = exec_tree(root->left, env, ex);
 		if(status)
-			return exec_tree(root->right, env);
+			return exec_tree(root->right, env, ex);
 		return status;
 	}
 	if(root->type == PIPE)
 	{
-		return exce_pipe(root, env);
+		return exce_pipe(root, env, ex);
 	}
 	return 0;
 }
 int pipe_left(t_tree *root, env **env, int  *fds)
 {
-	// unlink("pipe");
-	// int tmp;
-	// tmp = dup(STDOUT_FILENO);
 	pid_t pid;
 	int ex = 1;
 
@@ -39,21 +36,30 @@ int pipe_left(t_tree *root, env **env, int  *fds)
 		dup2(fds[1], STDOUT_FILENO);
 		close(fds[1]);
 		close(fds[0]);
-		ex = exec_tree(root, env);
+		ex = exec_tree(root, env, &ex);
 		exit(ex);
 	}
 	close(fds[1]);
-	return ex;
+	return pid;
 }
-int exce_pipe(t_tree *root, env **env)
+int exce_pipe(t_tree *root, env **env, int *exi)
 {
 	int fds[2];
 	int ex;
 	pipe(fds);
+	int left_pid;
 
 	root->right->fd = fds[0];
-	pipe_left(root->left, env, fds);
-	ex = exec_tree(root->right, env);
-	wait(&ex);
+	left_pid = pipe_left(root->left, env, fds);
+	int pid = fork();
+	if (pid == 0)
+	{
+		*exi = exec_tree(root->right, env, exi);
+		exit(*exi);
+	}
+	close(fds[0]);
+	waitpid(left_pid, &ex, 0);
+	waitpid(pid, &ex, 0);
+	
 	return ex; 
 }

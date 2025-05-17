@@ -82,3 +82,47 @@ void	*ft_memcpy(void *dst, const void *src, size_t n)
 	}
 	return (dst);
 }
+static int	count_digits(int n)
+{
+	int	count;
+
+	count = (n <= 0) ? 1 : 0;
+	while (n != 0)
+	{
+		n /= 10;
+		count++;
+	}
+	return (count);
+}
+
+char	*ft_itoa(int n)
+{
+	char	*str;
+	int		digits;
+	long	num;
+
+	digits = count_digits(n);
+	
+	str = (char *)malloc(sizeof(char) * (digits + 1));
+	if (!str)
+		return (NULL);
+	
+	num = n;
+	if (num < 0)
+	{
+		str[0] = '-';
+		num = -num;
+	}
+	
+	if (num == 0)
+		str[0] = '0';
+	
+	str[digits] = '\0';
+	while (num > 0)
+	{
+		str[--digits] = '0' + (num % 10);
+		num /= 10;
+	}
+	
+	return (str);
+}

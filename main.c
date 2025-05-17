@@ -90,13 +90,17 @@ int main(int argc, char const *argv[], char **envr)
 {
 	(void)argc;
 	(void)argv;
+	int ex = 0;
 	t_token *head = NULL;
 	t_tree *root;
 	env *env = creat_env(envr);
 	sig_han = 0;
 	signal(SIGQUIT, SIG_IGN);
 	signal(SIGINT, handle_int);
-
+	// char *s[] = {"export", "a=\"a b\"", NULL};
+	// char *t[] = {"env", NULL};
+	// excute(s, &env, -1, &ex);
+	// excute_cmd(t, &env, -1, &ex);
 	while (1)
 	{
 		sig_han = 1;
@@ -120,16 +124,17 @@ int main(int argc, char const *argv[], char **envr)
 		//print_token_list(&head);
 		if (root)
 		{
-			printf("\n\n");
+			// printf("\n\n");
 			// print_tree(root);
     		print_ast(root);
-			exec_tree(root, &env);
+			exec_tree(root, &env, &ex);
 			free_token_list(&head);
 		}
 		free(s);
 	}
 
 	rl_clear_history();
-	return (0);
+	return (ex);
 }
 // cat ctrl C
+//export a="a b"
