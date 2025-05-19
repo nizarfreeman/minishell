@@ -101,7 +101,7 @@ char *expand2(char *str, env *envr, int *ex)
 			str++;
 		// printf("|%c|\n", *str);
 		if (*(str + 1) == '$')
-			ret = ft_strjoin(ret , ft_strjoin(word(s, str + 1), expand2(str + 1, envr, ex)));
+			ret = ft_strjoin(word(s, str + 1), expand2(str + 1, envr, ex));
 		else
 			ret = word(s, str);
 		return ret;

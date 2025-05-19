@@ -20,10 +20,20 @@ int exec_tree(t_tree *root, env **env, int *ex)
 		return status;
 	}
 	if(root->type == PIPE)
-	{
 		return exce_pipe(root, env, ex);
+	if (root->type >= 6 && root->type <= 9)
+	{
+		status = fork();
+		if (status == 0)
+		{
+			redirections(root, env, ex, root->left);
+			if (!*ex && root->left)
+				exec_tree(root->left, env, ex);
+			exit(*ex);
+		}
+		waitpid(status, ex, 0);
 	}
-	return 0;
+	return *ex;
 }
 int pipe_left(t_tree *root, env **env, int  *fds)
 {

@@ -58,3 +58,5 @@ char	*ft_itoa(int n);
 char **lst_to_arr(env *env);
 int ft_atoi2(const char *str);
 void my_exit(char **cmd, int *ex);
+void redirections(t_tree *root, env **env, int *ex, t_tree *left);
+char **expand(char **args, env *envr, int *ex);

@@ -99,18 +99,18 @@ int handle_quotes(char *s, int i, t_token **head, int preserve_quotes)
     int start_content = i + 1;
     int start_with_quotes = i;
     int space = 0;
-    
+    int end_content = i;
+    int end_with_quotes = i;
+    char *token;
+    int type;
+
     i++;
     while (s[i] && s[i] != quote)
         i++;
-    int end_content = i;
     if (s[i] == quote)
         i++;
-    int end_with_quotes = i;
     if (ft_isspace(s[i]))
         space = 1;
-    char *token;
-    int type;
     if (preserve_quotes)
     {
         token = ft_strndup(&s[start_with_quotes], end_with_quotes - start_with_quotes);
@@ -337,64 +337,157 @@ void tokenize_input(char *s, t_token **head)
     }
 }
 
-int count_args(t_token *head)
+int is_redirection(t_token *token)
 {
-    int i = 0;
-    t_token *current = head->next->next;
-    
-    while (current && (current->type == 0 || current->type >= 18))
+    return (token && (token->type >= REDIRECTION_OUT && token->type <= HERE_ODC));
+}
+
+int is_command(t_token *token)
+{
+    return (token && (token->type >= BUILTIN_ECHO && token->type <= BUILTIN_EXIT));
+}
+
+int is_pipe_or_logical(t_token *token)
+{
+    return (token && (token->type == PIPE || token->type == AND_IF || token->type == OR_IF || 
+                     token->type == AND));
+}
+
+int is_argument(t_token *token)
+{
+    return (token && (token->type == WORD || 
+           (token->type >= BUILTIN_ECHO && token->type <= BUILTIN_EXIT)));
+}
+
+int is_redirection_target(t_token *token)
+{
+    return (token && token->prev && is_redirection(token->prev));
+}
+
+t_token *find_current_command_token(t_token *start)
+{
+    t_token *current = start;
+    while (current && !is_pipe_or_logical(current))
     {
-        i++;
+        if (is_command(current))
+            return (current);
         current = current->next;
     }
-    return (i);
-}
-
-void move_args(t_token **head)
-{
-    int args_count = count_args(*head);
-    if (args_count == 0)
-        return;
-    
-    t_token *redir_node = *head;
-    t_token *file_node = redir_node->next;
-    t_token *first_arg = file_node->next;
-    t_token *last_arg = first_arg;
-    t_token *after_args;
-    for (int i = 1; i < args_count; i++)
-        last_arg = last_arg->next;
-    after_args = last_arg->next;
-    file_node->next = after_args;
-    if (after_args)
-        after_args->prev = file_node;
-    t_token *before_redir = redir_node->prev;
-    first_arg->prev = before_redir;
-    last_arg->next = redir_node;
-    if (before_redir)
-        before_redir->next = first_arg;
-    else
-        *head = first_arg;
-    redir_node->prev = last_arg;
-}
-
-void revise_redirections(t_token **head)
-{
-    t_token *current = *head;
-    t_token *next;
-    
-    while (current)
+    current = start;
+    while (current && !is_pipe_or_logical(current))
     {
-        next = current->next;
+        if (!is_redirection(current) && !is_redirection_target(current))
+            return (current);
+        current = current->next;
+    }
+    return (start);
+}
+
+/* Find the last argument already adjacent to the command */
+t_token *find_last_command_arg(t_token *cmd_token)
+{
+    t_token *last_arg = cmd_token;
+    t_token *current = cmd_token->next;
+    
+    while (current && is_argument(current) && !is_redirection(current) && 
+           !is_redirection_target(current) && !is_pipe_or_logical(current))
+    {
+        last_arg = current;
+        current = current->next;
+    }
+    
+    return (last_arg);
+}
+
+/* Extract a node from the linked list */
+void extract_node(t_token **head, t_token *node)
+{
+    if (node->prev)
+        node->prev->next = node->next;
+    else if (*head == node)
+        *head = node->next;
         
-        if (current->type >= 6 && current->type <= 9 && current->next)
+    if (node->next)
+        node->next->prev = node->prev;
+    node->prev = NULL;
+    node->next = NULL;
+}
+
+/* Insert a node after the specified position */
+void insert_node_after(t_token **head, t_token *position, t_token *node)
+{
+    if (!position)
+    {
+        node->next = *head;
+        if (*head)
+            (*head)->prev = node;
+        *head = node;
+    }
+    else
+    {
+        node->next = position->next;
+        node->prev = position;
+        
+        if (position->next)
+            position->next->prev = node;
+            
+        position->next = node;
+    }
+}
+
+/* Process a single command segment (between operators) */
+void reorganize_single_command(t_token **head, t_token *start, t_token *end)
+{
+    if (!start)
+        return ;
+    t_token *cmd_token = find_current_command_token(start);
+    if (!cmd_token || cmd_token == end)
+        return ;
+    t_token *last_cmd_arg = find_last_command_arg(cmd_token);
+    t_token *current = last_cmd_arg->next;
+    while (current && current != end)
+    {
+        t_token *next = current->next;
+        if (is_argument(current) && !is_redirection_target(current) && 
+            !is_redirection(current->prev))
         {
-            t_token *temp_head = current;
-            move_args(&temp_head);
-            if (temp_head != current && current == *head)
-                *head = temp_head;
+            extract_node(head, current);
+            insert_node_after(head, last_cmd_arg, current);
+            last_cmd_arg = current;
         }
+        
         current = next;
     }
+}
+
+/* Reorganize the token list to process each command segment separately */
+void reorganize_command_args(t_token **head)
+{
+    if (!head || !*head)
+        return ;
+        
+    t_token *current = *head;
+    t_token *segment_start = current;
+    while (current)
+    {
+        if (is_pipe_or_logical(current))
+        {
+            reorganize_single_command(head, segment_start, current);
+            segment_start = current->next;
+        }
+        
+        current = current->next;
+    }
+    if (segment_start)
+        reorganize_single_command(head, segment_start, NULL);
+}
+
+/* Process token list to properly organize command arguments and redirections */
+void revise_redirections(t_token **head)
+{
+    if (!head || !*head)
+        return ;
+    reorganize_command_args(head);
 }
 
 void revise_args(t_token **head)
@@ -491,17 +584,18 @@ void revise_args(t_token **head)
 
 char *unquote_string(char *str)
 {
-    int len = 0;
+    int len;
     int i = 0;
     int j = 0;
     int in_dquote = 0;
     int in_squote = 0;
-    char *ret = NULL;
-
+    char *ret;
+    
     len = strlen(str);
     ret = malloc(len + 1);
     if (!ret)
         return (NULL);
+    
     while (i < len)
     {
         if (str[i] == '\"' && !in_squote)
