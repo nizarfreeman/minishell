@@ -111,6 +111,8 @@ int main(int argc, char const *argv[], char **envr)
 			write(1, "exit\n", 5);
 			exit(1);
 		}
+		if(!*s)
+			continue;
 		if (*s)
 			add_history(s);
 		if (!check_quotes(s))
@@ -126,7 +128,7 @@ int main(int argc, char const *argv[], char **envr)
 		{
 			// printf("\n\n");
 			// print_tree(root);
-    		// print_ast(root);
+    		print_ast(root);
 			exec_tree(root, &env, &ex);
 			free_token_list(&head);
 		}
@@ -136,5 +138,5 @@ int main(int argc, char const *argv[], char **envr)
 	rl_clear_history();
 	return (ex);
 }
-// cat ctrl C
-//export a="a b"
+
+//echo '(('"()(09009-0-"""''"((((''))))"""

@@ -1,3 +1,5 @@
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE 42
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -60,3 +62,8 @@ int ft_atoi2(const char *str);
 void my_exit(char **cmd, int *ex);
 void redirections(t_tree *root, env **env, int *ex, t_tree *left);
 char **expand(char **args, env *envr, int *ex);
+char **pre_expand(char **args, env *envr, int *ex);
+char	*get_next_line(int fd);
+void	*ft_memcpy(void *dst, const void *src, size_t n);
+char *expand2(char *str, env *envr, int *ex);
+#endif

@@ -42,6 +42,8 @@ int ft_is_quote(int c)
 size_t ft_strlen(char *s)
 {
     size_t len = 0;
+    if(!s)
+        return 0;
     while (s[len])
         len++;
     return len;

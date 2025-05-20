@@ -94,6 +94,8 @@ char *expand2(char *str, env *envr, int *ex)
 	char *ret;
 	char *s = NULL;
 	ret = NULL;
+	// if (!str || !*str)
+    //     return ft_strdup("");
 	if (*str != '$')
 	{
 		s = str;
@@ -170,11 +172,112 @@ char **expand(char **args, env *envr, int *ex)
 	}
 	return args;
 }
+char *creat_word(char *str, int f, char c, int *p)
+{
+	char *s = str;
+	if (f)
+	{
+		if (*str == c)
+		{
+			*p = 1;
+			return ft_strdup("");
+		}
+		while (*(s) != c)
+		{
+			s++;
+			(*p)++;
+		}
+		(*p) = s - str + 1;
+		// printf("%d\n", str - s);
+		return word(str, s);
+	}
+	while (*(str) && *(str) != '\'' && *(str) != '"')
+		str++;
+		(*p) = str - s;
+
+		// printf("%s\n", str);
+	return word(s, str);
+}
+char **pre_expand(char **args, env *envr, int *ex)
+{
+	env *list = NULL;
+	char *tmp = NULL;
+	char *ret = NULL;
+	char **tmp1 = NULL;
+	int p = 0;
+	while(*args)
+	{
+		tmp = *args;
+		ret = NULL;
+		while(*tmp)
+		{
+			if (tmp1 && *tmp1)
+			{
+				ret = ft_strjoin(ret, *tmp1);
+				tmp1 = NULL;
+			}
+			if(*tmp == '"')
+			{
+				ret = ft_strjoin(ret, expand2(creat_word(++tmp, 1, '"', &p), envr, ex));
+				tmp += p;
+			}
+			if(*tmp == '\'')
+			{
+				ret = ft_strjoin(ret, creat_word(++tmp, 1, '\'', &p));
+				tmp += p;
+				// if(*tmp)
+				// 	printf("%s%d\n", ret, p);
+				// exit(1);
+			}
+			if (*tmp)
+			{
+				tmp1 = malloc(sizeof(char *) * 3);
+				tmp1[0] = creat_word(tmp, 0, 0, &p);
+				// p = 1;
+				tmp1[1] = NULL;
+				tmp1 = expand(tmp1, envr, ex);
+				if(tmp[0] && !tmp1[1])
+				{
+					ret = ft_strjoin(ret , *tmp1);
+					tmp1 = NULL;
+				}
+				else
+				{
+					ret = ft_strjoin(ret , *tmp1);
+					ft_lstnew(&list, ret, 0);
+					tmp1++;
+					p = 0;
+					ret = expand2(creat_word(tmp, 0, 0, &p), envr, ex);
+					if (*(ret + ft_strlen(ret) - 1) == ' ')
+					{
+						while(*tmp1)
+							ft_lstnew(&list, *tmp1++, 0);
+						tmp1 = NULL;
+					}
+					else
+					{
+						while (*tmp1 && *(tmp1 + 1))
+							ft_lstnew(&list, *tmp1++, 0);
+					}
+					ret = NULL;
+				}
+				tmp += p;
+			}
+			if (!*tmp)
+			{
+				ft_lstnew(&list, ret, 0);
+				ret = NULL;
+			}
+		}
+		args++;
+	}
+	return lst_to_arr2(list);
+}
 
 int excute(char **cmd, env **env, int fd_in, int *ex)
 {
 	// if(ft_strcmp(*cmd, "export") || ft_strcmp(expand2(*cmd, *env, ex), "export"))
-		cmd = expand(cmd, *env, ex);
+		cmd = pre_expand(cmd, *env, ex);
 	if (!cmd)
 		return 1;
 	else if (!ft_strcmp(*cmd, "cd"))
