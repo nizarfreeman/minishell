@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/01 04:43:04 by aayache           #+#    #+#             */
-/*   Updated: 2025/04/17 17:26:36 by aayache          ###   ########.fr       */
+/*   Updated: 2025/05/19 14:27:17 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,18 +110,20 @@ char	**ft_split(const char *s, char c)
 	if (!s)
 		return (NULL);
 	if (!*s)
-		s = "\5";
+	{
+		split = malloc(sizeof(char *) * 2);
+		split[0] = ft_strdup("");
+		split[1] = NULL;	
+		return split;
+	}
 	s1 = ft_strdup(s);
-	// repl(' ', '\2', s1);
-	// repl1('\'', ' ', s1);
+
 	a = c_word(s1, c);
 	split = malloc((a + 1) * sizeof(char *));
 	if (!split)
 		return (NULL);
 	split2(split, s1, c);
 	free_split(split, a - 1);
-	// while (split && a--)
-	// 	repl1('\2', ' ', split[a]);
 	free(s1);
 	return (split);
 }

@@ -2,7 +2,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
+#include <time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 /* Basic character checks */
 int ft_isdigit(int c)
 {
@@ -96,11 +99,8 @@ int is_there_char(char *s, char c)
 int handle_quotes(char *s, int i, t_token **head, int preserve_quotes)
 {
     char quote = s[i];
-    int start_content = i + 1;
-    int start_with_quotes = i;
+    int start = i;
     int space = 0;
-    int end_content = i;
-    int end_with_quotes = i;
     char *token;
     int type;
 
@@ -111,19 +111,15 @@ int handle_quotes(char *s, int i, t_token **head, int preserve_quotes)
         i++;
     if (ft_isspace(s[i]))
         space = 1;
+    token = ft_strndup(&s[start], i - start);
     if (preserve_quotes)
-    {
-        token = ft_strndup(&s[start_with_quotes], end_with_quotes - start_with_quotes);
         type = WORD;
-    }
     else
-    {
-        token = ft_strndup(&s[start_content], end_content - start_content);
         type = (quote == '\'') ? S_QUOTE : D_QUOTE;
-    }
-    add_token(head, token, type, preserve_quotes ? 0 : 1, space);
+    add_token(head, token, type, 0, space, 0);
     return i;
 }
+
 
 /* Handle AND operator tokenization */
 int handle_and_operator(char *s, int i, t_token **head)
@@ -134,14 +130,14 @@ int handle_and_operator(char *s, int i, t_token **head)
     {
         if (ft_isspace(s[i + 2]))
             space = 1;
-        add_token(head, strdup("&&"), AND_IF, 0, space);
+        add_token(head, strdup("&&"), AND_IF, 0, space, 0);
         return i + 2;
     }
     else
     {
         if (ft_isspace(s[i + 2]))
             space = 1;
-        add_token(head, strdup("&"), AND, 0, space);
+        add_token(head, strdup("&"), AND, 0, space, 0);
         return i + 1;
     }
 }
@@ -155,14 +151,14 @@ int handle_or_pipe_operator(char *s, int i, t_token **head)
     {
         if (ft_isspace(s[i + 2]))
             space = 1;
-        add_token(head, strdup("||"), OR_IF, 0, space);
+        add_token(head, strdup("||"), OR_IF, 0, space, 0);
         return i + 2;
     }
     else
     {
         if (ft_isspace(s[i + 1]))
             space = 1;
-        add_token(head, strdup("|"), PIPE, 0, space);
+        add_token(head, strdup("|"), PIPE, 0, space, 0);
         return i + 1;
     }
 }
@@ -176,14 +172,14 @@ int handle_output_redirection(char *s, int i, t_token **head)
     {
         if (ft_isspace(s[i + 2]))
             space = 1;
-        add_token(head, strdup(">>"), APPEND, 0, space);
+        add_token(head, strdup(">>"), APPEND, 0, space, 0);
         return i + 2;
     }
     else
     {
         if (ft_isspace(s[i + 1]))
             space = 1;
-        add_token(head, strdup(">"), REDIRECTION_OUT, 0, space);
+        add_token(head, strdup(">"), REDIRECTION_OUT, 0, space, 0);
         return i + 1;
     }
 }
@@ -197,14 +193,14 @@ int handle_input_redirection(char *s, int i, t_token **head)
     {
         if (ft_isspace(s[i + 2]))
             space = 1;
-        add_token(head, strdup("<<"), HERE_ODC, 0, space);
+        add_token(head, strdup("<<"), HERE_ODC, 0, space, 0);
         return i + 2;
     }
     else
     {
         if (ft_isspace(s[i + 1]))
             space = 1;
-        add_token(head, strdup("<"), REDIRECTION_IN, 0, space);
+        add_token(head, strdup("<"), REDIRECTION_IN, 0, space, 0);
         return i + 1;
     }
 }
@@ -218,14 +214,14 @@ int handle_parentheses(char *s, int i, t_token **head)
     {
         if (ft_isspace(s[i + 1]))
             space = 1;
-        add_token(head, strdup("("), OPEN_PER, 0, space);
+        add_token(head, strdup("("), OPEN_PER, 0, space, 0);
         return i + 1;
     }
     else if (s[i] == ')')
     {
         if (ft_isspace(s[i + 1]))
             space = 1;
-        add_token(head, strdup(")"), CLOSE_PER, 0, space);
+        add_token(head, strdup(")"), CLOSE_PER, 0, space, 0);
         return i + 1;
     }
     return i;
@@ -238,7 +234,7 @@ int handle_assignment(char *s, int i, t_token **head)
 
     if (ft_isspace(s[i + 1]))
             space = 1;
-    add_token(head, strdup("="), ASSIGN, 0, space);
+    add_token(head, strdup("="), ASSIGN, 0, space, 0);
     return i + 1;
 }
 
@@ -249,7 +245,7 @@ int handle_wildcard(char *s, int i, t_token **head)
 
     if (ft_isspace(s[i + 1]))
             space = 1;
-    add_token(head, strdup("*"), WILDCARD, 0, space);
+    add_token(head, strdup("*"), WILDCARD, 0, space, 0);
     return i + 1;
 }
 
@@ -262,14 +258,14 @@ int handle_dollar(char *s, int i, t_token **head)
     {
         if (ft_isspace(s[i + 2]))
             space = 1;
-        add_token(head, strdup("$?"), EXIT_STATUS, 0, space);
+        add_token(head, strdup("$?"), EXIT_STATUS, 0, space, 0);
         return i + 2;
     }
     else
     {
         if (ft_isspace(s[i + 1]))
             space = 1;
-        add_token(head, strdup("$"), DOLLAR, 0, space);
+        add_token(head, strdup("$"), DOLLAR, 0, space, 0);
         return i + 1;
     }
 }
@@ -287,21 +283,21 @@ int handle_word(char *s, int i, t_token **head)
         space = 1;
     char *token = ft_strndup(&s[start], i - start);
     if (strcmp(token, "echo") == 0)
-        add_token(head, token, BUILTIN_ECHO, 0, space);
+        add_token(head, token, BUILTIN_ECHO, 0, space, 0);
     else if (strcmp(token, "cd") == 0)
-        add_token(head, token, BUILTIN_CD, 0, space);
+        add_token(head, token, BUILTIN_CD, 0, space, 0);
     else if (strcmp(token, "pwd") == 0)
-        add_token(head, token, BUILTIN_PWD, 0, space);
+        add_token(head, token, BUILTIN_PWD, 0, space, 0);
     else if (strcmp(token, "export") == 0)
-        add_token(head, token, BUILTIN_EXPORT, 0, space);
+        add_token(head, token, BUILTIN_EXPORT, 0, space, 0);
     else if (strcmp(token, "unset") == 0)
-        add_token(head, token, BUILTIN_UNSET, 0, space);
+        add_token(head, token, BUILTIN_UNSET, 0, space, 0);
     else if (strcmp(token, "env") == 0)
-        add_token(head, token, BUILTIN_ENV, 0, space);
+        add_token(head, token, BUILTIN_ENV, 0, space, 0);
     else if (strcmp(token, "exit") == 0)
-        add_token(head, token, BUILTIN_EXIT, 0, space);
+        add_token(head, token, BUILTIN_EXIT, 0, space, 0);
     else
-        add_token(head, token, WORD, 0, space);
+        add_token(head, token, WORD, 0, space, 0);
     
     return (i);
 }
@@ -561,6 +557,7 @@ void revise_args(t_token **head)
             }
             
             memset(new_node, 0, sizeof(t_token));
+            new_node->fd = 0;
             new_node->token = new_token_str;
             new_node->type = 0;
             new_node->space_after = space_after;
@@ -615,14 +612,105 @@ char *unquote_string(char *str)
     return (ret);
 }
 
+static char *ft_strrev(char *str)
+{
+    int i;
+    int j;
+    int tmp;
+
+    i = 0;
+    j = strlen(str);
+    while (j > i)
+    {
+        j--;
+        tmp = str[i];
+        str[i] = str[j];
+        str[j] = tmp;
+        i++;
+    }
+    return str;
+}
+
+// char    *ft_itoa(int nbr)
+// {
+//     int i;
+//     int neg;
+//     char *tmp;
+
+//     i = 0;
+//     neg = 0;
+//     tmp = malloc(sizeof(char) * 12);
+//     if (tmp == NULL || nbr == 0)
+//         return ((nbr == 0) ? "0" : NULL);
+//     if (nbr == -2147483648)
+//         return ("-2147483648");
+//     if (nbr < 0)
+//     {
+//         neg = 1;
+//         nbr *= -1;
+//     }
+//     while (nbr)
+//     {
+//         tmp[i++] = (nbr % 10) + '0';
+//         nbr /= 10;
+//     }
+//     if (neg)
+//         tmp[i] = '-';
+//     return ft_strrev(tmp);
+// }
+
+void revise_heredocs(t_token **head)
+{
+    srand(time(NULL));
+    char *name = NULL;
+    int fd;
+    char *s = NULL;
+
+    t_token *list = *head;
+    while (list)
+    {
+        if (list->type == 9 && list->next)
+        {
+            name = ft_strjoin("/tmp/", ft_itoa(rand()));
+            if (!name)
+                return ;
+            fd = open(name, O_CREAT | O_RDWR | O_TRUNC, 0644);
+            if (fd == -1)
+            {
+                free(name);
+                return ;
+            }
+            s = readline("> ");
+            while (s && strcmp(s, list->next->token) != 0)
+            {
+                write(fd, s, strlen(s));
+                write(fd, "\n", 1);
+                free(s);
+                s = readline("> ");
+            }
+            if (s)
+                free(s);
+            
+            fd = open(name, O_RDWR);
+            if (fd == -1)
+            {
+                free(name);
+                return;
+            }
+            list->fd = fd;
+        }
+        list = list->next;
+    }
+    return ;
+}
+
 t_token *lexer(char *s)
 {
     t_token *head = NULL;
     
     tokenize_input(s, &head);
-    //exapnd_args(&head)
     revise_args(&head);
     revise_redirections(&head);
-    //print_token_list(&head);
+    revise_heredocs(&head);
     return (head);
 }

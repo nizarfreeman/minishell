@@ -94,11 +94,15 @@ int main(int argc, char const *argv[])
 	while (1)
 	{
 		char *s = readline("$ ");
-
 		if (!s)
 			break ;
 		if (*s)
 			add_history(s);
+		if (strcmp(s, "") == 0)
+		{
+			free(s);
+			continue ;
+		}
 		if (!check_quotes(s))
 		{
 			printf("Error! syntax error: unclosed quote !\n");
@@ -108,15 +112,15 @@ int main(int argc, char const *argv[])
 		//printf("%s\n", unquote_string(s));
 		head = lexer(s);
 		root = parse_expression(head);
-		print_token_list(&head);
-		// if (root)
-		// {
-		// 	printf("\n\n");
-		// 	//print_tree(root);
-  //    		print_ast(root);
-		// 	free_token_list(&head);
-		// }
-		// free(s);
+		//print_token_list(&head);
+		if (root)
+		{
+			printf("\n\n");
+			//print_tree(root);
+     		print_ast(root);
+			free_token_list(&head);
+		}
+		free(s);
 	}
 
 	rl_clear_history();

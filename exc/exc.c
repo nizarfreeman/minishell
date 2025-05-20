@@ -128,8 +128,8 @@ char *expand2(char *str, env *envr, int *ex)
 char **expand_split(char **args)
 {
 	env *ret;
-	ret = NULL;
 	char **tmp;
+	ret = NULL;
 	while (*args)
 	{
 		tmp = ft_split(*args, ' ');
@@ -191,6 +191,13 @@ int excute(char **cmd, env **env, int fd_in, int *ex)
 		return envr(*env, ex);
 	else if (!ft_strcmp(*cmd, "exit"))
 		my_exit(&cmd[1], ex);
+	else if(!**cmd)
+	{
+		*ex = 0;
+		if (cmd[1])
+			return excute(&cmd[1], env, fd_in, ex);
+		return (0);
+	}
 	else
 		return excute_cmd(cmd, env, fd_in, ex);
 	return 1;

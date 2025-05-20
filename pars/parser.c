@@ -520,7 +520,7 @@ t_token	*deep_copy_tokens(t_token *start, t_token *end)
 	while (current && current != end)
 	{
 		if (!add_token(&result, strdup(current->token), current->type, 
-			current->quoted, current->space_after))
+			current->quoted, current->space_after, current->fd))
 		{
 			free_token_list(&result);
 			return NULL;
@@ -589,7 +589,7 @@ t_tree	*build_tree(t_token *head)
 	for (int i = 0; i < root_pos && curr; i++)
 	{
 		if (!add_token(&left_side, strdup(curr->token), curr->type,
-			curr->quoted, curr->space_after))
+			curr->quoted, curr->space_after, curr->fd))
 		{
 			free_tree(node);
 			free_token_list(&left_side);
@@ -601,7 +601,7 @@ t_tree	*build_tree(t_token *head)
 	while (curr)
 	{
 		if (!add_token(&right_side, strdup(curr->token), curr->type,
-			curr->quoted, curr->space_after))
+			curr->quoted, curr->space_after, curr->fd))
 		{
 			free_tree(node);
 			free_token_list(&left_side);
