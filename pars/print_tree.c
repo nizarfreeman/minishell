@@ -151,7 +151,7 @@ void print_simple_tree(t_tree *root, int depth) {
         printf("    ");
     
     // Print node information
-    printf("%s\n", get_node_str(root));
+    printf("%s \n", get_node_str(root));
     
     // Print connection lines to children
     if (root->left || root->right) {

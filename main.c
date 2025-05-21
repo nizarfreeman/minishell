@@ -91,16 +91,13 @@ int main(int argc, char const *argv[], char **envr)
 	(void)argc;
 	(void)argv;
 	int ex = 0;
+	get_exit_status(&ex);
 	t_token *head = NULL;
 	t_tree *root;
 	env *env = creat_env(envr);
 	sig_han = 0;
 	signal(SIGQUIT, SIG_IGN);
 	signal(SIGINT, handle_int);
-	// char *s[] = {"export", "a=\"a b\"", NULL};
-	// char *t[] = {"env", NULL};
-	// excute(s, &env, -1, &ex);
-	// excute_cmd(t, &env, -1, &ex);
 	while (1)
 	{
 		sig_han = 1;

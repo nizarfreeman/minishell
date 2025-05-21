@@ -1,5 +1,14 @@
 #include "s.h"
 
+int *get_exit_status(int *ex)
+{
+	static int *status;
+	if (!ex)
+		return status;
+	status = ex;
+	return NULL;
+}
+
 int	ft_strncmp(const char *s1, const char *s2, size_t n)
 {
 	while (n > 0 && *s1 && *s2 && (char)*s1 == (char)*s2)

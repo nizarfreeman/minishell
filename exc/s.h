@@ -11,6 +11,7 @@
 #include "wait.h"
 #include <limits.h>
 #include <signal.h>
+#include <stdint.h>
 #include "../pars/minishell.h"
 extern int sig_han;
 
@@ -66,4 +67,6 @@ char **pre_expand(char **args, env *envr, int *ex);
 char	*get_next_line(int fd);
 void	*ft_memcpy(void *dst, const void *src, size_t n);
 char *expand2(char *str, env *envr, int *ex);
+int *get_exit_status(int *ex);
+int read_and_expand(int fd, env *envr, int *ex);
 #endif

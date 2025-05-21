@@ -16,7 +16,7 @@ int	check_value_exit(char *cmd)
 void my_exit(char **cmd, int *ex)
 {
 
-	if (!cmd)
+	if (cmd && !*cmd)
 	{
 		exit(*ex);
 		// exit(last_cmd_exit);

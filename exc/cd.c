@@ -33,6 +33,8 @@ int echo_option(char *str)
 	if (*str != '-')
 		return 1;
 	str++;
+	if (!*str)
+		return 1;
 	while (*str && *str == 'n')
 		str++;
 	if (!*str)

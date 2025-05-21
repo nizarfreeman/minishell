@@ -4,7 +4,7 @@ void redirections(t_tree *root, env **env, int *ex, t_tree *left)
 {
 	int fd;
 	char **tmp;
-	if(root->right->type != HERE_ODC)
+	if(root->type != HERE_ODC)
 	{
 		if (root->right->type >= 6 && root->right->type <= 9)
 		{
@@ -102,14 +102,13 @@ void redirections(t_tree *root, env **env, int *ex, t_tree *left)
 			perror("open");
 			*ex = 1;
 		}
-		// append(root->right, ex);
 	}
 	else
 	{
 		*ex = 0;
 		if (root->right->type >= 6 && root->type <= 9)
 		{
-			if(*(root->right->left->cmd) == '\'' || *(root->right->left->cmd) == '"')
+			if(ft_strrchr(root->right->left->cmd, '\'') || ft_strrchr(root->right->left->cmd, '"'))
 			{
 				if(left->fd != -1)
 					close(left->fd);
@@ -126,26 +125,22 @@ void redirections(t_tree *root, env **env, int *ex, t_tree *left)
 		}
 		else
 		{
-			if(*(root->right->cmd) == '\'' || *(root->right->cmd) == '"')
+			if(ft_strrchr(root->right->cmd, '\'') || ft_strrchr(root->right->cmd, '"'))
 			{
 				if(left->fd != -1)
 					close(left->fd);
 				left->fd = root->fd;
-				// redirections(root->right, env, ex, left);
 			}
 			else
 			{
 				if(left->fd != -1)
+				{
 					close(left->fd);
+				}
 				left->fd = read_and_expand(root->fd, *env, ex);	
-				// redirections(root->right, env, ex, left);
 			}
 		}
-
-		// printf("%s\n", get_next_line(root->fd));
-
 	}
-		// her_doc(root->right, ex);
 		return ;
 }
 
@@ -159,12 +154,13 @@ int read_and_expand(int fd, env *envr, int *ex)
 		ft_lstnew(&ret, expand2(s, envr, ex), 0);
 		s = get_next_line(fd);
 	}
-	s = ft_strjoin("/tmp/", ft_itoa((int)&s));
+	s = ft_strjoin(".", ft_itoa((uintptr_t)s));
 	close(fd);
-	unlink(s);
-	fd = open(s, O_RDWR);
-	fd_ret = open(s, O_RDWR);
-	unlink(s);
+	// unlink(s);
+	fd = open(s, O_CREAT | O_RDWR | O_TRUNC, 0644);
+	fd_ret = open(s, O_CREAT | O_RDWR | O_TRUNC, 0644);
+	// printf("%d\n", fd);
+	// unlink(s);
 	while(ret)
 	{
 		write(fd, ret->value, ft_strlen(ret->value));

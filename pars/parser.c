@@ -486,6 +486,7 @@ t_tree *root(t_token *head, int root_pos)
 	new_node->cmd = strdup(head->token);
 	new_node->args = NULL;
 	new_node->files = NULL;
+	new_node->fd = head->fd;
 	return (new_node);
 }
 

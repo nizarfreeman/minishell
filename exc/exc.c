@@ -94,8 +94,8 @@ char *expand2(char *str, env *envr, int *ex)
 	char *ret;
 	char *s = NULL;
 	ret = NULL;
-	// if (!str || !*str)
-    //     return ft_strdup("");
+	if (!str || !*str)
+        return ft_strdup("");
 	if (*str != '$')
 	{
 		s = str;
@@ -110,10 +110,15 @@ char *expand2(char *str, env *envr, int *ex)
 	}
 	if (*str == '$')
 	{
-		str++;
+		if (expand_valid(*(str + 1)))
+		{
+			ret = ft_strjoin(ft_strdup("$"), expand2(str + 1, envr, ex));
+			return ret;
+		}
+			str++;
 		if(*str == '?')
 		{
-			ret = ft_strjoin(ret , ft_strjoin(ft_itoa(*ex), expand2(str + 1, envr, ex)));
+			ret = ft_strjoin(ft_itoa(*ex), expand2(str + 1, envr, ex));
 			return ret;
 		}
 		else
@@ -121,7 +126,7 @@ char *expand2(char *str, env *envr, int *ex)
 			s = str;
 			while (*str && !expand_valid(*(str)))
 				str++;
-			ret = ft_strjoin(ret , ft_strjoin(get_value(envr, ft_strjoin(word(s, str), "=")), expand2(str, envr, ex)));
+			ret = ft_strjoin(get_value(envr, ft_strjoin(word(s, str), "=")), expand2(str, envr, ex));
 			return ret;
 		}
 	}
@@ -211,11 +216,11 @@ char **pre_expand(char **args, env *envr, int *ex)
 		ret = NULL;
 		while(*tmp)
 		{
-			if (tmp1 && *tmp1)
-			{
-				ret = ft_strjoin(ret, *tmp1);
-				tmp1 = NULL;
-			}
+			// if (tmp1 && *tmp1)
+			// {
+			// 	ret = ft_strjoin(ret, *tmp1);
+			// 	tmp1 = NULL;
+			// }
 			if(*tmp == '"')
 			{
 				ret = ft_strjoin(ret, expand2(creat_word(++tmp, 1, '"', &p), envr, ex));
@@ -225,19 +230,17 @@ char **pre_expand(char **args, env *envr, int *ex)
 			{
 				ret = ft_strjoin(ret, creat_word(++tmp, 1, '\'', &p));
 				tmp += p;
-				// if(*tmp)
-				// 	printf("%s%d\n", ret, p);
-				// exit(1);
 			}
 			if (*tmp)
 			{
 				tmp1 = malloc(sizeof(char *) * 3);
 				tmp1[0] = creat_word(tmp, 0, 0, &p);
-				// p = 1;
 				tmp1[1] = NULL;
 				tmp1 = expand(tmp1, envr, ex);
-				if(tmp[0] && !tmp1[1])
+				if(tmp1[0] && !tmp1[1])
 				{
+					// 
+					// printf("|%s|\n", tmp1[0]);
 					ret = ft_strjoin(ret , *tmp1);
 					tmp1 = NULL;
 				}
@@ -248,18 +251,20 @@ char **pre_expand(char **args, env *envr, int *ex)
 					tmp1++;
 					p = 0;
 					ret = expand2(creat_word(tmp, 0, 0, &p), envr, ex);
-					if (*(ret + ft_strlen(ret) - 1) == ' ')
+					if (*(ret + ft_strlen(ret) - 1) == ' ' || *(ret + ft_strlen(ret) - 1) == '"')
 					{
 						while(*tmp1)
 							ft_lstnew(&list, *tmp1++, 0);
 						tmp1 = NULL;
+						ret = NULL;
 					}
 					else
 					{
 						while (*tmp1 && *(tmp1 + 1))
 							ft_lstnew(&list, *tmp1++, 0);
+						ret = *tmp1;
+
 					}
-					ret = NULL;
 				}
 				tmp += p;
 			}
@@ -313,6 +318,7 @@ void handle_int(int sig)
 		rl_replace_line("", 0);
 		rl_on_new_line();
 		rl_redisplay();
+		*(get_exit_status(NULL)) = 130;
 	}
 	else{
 		close(130);

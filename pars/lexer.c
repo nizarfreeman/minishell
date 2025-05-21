@@ -42,8 +42,6 @@ int ft_is_quote(int c)
 size_t ft_strlen(char *s)
 {
     size_t len = 0;
-    if(!s)
-        return 0;
     while (s[len])
         len++;
     return len;
@@ -362,6 +360,24 @@ int is_redirection_target(t_token *token)
     return (token && token->prev && is_redirection(token->prev));
 }
 
+// t_token *find_current_command_token(t_token *start)
+// {
+//     t_token *current = start;
+//     while (current && !is_pipe_or_logical(current))
+//     {
+//         if (is_command(current))
+//             return (current);
+//         current = current->next;
+//     }
+//     current = start;
+//     while (current && !is_pipe_or_logical(current))
+//     {
+//         if (!is_redirection(current) && !is_redirection_target(current))
+//             return (current);
+//         current = current->next;
+//     }
+//     return (start);
+// }
 t_token *find_current_command_token(t_token *start)
 {
     t_token *current = start;
@@ -433,14 +449,17 @@ void insert_node_after(t_token **head, t_token *position, t_token *node)
     }
 }
 
+
+
 /* Process a single command segment (between operators) */
+//}
 void reorganize_single_command(t_token **head, t_token *start, t_token *end)
 {
     if (!start)
-        return ;
+        return;
     t_token *cmd_token = find_current_command_token(start);
     if (!cmd_token || cmd_token == end)
-        return ;
+        return;
     t_token *last_cmd_arg = find_last_command_arg(cmd_token);
     t_token *current = last_cmd_arg->next;
     while (current && current != end)
@@ -462,7 +481,7 @@ void reorganize_single_command(t_token **head, t_token *start, t_token *end)
 void reorganize_command_args(t_token **head)
 {
     if (!head || !*head)
-        return ;
+        return;
         
     t_token *current = *head;
     t_token *segment_start = current;
@@ -480,13 +499,73 @@ void reorganize_command_args(t_token **head)
         reorganize_single_command(head, segment_start, NULL);
 }
 
+
 /* Process token list to properly organize command arguments and redirections */
+void handle_redirection_first(t_token **head, t_token *start, t_token *end)
+{
+    if (!start || !is_redirection(start))
+        return;
+    t_token *current = start;
+    t_token *command_candidate = NULL;
+    
+    while (current && current != end && !is_pipe_or_logical(current))
+    {
+        if (is_redirection(current))
+        {
+            current = current->next;
+            if (current)
+                current = current->next;
+            continue;
+        }
+        if (!is_redirection_target(current))
+        {
+            command_candidate = current;
+            break;
+        }
+        
+        current = current->next;
+    }
+    if (command_candidate)
+    {
+        extract_node(head, command_candidate);
+        if (start->prev)
+        {
+            command_candidate->prev = start->prev;
+            command_candidate->next = start;
+            start->prev->next = command_candidate;
+            start->prev = command_candidate;
+        }
+        else
+        {
+            command_candidate->next = start;
+            start->prev = command_candidate;
+            *head = command_candidate;
+        }
+    }
+}
+
 void revise_redirections(t_token **head)
 {
     if (!head || !*head)
-        return ;
+        return;
+    t_token *current = *head;
+    t_token *segment_start = current;
+    while (current)
+    {
+        if (is_pipe_or_logical(current))
+        {
+            handle_redirection_first(head, segment_start, current);
+            segment_start = current->next;
+        }
+        
+        current = current->next;
+    }
+    if (segment_start)
+        handle_redirection_first(head, segment_start, NULL);
     reorganize_command_args(head);
 }
+
+
 
 void revise_args(t_token **head)
 {
@@ -669,10 +748,12 @@ void revise_heredocs(t_token **head)
     char *s = NULL;
 
     t_token *list = *head;
+    signal(SIGINT, handle_int);
     while (list)
     {
         if (list->type == 9 && list->next)
         {
+            
             name = ft_strjoin("/tmp/", ft_itoa(rand()));
             if (!name)
                 return ;
@@ -683,7 +764,8 @@ void revise_heredocs(t_token **head)
                 return ;
             }
             s = readline("> ");
-            while (s && strcmp(s, list->next->token) != 0)
+            char *delim = unquote_string(list->next->token);
+            while (s && strcmp(s, delim) != 0)
             {
                 write(fd, s, strlen(s));
                 write(fd, "\n", 1);
@@ -692,13 +774,14 @@ void revise_heredocs(t_token **head)
             }
             if (s)
                 free(s);
-            
+            close (fd);
             fd = open(name, O_RDWR);
             if (fd == -1)
             {
                 free(name);
                 return;
             }
+            unlink(name);
             list->fd = fd;
         }
         list = list->next;

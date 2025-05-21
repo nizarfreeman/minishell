@@ -40,7 +40,7 @@ int	add_token(t_token **head, char *token, int type, int quoted, int space, int 
 		return (0);
 	memset(new_node, 0, sizeof(t_token));
 	new_node->fd = -1;
-	if (fd)
+	if (fd >= 0)
 		new_node->fd = fd;
 	new_node->token = token;
 	new_node->type = type;
