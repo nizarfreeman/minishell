@@ -318,10 +318,10 @@ void handle_int(int sig)
 		rl_replace_line("", 0);
 		rl_on_new_line();
 		rl_redisplay();
-		*(get_exit_status(NULL)) = 130;
+		// *(get_exit_status(NULL)) = 130;
 	}
 	else{
-		close(130);
+		exit(130);
 		sig_han = 0;
 	}
 }
