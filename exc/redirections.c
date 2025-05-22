@@ -154,13 +154,10 @@ int read_and_expand(int fd, env *envr, int *ex)
 		ft_lstnew(&ret, expand2(s, envr, ex), 0);
 		s = get_next_line(fd);
 	}
-	s = ft_strjoin(".", ft_itoa((uintptr_t)s));
+	s = ft_strjoin("/tmp/", ft_itoa((uintptr_t)s));
 	close(fd);
-	// unlink(s);
 	fd = open(s, O_CREAT | O_RDWR | O_TRUNC, 0644);
 	fd_ret = open(s, O_CREAT | O_RDWR | O_TRUNC, 0644);
-	// printf("%d\n", fd);
-	// unlink(s);
 	while(ret)
 	{
 		write(fd, ret->value, ft_strlen(ret->value));

@@ -31,11 +31,11 @@ int exec_tree(t_tree *root, env **env, int *ex)
 				exec_tree(root->left, env, ex);
 			exit(*ex);
 		}
-		waitpid(status, ex, 0);
+		waitpid(status, &status, 0);
 	}
 	return *ex;
 }
-int pipe_left(t_tree *root, env **env, int  *fds)
+int pipe_left(t_tree *root, env **env, int  *fds, int *exi)
 {
 	pid_t pid;
 	int ex = 1;
@@ -46,12 +46,13 @@ int pipe_left(t_tree *root, env **env, int  *fds)
 		dup2(fds[1], STDOUT_FILENO);
 		close(fds[1]);
 		close(fds[0]);
-		ex = exec_tree(root, env, &ex);
+		ex = exec_tree(root, env, exi);
 		exit(ex);
 	}
 	close(fds[1]);
 	return pid;
 }
+
 int exce_pipe(t_tree *root, env **env, int *exi)
 {
 	int fds[2];
@@ -60,16 +61,18 @@ int exce_pipe(t_tree *root, env **env, int *exi)
 	int left_pid;
 
 	root->right->fd = fds[0];
-	left_pid = pipe_left(root->left, env, fds);
+	left_pid = pipe_left(root->left, env, fds, exi);
 	int pid = fork();
 	if (pid == 0)
 	{
-		*exi = exec_tree(root->right, env, exi);
+		exec_tree(root->right, env, exi);
 		exit(*exi);
 	}
 	close(fds[0]);
 	waitpid(left_pid, &ex, 0);
 	waitpid(pid, &ex, 0);
+	*exi = WEXITSTATUS(ex);
+		// fprintf(stderr, "|%d|\n", *exi);
 	
 	return ex; 
 }

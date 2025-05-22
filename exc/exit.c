@@ -30,13 +30,19 @@ void my_exit(char **cmd, int *ex)
 		
 	if (check_value_exit(*cmd) || ft_atoi2(*cmd))
 	{
-		write(2, "exit: aa: numeric argument required\n", 37);
+		write(2, "exit\n", 5);
+
+		write(2, "exit: " , 7);
+		write(2, *cmd, ft_strlen(*cmd));
+		write(2, ": numeric argument required\n", 29);
 		*ex = 2;
 		exit(2);		
 	}
 	if (!check_value_exit(*cmd) && !cmd[1])
 	{
 		*ex = ft_atoi(*cmd) % 256; 
+		// fprintf(stderr, "%d\n", *ex);
+	
 		exit(ft_atoi(*cmd) % 256);
 	}
 }

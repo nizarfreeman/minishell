@@ -139,7 +139,7 @@ char **expand_split(char **args)
 	ret = NULL;
 	while (*args)
 	{
-		tmp = ft_split(*args, ' ');
+		tmp = ft_split(*args, 0);
 		while (tmp && *tmp)
 		{
 			// printf("%s\n", *tmp);
@@ -239,8 +239,6 @@ char **pre_expand(char **args, env *envr, int *ex)
 				tmp1 = expand(tmp1, envr, ex);
 				if(tmp1[0] && !tmp1[1])
 				{
-					// 
-					// printf("|%s|\n", tmp1[0]);
 					ret = ft_strjoin(ret , *tmp1);
 					tmp1 = NULL;
 				}
@@ -318,10 +316,10 @@ void handle_int(int sig)
 		rl_replace_line("", 0);
 		rl_on_new_line();
 		rl_redisplay();
-		// *(get_exit_status(NULL)) = 130;
+		*(get_exit_status(NULL)) = 130;
 	}
 	else{
-		exit(130);
+		// exit(130);
 		sig_han = 0;
 	}
 }

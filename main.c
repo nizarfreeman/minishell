@@ -100,6 +100,8 @@ int main(int argc, char const *argv[], char **envr)
 	signal(SIGINT, handle_int);
 	while (1)
 	{
+		if (!isatty(0))
+			return 1;
 		sig_han = 1;
 		char *s = readline("$ ");
 		sig_han = 0;

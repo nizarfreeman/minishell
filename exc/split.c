@@ -6,11 +6,16 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/01 04:43:04 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/19 14:27:17 by aayache          ###   ########.fr       */
+/*   Updated: 2025/05/22 13:28:45 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "s.h"
+
+static int	is_space_tab(char c)
+{
+	return (c == ' ' || c == '\t');
+}
 
 static int	c_word(char *str, char charset)
 {
@@ -21,13 +26,26 @@ static int	c_word(char *str, char charset)
 	count = 0;
 	while (*str)
 	{
-		if (*str != charset && flag)
+		if (charset != 0)
 		{
-			count++;
-			flag = 0;
+			if (*str != charset && flag)
+			{
+				count++;
+				flag = 0;
+			}
+			else if (*str == charset)
+				flag = 1;
 		}
-		else if (*str == charset)
-			flag = 1;
+		else
+		{
+			if (!is_space_tab(*str) && flag)
+			{
+				count++;
+				flag = 0;
+			}
+			else if (is_space_tab(*str))
+				flag = 1;
+		}
 		str++;
 	}
 	return (count);
@@ -85,16 +103,33 @@ static void	split2(char **split, char *str, char charset)
 	i = 0;
 	while (*str)
 	{
-		if (*str != charset && !start)
-			start = str;
-		if ((*str == charset || *(str + 1) == '\0') && start)
+		if (charset != 0)
 		{
-			if (*str == charset)
-				end = str;
-			else
-				end = (str + 1);
-			split[i++] = word(start, end);
-			start = NULL;
+			if (*str != charset && !start)
+				start = str;
+			if ((*str == charset || *(str + 1) == '\0') && start)
+			{
+				if (*str == charset)
+					end = str;
+				else
+					end = (str + 1);
+				split[i++] = word(start, end);
+				start = NULL;
+			}
+		}
+		else
+		{
+			if (!is_space_tab(*str) && !start)
+				start = str;
+			if ((is_space_tab(*str) || *(str + 1) == '\0') && start)
+			{
+				if (is_space_tab(*str))
+					end = str;
+				else
+					end = (str + 1);
+				split[i++] = word(start, end);
+				start = NULL;
+			}
 		}
 		str++;
 	}
