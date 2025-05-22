@@ -104,6 +104,13 @@ int	cd(env *env, char *path, int *ex)
 		*ex = cd2(env, path);
 	return *ex;
 }
+char	*trim_last_dir(const char *path)
+{
+	char	*last_slash;
+
+	last_slash = ft_strrchr(path, '/');
+	return (word((char *)path, last_slash));
+}
 
 int	cd2(env *env, char *path)
 {
@@ -111,7 +118,7 @@ int	cd2(env *env, char *path)
 	char *oldpwd;
 	char *tmp;
 	oldpwd = get_value(env, "PWD=");
-	// printf("%d |%s|\n", chdir(path), path);
+	printf("|%s|\n", path);
 	if (chdir(path) == 0)
 	{
 		pwd = getcwd(NULL, 0);
@@ -130,7 +137,12 @@ int	cd2(env *env, char *path)
 	switch (errno)
 	{
 		case EACCES:
-			printf("cd: Permission denied.\n");
+		{
+			if (!ft_strcmp(path, ".."))
+				cd2(env, trim_last_dir(getcwd(NULL, 0)));
+			else
+				printf("cd: Permission denied.\n");
+		}
 			break;
 		case ENOENT:
 			printf("cd: Directory does not exist.\n");
