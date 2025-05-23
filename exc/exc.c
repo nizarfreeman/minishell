@@ -10,8 +10,11 @@ char **lst_to_arr2(env *env)
 	i = 0;
 	while (env)
 	{
+		if (env->f != 2)
+		{
 			ret[i] = ft_strdup(env->value);
 			i++;
+		}
 		env = env->next;
 	}
 	ret[i] = NULL;
@@ -94,15 +97,15 @@ char *expand2(char *str, env *envr, int *ex)
 	char *ret;
 	char *s = NULL;
 	ret = NULL;
-	if (!str || !*str)
-        return ft_strdup("");
+	// if (!str || !*str)
+    //     return ft_strdup("");
 	if (*str != '$')
 	{
 		s = str;
 		while (*str && *(str + 1) != '$') //(*str == '$' && expand_valid(*(str +1 )))
 			str++;
 		// printf("|%c|\n", *str);
-		if (*(str + 1) == '$')
+		if (*str && *(str + 1) == '$')
 			ret = ft_strjoin(word(s, str + 1), expand2(str + 1, envr, ex));
 		else
 			ret = word(s, str);
@@ -216,11 +219,6 @@ char **pre_expand(char **args, env *envr, int *ex)
 		ret = NULL;
 		while(*tmp)
 		{
-			// if (tmp1 && *tmp1)
-			// {
-			// 	ret = ft_strjoin(ret, *tmp1);
-			// 	tmp1 = NULL;
-			// }
 			if(*tmp == '"')
 			{
 				ret = ft_strjoin(ret, expand2(creat_word(++tmp, 1, '"', &p), envr, ex));
@@ -261,7 +259,6 @@ char **pre_expand(char **args, env *envr, int *ex)
 						while (*tmp1 && *(tmp1 + 1))
 							ft_lstnew(&list, *tmp1++, 0);
 						ret = *tmp1;
-
 					}
 				}
 				tmp += p;
@@ -279,7 +276,7 @@ char **pre_expand(char **args, env *envr, int *ex)
 
 int excute(char **cmd, env **env, int fd_in, int *ex)
 {
-	// if(ft_strcmp(*cmd, "export") || ft_strcmp(expand2(*cmd, *env, ex), "export"))
+	if(ft_strcmp(*cmd, "export") || ft_strcmp(*(pre_expand(cmd, *env, ex)), "export"))
 		cmd = pre_expand(cmd, *env, ex);
 	if (!cmd)
 		return 1;
@@ -311,7 +308,8 @@ int excute(char **cmd, env **env, int fd_in, int *ex)
 
 void handle_int(int sig)
 {
-	if(sig_han == 1){
+	if(sig_han == 1)
+	{
 		write(1, "\n", 1);
 		rl_replace_line("", 0);
 		rl_on_new_line();
@@ -320,6 +318,6 @@ void handle_int(int sig)
 	}
 	else{
 		// exit(130);
-		sig_han = 0;
+		// sig_han = 0;
 	}
 }

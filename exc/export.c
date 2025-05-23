@@ -103,6 +103,7 @@ int export2(char *arg ,env **envr)
 	}
 	if (flag == 3)
 	{
+		
 		tmp = get_value(*envr, spl[0]);
 		if (tmp == NULL)
 		{
@@ -118,6 +119,7 @@ int export2(char *arg ,env **envr)
 	}
 	if (flag == 0)
 	{
+		// printf("here\n");
 		tmp = get_value(*envr, spl[0]);
 		if (tmp == NULL)
 		{
@@ -125,6 +127,7 @@ int export2(char *arg ,env **envr)
 			free(tmp);
 			return 0;
 		}
+		search_replace(*envr, spl[0], NULL);
 	}
 	return 0;
 		

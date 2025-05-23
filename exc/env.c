@@ -15,6 +15,9 @@ void no_env(env **ret)
 {
 	char *s;
 
+	s = get_value(*ret, "PATH=");
+	if (!s)
+		ft_lstnew(ret, "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", 2);
 	s = get_value(*ret, "PWD");
 	if (!s)
 	{
@@ -28,7 +31,10 @@ void no_env(env **ret)
 		ft_lstnew(ret, "OLDPWD", 0);
 	s = get_value(*ret, "_");
 	if (!s)
-		ft_lstnew(ret, "_=/usr/bin/env", 1);
+		ft_lstnew(ret, "_=/usr/bin/env", 2);
+	else
+		search_replace(*ret, "_", NULL);
+	
 	s = get_value(*ret, "SHLVL");
 	if (!s)
 		ft_lstnew(ret, "SHLVL=1", 1);

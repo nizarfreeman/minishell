@@ -1,4 +1,4 @@
-CC       = cc
+CC       = cc #-fsanitize=address
 C_FLAGS  = -g -I. -I pars 
 LIBS     = -lreadline
 NAME     = minishell

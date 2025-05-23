@@ -67,8 +67,8 @@ int envr(env* env, int *ex)
 {
 	while (env)
 	{
-		if (env->f)
-		printf("%s\n", env->value);
+		if ((env->f && env->f != 2) || !ft_strcmp("_=/usr/bin/env", env->value))
+			printf("%s\n", env->value);
 		env = env->next;
 	}
 	*ex = 0;
@@ -104,10 +104,12 @@ int	cd(env *env, char *path, int *ex)
 		*ex = cd2(env, path);
 	return *ex;
 }
-char	*trim_last_dir(const char *path)
+char	*trim_last_dir(char *path)
 {
 	char	*last_slash;
 
+	if (!ft_strcmp("/", path))
+		return ft_strdup("/");
 	last_slash = ft_strrchr(path, '/');
 	return (word((char *)path, last_slash));
 }
@@ -118,7 +120,7 @@ int	cd2(env *env, char *path)
 	char *oldpwd;
 	char *tmp;
 	oldpwd = get_value(env, "PWD=");
-	printf("|%s|\n", path);
+	// printf("|%s|\n", path);
 	if (chdir(path) == 0)
 	{
 		pwd = getcwd(NULL, 0);
@@ -162,7 +164,6 @@ int	cd2(env *env, char *path)
 void search_replace(env *env, char *key, char *rep)
 {
 	char *tmp;
-
 	tmp = ft_strjoin(ft_strdup(key), ft_strdup("="));
 	while (env && ft_strcmp(key, env->value) && ft_strncmp(env->value, tmp, ft_strlen(tmp)))
 		env = env->next;
@@ -173,8 +174,11 @@ void search_replace(env *env, char *key, char *rep)
 		return ;
 	}
 	// free(env->value);
+	if(rep)
+	{
 	env->value = NULL;
 	env->value = ft_strjoin(tmp, rep);
+	}
 	env->f = 1;
 	// printf("%s\n", env->value);
 
