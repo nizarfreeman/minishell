@@ -32,6 +32,7 @@ int exec_tree(t_tree *root, env **env, int *ex)
 			exit(*ex);
 		}
 		waitpid(status, &status, 0);
+		*ex = WEXITSTATUS(status);
 	}
 	return *ex;
 }

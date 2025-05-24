@@ -63,7 +63,7 @@ int excute_cmd(char **cmd, env **env, int fd_in, int *status)
 		signal(SIGQUIT, SIG_DFL);
 		signal(SIGINT, SIG_DFL);
 		if (execve(path, cmd, envr) == -1)
-			exit(1);
+			exit(127);
 	}
 	close(fd_in);
 	wait(status);
