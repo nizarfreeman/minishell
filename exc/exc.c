@@ -218,7 +218,7 @@ int is_wildcard(char *s)
 			s++;
 			s = ft_strchr(s, tmp);
 		}
-		if (*s == '*')
+		else if (*s == '*')
 			return 1;
 		s++;
 	}
@@ -245,14 +245,19 @@ env *wildcar_split(char *s)
 				ft_lstnew(&ret, tmp, 0);
 			s += p;
 		}
-		if (*s && *s != '*')
+		else if (*s && *s != '*')
 		{
 			tmp = s;
 			while(*s && *s != '*')
 				s++;
 			ft_lstnew(&ret, word(tmp, s), 0);
 		}
-		if (*s)
+		else if (*s == '*' && !*(s + 1))
+		{
+			ft_lstnew(&ret, ft_strdup(""), 0);
+			s++;
+		}
+		else
 			s++;
 	}
 	return ret;
@@ -260,38 +265,64 @@ env *wildcar_split(char *s)
 void filter_first(env **files, env *arg)
 {
 	env *tmp = *files;
+	env *next;
 	if (!ft_strcmp(arg->value, ""))
 		return ;
 	while (tmp)
 	{
 		if(ft_strncmp(tmp->tmp, arg->value, ft_strlen(arg->value)))
+		{
+			next = tmp->next;
 			remove_node(files, tmp->value);
+			tmp = next;
+		}
 		else
+		{
 			tmp->tmp += ft_strlen(arg->value);
-		tmp = tmp ->next;
+			tmp = tmp ->next;
+		}
 	}
 	
 }
 void filter_mid(env **files, env *arg)
 {
-	env *tmp = *files;
-	while (tmp)
-	{
-		while(tmp->tmp)
-		{
-			if(ft_strncmp(tmp->tmp, arg->value, ft_strlen(arg->value)))
-				tmp->tmp++;
-			else
-			{
-				tmp->tmp += ft_strlen(arg->value);
-				break;
-			}
-			if (!*tmp->tmp)
-				remove_node(files, tmp->value);
+    env *tmp = *files;
+    env *prev = NULL;
+    
+    while (tmp)
+    {
+        env *current = tmp;
+        int found = 0;
+        char *search_pos = tmp->tmp;
+        
+        while (*search_pos)
+        {
+            if (!ft_strncmp(search_pos, arg->value, ft_strlen(arg->value)))
+            {
+                tmp->tmp = search_pos + ft_strlen(arg->value);
+                found = 1;
+                break;
+            }
+            search_pos++;
+        }
+        
+        if (!found)
+        {
+            if (prev)
+                prev->next = tmp->next;
+            else
+                *files = tmp->next;
+                
+            env *to_remove = tmp;
+            tmp = tmp->next; 
 
-		}
-		tmp = tmp ->next;
-	}
+        }
+        else
+        {
+			prev = tmp;
+            tmp = tmp->next;
+        }
+    }
 }
 void filter_last(env **files, env *arg)
 {
@@ -304,13 +335,22 @@ void filter_last(env **files, env *arg)
 		{
 			tmp->tmp += ft_strlen(tmp->tmp) - ft_strlen(arg->value);
 			if(ft_strncmp(tmp->tmp, arg->value, ft_strlen(arg->value)))
+			{
+				env *next = tmp->next;
 				remove_node(files, tmp->value);
+				tmp = next;
+			}
 			else
+			{
 				tmp->tmp += ft_strlen(arg->value);
+				tmp = tmp ->next;
+			}
 		}
 		else
+		{
 			remove_node(files, tmp->value);
-		tmp = tmp ->next;
+			tmp = tmp ->next;
+		}
 	}
 }
 void get_dir(env **ret)
@@ -318,11 +358,12 @@ void get_dir(env **ret)
 	DIR *dir = opendir("."); 
 	struct dirent *entry;
 
-while ((entry = readdir(dir)) != NULL)
-{
-	ft_lstnew(ret, ft_strdup(entry->d_name), -1);
-}
-closedir(dir);
+	while ((entry = readdir(dir)) != NULL)
+	{
+		if (entry->d_name[0] != '.')
+		ft_lstnew(ret, ft_strdup(entry->d_name), -1);
+	}
+	closedir(dir);
 
 }
 void	expand_wildcard(char *s, env **ret)
@@ -338,7 +379,6 @@ void	expand_wildcard(char *s, env **ret)
 	{
 		filter_mid(&dir, args);
 		args = args->next;
-	
 	}
 	filter_last(&dir, last);
 	if (!dir)

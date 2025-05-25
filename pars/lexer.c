@@ -245,7 +245,7 @@ int handle_wildcard(char *s, int i, t_token **head)
 
     if (ft_isspace(s[i + 1]))
             space = 1;
-    add_token(head, strdup("*"), WILDCARD, 0, space, NULL);
+    add_token(head, strdup("*"), WORD, 0, space, NULL);
     return i + 1;
 }
 
