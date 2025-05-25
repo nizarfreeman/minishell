@@ -312,10 +312,7 @@ void filter_mid(env **files, env *arg)
                 prev->next = tmp->next;
             else
                 *files = tmp->next;
-                
-            env *to_remove = tmp;
-            tmp = tmp->next; 
-
+			tmp = tmp->next;
         }
         else
         {
