@@ -1,6 +1,13 @@
 
 #include "s.h"
-
+env	*ft_lstlast(env *lst)
+{
+	if (!lst)
+		return (NULL);
+	while (lst->next)
+		lst = lst->next;
+	return (lst);
+}
 int ft_lstsize(env *env)
 {
 	int	i;
@@ -41,6 +48,8 @@ env	*ft_lstnew(env **lst, void *content, int f)
 	if (!ret)
 		return (NULL);
 	ret->value = ft_strdup(content);
+	if (f == -1)
+		ret->tmp = ft_strdup(content);
 	ret->f = f;
 	ret->next = NULL;
 	tmp = *lst;

@@ -206,6 +206,152 @@ char *creat_word(char *str, int f, char c, int *p)
 		// printf("%s\n", str);
 	return word(s, str);
 }
+
+int is_wildcard(char *s)
+{
+	char tmp;
+	while (*s)
+	{
+		if (*s == '\'' || *s == '"')
+		{
+			tmp = *s;
+			s++;
+			s = ft_strchr(s, tmp);
+		}
+		if (*s == '*')
+			return 1;
+		s++;
+	}
+	return 0;
+}
+env *wildcar_split(char *s)
+{
+	env *ret = NULL;
+	char *tmp;
+	int p;
+	if (*s == '*')
+	{
+		ft_lstnew(&ret, ft_strdup(""), 0);
+		while (*s && *s == '*')
+			s++;
+	}
+	while (*s)
+	{
+		if (*s == '\'' || *s == '"')
+		{
+			tmp = creat_word(s + 1, 1, *s, &p);
+			s++;
+			if(ft_strcmp("", tmp))
+				ft_lstnew(&ret, tmp, 0);
+			s += p;
+		}
+		if (*s && *s != '*')
+		{
+			tmp = s;
+			while(*s && *s != '*')
+				s++;
+			ft_lstnew(&ret, word(tmp, s), 0);
+		}
+		if (*s)
+			s++;
+	}
+	return ret;
+}
+void filter_first(env **files, env *arg)
+{
+	env *tmp = *files;
+	if (!ft_strcmp(arg->value, ""))
+		return ;
+	while (tmp)
+	{
+		if(ft_strncmp(tmp->tmp, arg->value, ft_strlen(arg->value)))
+			remove_node(files, tmp->value);
+		else
+			tmp->tmp += ft_strlen(arg->value);
+		tmp = tmp ->next;
+	}
+	
+}
+void filter_mid(env **files, env *arg)
+{
+	env *tmp = *files;
+	while (tmp)
+	{
+		while(tmp->tmp)
+		{
+			if(ft_strncmp(tmp->tmp, arg->value, ft_strlen(arg->value)))
+				tmp->tmp++;
+			else
+			{
+				tmp->tmp += ft_strlen(arg->value);
+				break;
+			}
+			if (!*tmp->tmp)
+				remove_node(files, tmp->value);
+
+		}
+		tmp = tmp ->next;
+	}
+}
+void filter_last(env **files, env *arg)
+{
+	env *tmp = *files;
+	if (!ft_strcmp(arg->value, ""))
+		return ;
+	while (tmp)
+	{
+		if (ft_strlen(arg->value) <= ft_strlen(tmp->tmp))
+		{
+			tmp->tmp += ft_strlen(tmp->tmp) - ft_strlen(arg->value);
+			if(ft_strncmp(tmp->tmp, arg->value, ft_strlen(arg->value)))
+				remove_node(files, tmp->value);
+			else
+				tmp->tmp += ft_strlen(arg->value);
+		}
+		else
+			remove_node(files, tmp->value);
+		tmp = tmp ->next;
+	}
+}
+void get_dir(env **ret)
+{
+	DIR *dir = opendir("."); 
+	struct dirent *entry;
+
+while ((entry = readdir(dir)) != NULL)
+{
+	ft_lstnew(ret, ft_strdup(entry->d_name), -1);
+}
+closedir(dir);
+
+}
+void	expand_wildcard(char *s, env **ret)
+{
+	env *args = wildcar_split(s);
+	env *dir = NULL; 
+	get_dir(&dir);
+	env *first = args;
+	env *last = ft_lstlast(args);
+	args = args->next;
+	filter_first(&dir, first);
+	while(args && args != last)
+	{
+		filter_mid(&dir, args);
+		args = args->next;
+	
+	}
+	filter_last(&dir, last);
+	if (!dir)
+		ft_lstnew(ret, s, 0);
+	else
+		while(dir)
+		{
+			ft_lstnew(ret, dir->value, 0);
+			dir = dir->next;
+		}
+}
+
+
 char **pre_expand(char **args, env *envr, int *ex)
 {
 	env *list = NULL;
@@ -216,57 +362,62 @@ char **pre_expand(char **args, env *envr, int *ex)
 	while(*args)
 	{
 		tmp = *args;
-		ret = NULL;
-		while(*tmp)
+		if(is_wildcard(tmp))
+			expand_wildcard(tmp, &list);
+		else
 		{
-			if(*tmp == '"')
+			ret = NULL;
+			while(*tmp)
 			{
-				ret = ft_strjoin(ret, expand2(creat_word(++tmp, 1, '"', &p), envr, ex));
-				tmp += p;
-			}
-			if(*tmp == '\'')
-			{
-				ret = ft_strjoin(ret, creat_word(++tmp, 1, '\'', &p));
-				tmp += p;
-			}
-			if (*tmp)
-			{
-				tmp1 = malloc(sizeof(char *) * 3);
-				tmp1[0] = creat_word(tmp, 0, 0, &p);
-				tmp1[1] = NULL;
-				tmp1 = expand(tmp1, envr, ex);
-				if(tmp1[0] && !tmp1[1])
+				if(*tmp == '"')
 				{
-					ret = ft_strjoin(ret , *tmp1);
-					tmp1 = NULL;
+					ret = ft_strjoin(ret, expand2(creat_word(++tmp, 1, '"', &p), envr, ex));
+					tmp += p;
 				}
-				else
+				if(*tmp == '\'')
 				{
-					ret = ft_strjoin(ret , *tmp1);
-					ft_lstnew(&list, ret, 0);
-					tmp1++;
-					p = 0;
-					ret = expand2(creat_word(tmp, 0, 0, &p), envr, ex);
-					if (*(ret + ft_strlen(ret) - 1) == ' ' || *(ret + ft_strlen(ret) - 1) == '"')
+					ret = ft_strjoin(ret, creat_word(++tmp, 1, '\'', &p));
+					tmp += p;
+				}
+				if (*tmp)
+				{
+					tmp1 = malloc(sizeof(char *) * 3);
+					tmp1[0] = creat_word(tmp, 0, 0, &p);
+					tmp1[1] = NULL;
+					tmp1 = expand(tmp1, envr, ex);
+					if(tmp1[0] && !tmp1[1])
 					{
-						while(*tmp1)
-							ft_lstnew(&list, *tmp1++, 0);
+						ret = ft_strjoin(ret , *tmp1);
 						tmp1 = NULL;
-						ret = NULL;
 					}
 					else
 					{
-						while (*tmp1 && *(tmp1 + 1))
-							ft_lstnew(&list, *tmp1++, 0);
-						ret = *tmp1;
+						ret = ft_strjoin(ret , *tmp1);
+						ft_lstnew(&list, ret, 0);
+						tmp1++;
+						p = 0;
+						ret = expand2(creat_word(tmp, 0, 0, &p), envr, ex);
+						if (*(ret + ft_strlen(ret) - 1) == ' ' || *(ret + ft_strlen(ret) - 1) == '"')
+						{
+							while(*tmp1)
+								ft_lstnew(&list, *tmp1++, 0);
+							tmp1 = NULL;
+							ret = NULL;
+						}
+						else
+						{
+							while (*tmp1 && *(tmp1 + 1))
+								ft_lstnew(&list, *tmp1++, 0);
+							ret = *tmp1;
+						}
 					}
+					tmp += p;
 				}
-				tmp += p;
-			}
-			if (!*tmp)
-			{
-				ft_lstnew(&list, ret, 0);
-				ret = NULL;
+				if (!*tmp)
+				{
+					ft_lstnew(&list, ret, 0);
+					ret = NULL;
+				}
 			}
 		}
 		args++;

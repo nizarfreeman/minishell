@@ -142,7 +142,8 @@ void print_clean_tree(t_tree *root) {
 }
 
 // Alternative simpler tree display function that works well for command trees
-void print_simple_tree(t_tree *root, int depth) {
+void print_simple_tree(t_tree *root, int depth)
+{
     if (!root)
         return;
     
@@ -151,7 +152,7 @@ void print_simple_tree(t_tree *root, int depth) {
         printf("    ");
     
     // Print node information
-    printf("%s \n", get_node_str(root));
+    printf("%s %s %d\n", get_node_str(root), root->file, root->fd);
     
     // Print connection lines to children
     if (root->left || root->right) {

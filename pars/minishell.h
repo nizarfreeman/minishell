@@ -47,7 +47,7 @@ typedef struct tokens
     int space_after;
     struct tokens   *next;
     struct tokens   *prev;
-    int fd;
+    char *file;
 } t_token;
 
 typedef struct dsa
@@ -57,7 +57,7 @@ typedef struct dsa
     int type;
     char *cmd;
     char **args;
-    char **files;
+    char *file;
     int fd; 
 } t_tree;
 
@@ -70,7 +70,7 @@ char    **split(const char *s, const char *delim);
 t_token   *lexer(char *s);
 void    free_token_list(t_token **head);
 void    print_token_list(t_token **head);
-int add_token(t_token **head, char *token, int type, int quoted, int space, int fd);
+int add_token(t_token **head, char *token, int type, int quoted, int space, char *file);
 int is_there_char(char *s, char c);
 
 /*parser*/
@@ -86,7 +86,5 @@ void print_tree_horizontal(t_tree *root, int level, char *prefix, int is_left);
 // void print_tree_h(t_tree *root);
 void print_ast(t_tree *root);
 int check_parenthesess(const char *text);
-
-void handle_int(int sig);
-char    *ft_itoa(int nbr);
+char    *ft_itoa(int n);
 #endif

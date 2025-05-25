@@ -116,7 +116,7 @@ int handle_quotes(char *s, int i, t_token **head, int preserve_quotes)
         type = WORD;
     else
         type = (quote == '\'') ? S_QUOTE : D_QUOTE;
-    add_token(head, token, type, 0, space, 0);
+    add_token(head, token, type, 0, space, NULL);
     return i;
 }
 
@@ -130,14 +130,14 @@ int handle_and_operator(char *s, int i, t_token **head)
     {
         if (ft_isspace(s[i + 2]))
             space = 1;
-        add_token(head, strdup("&&"), AND_IF, 0, space, 0);
+        add_token(head, strdup("&&"), AND_IF, 0, space, NULL);
         return i + 2;
     }
     else
     {
         if (ft_isspace(s[i + 2]))
             space = 1;
-        add_token(head, strdup("&"), AND, 0, space, 0);
+        add_token(head, strdup("&"), AND, 0, space, NULL);
         return i + 1;
     }
 }
@@ -151,14 +151,14 @@ int handle_or_pipe_operator(char *s, int i, t_token **head)
     {
         if (ft_isspace(s[i + 2]))
             space = 1;
-        add_token(head, strdup("||"), OR_IF, 0, space, 0);
+        add_token(head, strdup("||"), OR_IF, 0, space, NULL);
         return i + 2;
     }
     else
     {
         if (ft_isspace(s[i + 1]))
             space = 1;
-        add_token(head, strdup("|"), PIPE, 0, space, 0);
+        add_token(head, strdup("|"), PIPE, 0, space, NULL);
         return i + 1;
     }
 }
@@ -172,14 +172,14 @@ int handle_output_redirection(char *s, int i, t_token **head)
     {
         if (ft_isspace(s[i + 2]))
             space = 1;
-        add_token(head, strdup(">>"), APPEND, 0, space, 0);
+        add_token(head, strdup(">>"), APPEND, 0, space, NULL);
         return i + 2;
     }
     else
     {
         if (ft_isspace(s[i + 1]))
             space = 1;
-        add_token(head, strdup(">"), REDIRECTION_OUT, 0, space, 0);
+        add_token(head, strdup(">"), REDIRECTION_OUT, 0, space, NULL);
         return i + 1;
     }
 }
@@ -193,14 +193,14 @@ int handle_input_redirection(char *s, int i, t_token **head)
     {
         if (ft_isspace(s[i + 2]))
             space = 1;
-        add_token(head, strdup("<<"), HERE_ODC, 0, space, 0);
+        add_token(head, strdup("<<"), HERE_ODC, 0, space, NULL);
         return i + 2;
     }
     else
     {
         if (ft_isspace(s[i + 1]))
             space = 1;
-        add_token(head, strdup("<"), REDIRECTION_IN, 0, space, 0);
+        add_token(head, strdup("<"), REDIRECTION_IN, 0, space, NULL);
         return i + 1;
     }
 }
@@ -214,14 +214,14 @@ int handle_parentheses(char *s, int i, t_token **head)
     {
         if (ft_isspace(s[i + 1]))
             space = 1;
-        add_token(head, strdup("("), OPEN_PER, 0, space, 0);
+        add_token(head, strdup("("), OPEN_PER, 0, space, NULL);
         return i + 1;
     }
     else if (s[i] == ')')
     {
         if (ft_isspace(s[i + 1]))
             space = 1;
-        add_token(head, strdup(")"), CLOSE_PER, 0, space, 0);
+        add_token(head, strdup(")"), CLOSE_PER, 0, space, NULL);
         return i + 1;
     }
     return i;
@@ -234,7 +234,7 @@ int handle_assignment(char *s, int i, t_token **head)
 
     if (ft_isspace(s[i + 1]))
             space = 1;
-    add_token(head, strdup("="), ASSIGN, 0, space, 0);
+    add_token(head, strdup("="), ASSIGN, 0, space, NULL);
     return i + 1;
 }
 
@@ -245,7 +245,7 @@ int handle_wildcard(char *s, int i, t_token **head)
 
     if (ft_isspace(s[i + 1]))
             space = 1;
-    add_token(head, strdup("*"), WILDCARD, 0, space, 0);
+    add_token(head, strdup("*"), WILDCARD, 0, space, NULL);
     return i + 1;
 }
 
@@ -258,14 +258,14 @@ int handle_dollar(char *s, int i, t_token **head)
     {
         if (ft_isspace(s[i + 2]))
             space = 1;
-        add_token(head, strdup("$?"), WORD, 0, space, 0);
+        add_token(head, strdup("$?"), WORD, 0, space, NULL);
         return i + 2;
     }
     else
     {
         if (ft_isspace(s[i + 1]))
             space = 1;
-        add_token(head, strdup("$"), DOLLAR, 0, space, 0);
+        add_token(head, strdup("$"), DOLLAR, 0, space, NULL);
         return i + 1;
     }
 }
@@ -283,21 +283,21 @@ int handle_word(char *s, int i, t_token **head)
         space = 1;
     char *token = ft_strndup(&s[start], i - start);
     if (strcmp(token, "echo") == 0)
-        add_token(head, token, BUILTIN_ECHO, 0, space, 0);
+        add_token(head, token, BUILTIN_ECHO, 0, space, NULL);
     else if (strcmp(token, "cd") == 0)
-        add_token(head, token, BUILTIN_CD, 0, space, 0);
+        add_token(head, token, BUILTIN_CD, 0, space, NULL);
     else if (strcmp(token, "pwd") == 0)
-        add_token(head, token, BUILTIN_PWD, 0, space, 0);
+        add_token(head, token, BUILTIN_PWD, 0, space, NULL);
     else if (strcmp(token, "export") == 0)
-        add_token(head, token, BUILTIN_EXPORT, 0, space, 0);
+        add_token(head, token, BUILTIN_EXPORT, 0, space, NULL);
     else if (strcmp(token, "unset") == 0)
-        add_token(head, token, BUILTIN_UNSET, 0, space, 0);
+        add_token(head, token, BUILTIN_UNSET, 0, space, NULL);
     else if (strcmp(token, "env") == 0)
-        add_token(head, token, BUILTIN_ENV, 0, space, 0);
+        add_token(head, token, BUILTIN_ENV, 0, space, NULL);
     else if (strcmp(token, "exit") == 0)
-        add_token(head, token, BUILTIN_EXIT, 0, space, 0);
+        add_token(head, token, BUILTIN_EXIT, 0, space, NULL);
     else
-        add_token(head, token, WORD, 0, space, 0);
+        add_token(head, token, WORD, 0, space, NULL);
     
     return (i);
 }
@@ -638,12 +638,12 @@ void revise_args(t_token **head)
             }
             
             memset(new_node, 0, sizeof(t_token));
-            new_node->fd = 0;
             new_node->token = new_token_str;
             new_node->type = 0;
             new_node->space_after = space_after;
             new_node->next = next_node;
             new_node->prev = prev_node;
+            new_node->file = NULL;
             if (prev_node)
                 prev_node->next = new_node;
             else
@@ -748,12 +748,10 @@ void revise_heredocs(t_token **head)
     char *s = NULL;
 
     t_token *list = *head;
-    signal(SIGINT, handle_int);
     while (list)
     {
         if (list->type == 9 && list->next)
         {
-            
             name = ft_strjoin("/tmp/", ft_itoa(rand()));
             if (!name)
                 return ;
@@ -775,14 +773,7 @@ void revise_heredocs(t_token **head)
             if (s)
                 free(s);
             close (fd);
-            fd = open(name, O_RDWR);
-            if (fd == -1)
-            {
-                free(name);
-                return;
-            }
-            unlink(name);
-            list->fd = fd;
+            list->file = strdup(name);
         }
         list = list->next;
     }

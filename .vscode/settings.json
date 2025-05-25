@@ -1,5 +1,8 @@
 {
 	"files.associations": {
-		"typeinfo": "c"
+		"typeinfo": "c",
+		"span": "c",
+		"type_traits": "c",
+		"fstream": "c"
 	}
 }

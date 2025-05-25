@@ -12,29 +12,34 @@
 #include <limits.h>
 #include <signal.h>
 #include <stdint.h>
+#include <dirent.h>
 #include "../pars/minishell.h"
 extern int sig_han;
 
 typedef struct env
 {
 	char	*value;
+	char	*tmp;
 	int		f;
 	struct	env *next;
 } env;
 
 env	*ft_lstnew(env **lst, void *content, int f);
+env	*ft_lstlast(env *lst);
 char	*ft_strdup(const char *s1);
 void	*ft_memcpy(void *dst, const void *src, size_t n);
 size_t	ft_strlen(const char *s);
 int	ft_strncmp(const char *s1, const char *s2, size_t n);
 char	*ft_strjoin(char *s1, char *s2);
 char	*ft_strrchr(const char *s, int c);
+char	*ft_strchr(char *s, char c);
 void search_replace(env *env, char *key, char *rep);
 int	ft_strcmp(const char *s1, const char *s2);
 int  cd(env *env, char *path, int *ex);
 int  cd2(env *env, char *path);
 char *get_value(env *env, char *key);
 void no_env(env **ret);
+void remove_node(env **envrr, char *str);
 env *creat_env(char **envr);
 void	repl(char c, char b, char *s);
 void	repl1(char c, char b, char *s);

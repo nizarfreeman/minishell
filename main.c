@@ -111,7 +111,10 @@ int main(int argc, char const *argv[], char **envr)
 			exit(1);
 		}
 		if(!*s)
+		{
+			ex = 0;
 			continue;
+		}
 		if (*s)
 			add_history(s);
 		if (!check_quotes(s))

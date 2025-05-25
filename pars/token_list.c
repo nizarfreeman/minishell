@@ -30,7 +30,7 @@ void print_token_list(t_token **head)
 
 #include <string.h>
 
-int	add_token(t_token **head, char *token, int type, int quoted, int space, int fd)
+int add_token(t_token **head, char *token, int type, int quoted, int space, char *file)
 {
 	t_token	*new_node;	
 	t_token	*tmp;
@@ -39,9 +39,7 @@ int	add_token(t_token **head, char *token, int type, int quoted, int space, int 
 	if (!new_node)
 		return (0);
 	memset(new_node, 0, sizeof(t_token));
-	new_node->fd = -1;
-	if (fd >= 0)
-		new_node->fd = fd;
+	new_node->file = file;
 	new_node->token = token;
 	new_node->type = type;
 	new_node->space_after = space;

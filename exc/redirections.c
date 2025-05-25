@@ -106,6 +106,14 @@ void redirections(t_tree *root, env **env, int *ex, t_tree *left)
 	else
 	{
 		*ex = 0;
+		int fd = open(root->file, O_RDONLY, 0644);
+		if(fd == -1)
+		{
+			perror("open");
+			*ex = 1;
+		}
+		else
+			root->fd = fd;
 		if (root->right->type >= 6 && root->type <= 9)
 		{
 			if(ft_strrchr(root->right->left->cmd, '\'') || ft_strrchr(root->right->left->cmd, '"'))
