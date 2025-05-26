@@ -3,8 +3,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <fcntl.h>
 /* Basic character checks */
 int ft_isdigit(int c)
@@ -360,24 +362,6 @@ int is_redirection_target(t_token *token)
     return (token && token->prev && is_redirection(token->prev));
 }
 
-// t_token *find_current_command_token(t_token *start)
-// {
-//     t_token *current = start;
-//     while (current && !is_pipe_or_logical(current))
-//     {
-//         if (is_command(current))
-//             return (current);
-//         current = current->next;
-//     }
-//     current = start;
-//     while (current && !is_pipe_or_logical(current))
-//     {
-//         if (!is_redirection(current) && !is_redirection_target(current))
-//             return (current);
-//         current = current->next;
-//     }
-//     return (start);
-// }
 t_token *find_current_command_token(t_token *start)
 {
     t_token *current = start;
@@ -740,44 +724,217 @@ static char *ft_strrev(char *str)
 //     return ft_strrev(tmp);
 // }
 
-void revise_heredocs(t_token **head)
+int  create_temp_file(void)
 {
-    srand(time(NULL));
-    char *name = NULL;
-    int fd;
-    char *s = NULL;
+    char    *name;
+    int     fd;
 
-    t_token *list = *head;
+    name = ft_strjoin("/tmp/", ft_itoa(rand()));
+    if (!name)
+        return (-1);
+    fd = open(name, O_CREAT | O_RDWR | O_TRUNC, 0644);
+    free(name);
+    return (fd);
+}
+
+int  read_heredoc_input(int fd, char *delim)
+{
+    char    *s;
+
+    while ((s = readline("> ")) != NULL)
+    {
+        if (strcmp(s, delim) == 0)
+        {
+            free(s);
+            return (0);
+        }
+        write(fd, s, strlen(s));
+        write(fd, "\n", 1);
+        free(s);
+    }
+    return (-1);
+}
+
+int  process_single_heredoc(t_token *token, int comm_fd)
+{
+    char    *name;
+    char    *delim;
+    int     fd;
+    int     result;
+
+    name = ft_strjoin("/tmp/", ft_itoa(rand()));
+    if (!name)
+        return (-1);
+    fd = open(name, O_CREAT | O_RDWR | O_TRUNC, 0644);
+    if (fd == -1)
+    {
+        free(name);
+        return (-1);
+    }
+    delim = unquote_string(token->next->token);
+    if (!delim)
+    {
+        close(fd);
+        free(name);
+        return (-1);
+    }
+    result = read_heredoc_input(fd, delim);
+    close(fd);
+    free(delim);
+    if (result == -1)
+    {
+        free(name);
+        return (-1);
+    }
+    write(comm_fd, name, strlen(name));
+    write(comm_fd, "\n", 1);
+    free(name);
+    return (0);
+}
+
+void child_process(t_token **head, char *comm_file)
+{
+    int     comm_fd;
+    t_token *list;
+
+    signal(SIGINT, SIG_DFL);
+    signal(SIGQUIT, SIG_DFL);
+    comm_fd = open(comm_file, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    if (comm_fd == -1)
+    {
+        free(comm_file);
+        exit(1);
+    }
+    list = *head;
     while (list)
     {
         if (list->type == 9 && list->next)
         {
-            name = ft_strjoin("/tmp/", ft_itoa(rand()));
-            if (!name)
-                return ;
-            fd = open(name, O_CREAT | O_RDWR | O_TRUNC, 0644);
-            if (fd == -1)
+            if (process_single_heredoc(list, comm_fd) == -1)
             {
-                free(name);
-                return ;
+                close(comm_fd);
+                free(comm_file);
+                exit(1);
             }
-            s = readline("> ");
-            char *delim = unquote_string(list->next->token);
-            while (s && strcmp(s, delim) != 0)
-            {
-                write(fd, s, strlen(s));
-                write(fd, "\n", 1);
-                free(s);
-                s = readline("> ");
-            }
-            if (s)
-                free(s);
-            close (fd);
-            list->file = strdup(name);
         }
         list = list->next;
     }
-    return ;
+    close(comm_fd);
+    free(comm_file);
+    exit(0);
+}
+
+void setup_signal_handling(struct sigaction *old_sigint)
+{
+    struct sigaction    ignore_action;
+
+    ignore_action.sa_handler = SIG_IGN;
+    sigemptyset(&ignore_action.sa_mask);
+    ignore_action.sa_flags = 0;
+    sigaction(SIGINT, &ignore_action, old_sigint);
+}
+
+void parse_buffer_to_tokens(char *buffer, t_token **list)
+{
+    char    *line_start;
+    char    *newline_pos;
+
+    line_start = buffer;
+    while (*list && (newline_pos = strchr(line_start, '\n')) != NULL)
+    {
+        if ((*list)->type == 9 && (*list)->next)
+        {
+            *newline_pos = '\0';
+            (*list)->file = strdup(line_start);
+            line_start = newline_pos + 1;
+        }
+        *list = (*list)->next;
+    }
+}
+
+void read_comm_file_data(char *comm_file, t_token **head)
+{
+    int     comm_fd;
+    char    buffer[1024];
+    int     bytes_read;
+    t_token *list;
+
+    comm_fd = open(comm_file, O_RDONLY);
+    if (comm_fd == -1)
+        return;
+    bytes_read = read(comm_fd, buffer, sizeof(buffer) - 1);
+    if (bytes_read <= 0)
+    {
+        close(comm_fd);
+        return;
+    }
+    buffer[bytes_read] = '\0';
+    list = *head;
+    parse_buffer_to_tokens(buffer, &list);
+    close(comm_fd);
+}
+
+void set_heredoc_files_null(t_token **head)
+{
+    t_token *list;
+
+    list = *head;
+    while (list)
+    {
+        if (list->type == 9 && list->next)
+            list->file = NULL;
+        list = list->next;
+    }
+}
+
+void handle_child_success(char *comm_file, t_token **head)
+{
+    read_comm_file_data(comm_file, head);
+}
+
+void handle_child_failure(int status, t_token **head)
+{
+    set_heredoc_files_null(head);
+    if (WIFSIGNALED(status) && WTERMSIG(status) == SIGINT)
+        printf("\n");
+}
+
+void parent_process(pid_t pid, char *comm_file, t_token **head)
+{
+    struct sigaction    old_sigint;
+    int                 status;
+
+    setup_signal_handling(&old_sigint);
+    waitpid(pid, &status, 0);
+    sigaction(SIGINT, &old_sigint, NULL);
+    if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
+        handle_child_success(comm_file, head);
+    else
+        handle_child_failure(status, head);
+    unlink(comm_file);
+}
+
+void    revise_heredocs(t_token **head)
+{
+    char    *comm_file;
+    pid_t   pid;
+
+    srand(time(NULL));
+    comm_file = ft_strjoin("/tmp/", ft_itoa(getpid()));
+    if (!comm_file)
+        return ;
+    pid = fork();
+    if (pid == -1)
+    {
+        perror("fork");
+        free(comm_file);
+        return;
+    }
+    if (pid == 0)
+        child_process(head, comm_file);
+    else
+        parent_process(pid, comm_file, head);
+    free(comm_file);
 }
 
 t_token *lexer(char *s)

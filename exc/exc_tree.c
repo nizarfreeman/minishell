@@ -61,11 +61,13 @@ int exce_pipe(t_tree *root, env **env, int *exi)
 	pipe(fds);
 	int left_pid;
 
-	root->right->fd = fds[0];
+	// root->right->fd = fds[0];
 	left_pid = pipe_left(root->left, env, fds, exi);
 	int pid = fork();
 	if (pid == 0)
 	{
+		dup2(fds[0], STDIN_FILENO);
+		close(fds[0]);
 		exec_tree(root->right, env, exi);
 		exit(*exi);
 	}
@@ -73,7 +75,5 @@ int exce_pipe(t_tree *root, env **env, int *exi)
 	waitpid(left_pid, &ex, 0);
 	waitpid(pid, &ex, 0);
 	*exi = WEXITSTATUS(ex);
-		// fprintf(stderr, "|%d|\n", *exi);
-	
 	return ex; 
 }

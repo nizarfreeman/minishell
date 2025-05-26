@@ -464,12 +464,12 @@ char **pre_expand(char **args, env *envr, int *ex)
 
 int excute(char **cmd, env **env, int fd_in, int *ex)
 {
-	if(ft_strcmp(*cmd, "export") || ft_strcmp(*(pre_expand(cmd, *env, ex)), "export"))
+	// if(ft_strcmp(*cmd, "export") || ft_strcmp(*(pre_expand(cmd, *env, ex)), "export"))
 		cmd = pre_expand(cmd, *env, ex);
 	if (!cmd)
 		return 1;
 	else if (!ft_strcmp(*cmd, "cd"))
-		return cd(*env, cmd[1], ex);
+		return cd(*env, &cmd[1], ex);
 	else if (!ft_strcmp(*cmd, "export"))
 		return export(env, &cmd[1], ex);
 	else if (!ft_strcmp(*cmd, "unset"))

@@ -35,7 +35,7 @@ char	*ft_strrchr(const char *s, int c);
 char	*ft_strchr(char *s, char c);
 void search_replace(env *env, char *key, char *rep);
 int	ft_strcmp(const char *s1, const char *s2);
-int  cd(env *env, char *path, int *ex);
+int  cd(env *env, char **path, int *ex);
 int  cd2(env *env, char *path);
 char *get_value(env *env, char *key);
 void no_env(env **ret);

@@ -6,7 +6,14 @@ int	check_value_exit(char *cmd)
 		return 1;
 	if (*cmd == '-' || *cmd == '+')
 		cmd++;
+	if (!*cmd)
+		return 1;
+	while (*cmd == ' ')
+		cmd++;
+	
 	while (*cmd && *cmd >= '0' && *cmd <= '9')
+		cmd++;
+	while (*cmd == ' ')
 		cmd++;
 	if (!*cmd)
 		return 0;

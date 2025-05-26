@@ -41,7 +41,6 @@ char	*get_path(char **cmd, char **env)
 	if (*env)
 		tmp = ft_split(*env + 5, ':');
 	path = creat_path(*cmd, tmp);
-	// free2arr(tmp, -1);
 	return (path);
 }
 void	printerr(char *cmd, int i)

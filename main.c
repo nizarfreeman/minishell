@@ -130,7 +130,7 @@ int main(int argc, char const *argv[], char **envr)
 		{
 			// printf("\n\n");
 			// print_tree(root);
-    		print_ast(root);
+    		// print_ast(root);
 			exec_tree(root, &env, &ex);
 			free_token_list(&head);
 		}
