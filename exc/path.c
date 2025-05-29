@@ -1,4 +1,30 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   path.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/05/29 12:27:52 by aayache           #+#    #+#             */
+/*   Updated: 2025/05/29 12:30:40 by aayache          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "s.h"
+
+char	*creat_path2(char *cmd, char **path)
+{
+	if (access(cmd, X_OK) == 0)
+		return (ft_strdup(cmd));
+	else if (ft_strncmp(cmd, "./", 2) == 0 && access(cmd, F_OK) == 0)
+	{
+		write(2, cmd, ft_strlen(cmd));
+		write(2, ": Permission denied\n", 21);
+		return (ft_strdup(""));
+	}
+	return (NULL);
+}
+
 char	*creat_path(char *cmd, char **path)
 {
 	int		i;
@@ -6,15 +32,10 @@ char	*creat_path(char *cmd, char **path)
 	char	*tmp;
 
 	(1) && (i = 0, s = NULL);
-	if (access(cmd, X_OK) == 0)
-			return (ft_strdup(cmd));
+	if (!path && access(cmd, X_OK) == 0)
+		return (ft_strdup(cmd));
 	if (ft_strncmp(cmd, "./", 2) == 0 || cmd[0] == '/')
-	{
-		if (access(cmd, X_OK) == 0)
-			return (ft_strdup(cmd));
-		else
-			return (NULL);
-	}
+		return (creat_path2(cmd, path));
 	if (!path)
 		return (NULL);
 	tmp = ft_strjoin(ft_strdup("/"), ft_strdup(cmd));
@@ -43,6 +64,7 @@ char	*get_path(char **cmd, char **env)
 	path = creat_path(*cmd, tmp);
 	return (path);
 }
+
 void	printerr(char *cmd, int i)
 {
 	char	*shell;

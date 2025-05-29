@@ -95,16 +95,16 @@ int main(int argc, char const *argv[], char **envr)
 	t_token *head = NULL;
 	t_tree *root;
 	env *env = creat_env(envr);
-	sig_han = 0;
+	g_han = 0;
 	signal(SIGQUIT, SIG_IGN);
 	signal(SIGINT, handle_int);
 	while (1)
 	{
 		if (!isatty(0))
 			return 1;
-		sig_han = 1;
+		g_han = 1;
 		char *s = readline("$ ");
-		sig_han = 0;
+		g_han = 0;
 		if (!s)
 		{
 			write(1, "exit\n", 5);
@@ -119,7 +119,7 @@ int main(int argc, char const *argv[], char **envr)
 			add_history(s);
 		if (!check_quotes(s))
 		{
-			printf("Error! syntax error: unclosed quote !\n");
+			write(2, "Error! syntax error: unclosed quote !\n", 39);
 			free(s);
 			continue ;
 		}

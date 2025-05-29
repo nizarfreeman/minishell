@@ -1,4 +1,17 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   atoi.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/05/28 15:51:59 by aayache           #+#    #+#             */
+/*   Updated: 2025/05/28 15:52:00 by aayache          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "s.h"
+
 int	check_atoi(long long res, int s, const char *str)
 {
 	if (s > 0 && (res > (9223372036854775807LL - (*str - '0')) / 10))
@@ -34,7 +47,8 @@ long long	ft_atoi(const char *str)
 	}
 	return (res * sign);
 }
-int ft_atoi2(const char *str)
+
+int	ft_atoi2(const char *str)
 {
 	int			sign;
 	long long	res;

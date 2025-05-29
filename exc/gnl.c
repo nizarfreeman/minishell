@@ -1,5 +1,16 @@
-#include "s.h"
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   gnl.c                                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/05/29 12:26:55 by aayache           #+#    #+#             */
+/*   Updated: 2025/05/29 12:26:56 by aayache          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
+#include "s.h"
 
 char	*freep(char **s1, char **s2, int i, int fd)
 {
@@ -69,7 +80,7 @@ char	*_rest(char **s, int fd)
 	ret = ft_strjoin(ret, tmp);
 	while (1)
 	{
-		tmp = malloc(((size_t)BUFFER_SIZE) + 1);
+		tmp = gc_malloc(((size_t)BUFFER_SIZE) + 1);
 		i = read(fd, tmp, BUFFER_SIZE);
 		if (i <= 0)
 			return (freep(&ret, &tmp, 1, fd));
@@ -95,7 +106,7 @@ char	*get_next_line(int fd)
 	(1) && (ret = NULL, rest[fd] = NULL);
 	while (1)
 	{
-		tmp = malloc((size_t)BUFFER_SIZE + 1);
+		tmp = gc_malloc((size_t)BUFFER_SIZE + 1);
 		i = read(fd, tmp, (size_t)BUFFER_SIZE);
 		if (i <= 0)
 		{

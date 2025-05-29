@@ -1,163 +1,101 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   redirections.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/05/29 12:30:57 by aayache           #+#    #+#             */
+/*   Updated: 2025/05/29 15:28:47 by aayache          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "s.h"
 
-void redirections(t_tree *root, env **env, int *ex, t_tree *left)
+void	here_doc2(t_tree *root, env **env, int *ex, t_tree *left)
 {
-	int fd;
-	char **tmp;
-	if(root->type != HERE_ODC)
+	if (ft_strrchr(root->right->cmd, '\'') || ft_strrchr(root->right->cmd, '"'))
 	{
-		if (root->right->type >= 6 && root->right->type <= 9)
-		{
-			tmp = pre_expand(root->right->left->args, *env, ex);
-			if (tmp && *tmp && tmp[1])
-			{
-				write(2, "ambiguous redirect\n", 20);
-				*ex = 1;
-				return ;
-			}
-			else
-			{
-				root->right->left->cmd = *tmp;
-				*ex = 0;
-			}
-		}
-		else
-		{
-			tmp = pre_expand(root->right->args, *env, ex);
-			if (tmp && *tmp && (tmp[1] || !**tmp))
-			{
-				write(2, "ambiguous redirect\n", 20);
-				*ex = 1;
-				return ;
-			}
-			else
-			{
-				root->right->cmd = *tmp;
-				*ex = 0;
-			}
-		}
-	}
-	if (root->type == REDIRECTION_OUT)
-	{
-		if (root->right->type >= 6 && root->right->type <= 9)
-			fd = open(root->right->left->cmd, O_WRONLY | O_CREAT | O_TRUNC, 0777);
-		else
-			fd = open(root->right->cmd, O_WRONLY | O_CREAT | O_TRUNC, 0777);
-		if (fd != -1)
-		{
-			*ex = 0;
-			dup2(fd, STDOUT_FILENO);
-			if (root->right->type >= 6 && root->right->type <= 9)
-			{
-				write(2, "here\n", 5);
-				redirections(root->right, env, ex, left);
-			}
-			close(fd);
-		}
-		else
-		{
-			perror("open");
-			*ex = 1;
-		}
-		// red_out(root->right, ex);
-	}
-	else if (root->type == REDIRECTION_IN)
-	{
-		if (root->right->type >= 6 && root->right->type <= 9)
-			fd = open(root->right->left->cmd, O_RDONLY);
-		else
-			fd = open(root->right->cmd, O_RDONLY);
-		if (fd != -1)
-		{
-			*ex = 0;
-			if(left->fd != -1)
-				close(left->fd);
-			left->fd = fd;
-			if (root->right->type >= 6 && root->right->type <= 9)
-				redirections(root->right, env, ex, left);
-		}
-		else
-		{
-			perror("open");
-			*ex = 1;
-		}
-		// red_in(root->right, ex);
-	}
-	else if (root->type == APPEND)
-	{
-		if (root->right->type >= 6 && root->type <= 9)
-			fd = open(root->right->left->cmd, O_WRONLY | O_CREAT | O_APPEND);
-		else
-			fd = open(root->right->cmd, O_WRONLY | O_CREAT | O_APPEND);
-		if (fd != -1)
-		{
-			*ex = 0;
-			dup2(fd, STDOUT_FILENO);
-			if (root->right->type >= 6 && root->type <= 9)
-				redirections(root->right, env, ex, left);
-			close(fd);
-		}
-		else
-		{
-			perror("open");
-			*ex = 1;
-		}
+		if (left->fd != -1)
+			close(left->fd);
+		left->fd = root->fd;
 	}
 	else
 	{
-		*ex = 0;
-		int fd = open(root->file, O_RDONLY, 0644);
-		if(fd == -1)
+		if (left->fd != -1)
 		{
-			perror("open");
-			*ex = 1;
+			close(left->fd);
 		}
-		else
-			root->fd = fd;
-		if (root->right->type >= 6 && root->type <= 9)
-		{
-			if(ft_strrchr(root->right->left->cmd, '\'') || ft_strrchr(root->right->left->cmd, '"'))
-			{
-				if(left->fd != -1)
-					close(left->fd);
-				left->fd = root->fd;
-				redirections(root->right, env, ex, left);
-			}
-			else
-			{
-				if(left->fd != -1)
-					close(left->fd);
-				left->fd = read_and_expand(root->fd, *env, ex);	
-				redirections(root->right, env, ex, left);
-			}
-		}
-		else
-		{
-			if(ft_strrchr(root->right->cmd, '\'') || ft_strrchr(root->right->cmd, '"'))
-			{
-				if(left->fd != -1)
-					close(left->fd);
-				left->fd = root->fd;
-			}
-			else
-			{
-				if(left->fd != -1)
-				{
-					close(left->fd);
-				}
-				left->fd = read_and_expand(root->fd, *env, ex);	
-			}
-		}
+		left->fd = read_and_expand(root->fd, *env, ex);
 	}
-		return ;
 }
 
-int read_and_expand(int fd, env *envr, int *ex)
+void	here_doc3(t_tree *root, env **env, int *ex, t_tree *left)
 {
-	char  *s = get_next_line(fd);
-	int fd_ret;
-	env *ret = NULL;
-	while(s)
+	if (ft_strrchr(root->right->left->cmd, '\'')
+		|| ft_strrchr(root->right->left->cmd, '"'))
+	{
+		if (left->fd != -1)
+			close(left->fd);
+		left->fd = root->fd;
+		redirections(root->right, env, ex, left);
+	}
+	else
+	{
+		if (left->fd != -1)
+			close(left->fd);
+		left->fd = read_and_expand(root->fd, *env, ex);
+		redirections(root->right, env, ex, left);
+	}
+}
+
+void	here_doc(t_tree *root, env **env, int *ex, t_tree *left)
+{
+	int	fd;
+
+	*ex = 0;
+	fd = open(root->file, O_RDONLY, 0644);
+	if (fd == -1)
+	{
+		perror("open");
+		*ex = 1;
+		return ;
+	}
+	else
+		root->fd = fd;
+	if (root->right->type >= 6 && root->type <= 9)
+		here_doc3(root, env, ex, left);
+	else
+		here_doc2(root, env, ex, left);
+}
+
+void	redirections(t_tree *root, env **env, int *ex, t_tree *left)
+{
+	int		fd;
+	char	**tmp;
+
+	if (root->type != HERE_ODC)
+		redirections_expand(root, env, ex);
+	if (root->type == REDIRECTION_OUT)
+		red_out(root, env, ex, left);
+	else if (root->type == REDIRECTION_IN)
+		red_in(root, env, ex, left);
+	else if (root->type == APPEND)
+		red_app(root, env, ex, left);
+	else
+		here_doc(root, env, ex, left);
+	return ;
+}
+
+int	read_and_expand(int fd, env *envr, int *ex)
+{
+	char	*s;
+	int		fd_ret;
+	env		*ret;
+
+	s = get_next_line(fd);
+	ret = NULL;
+	while (s)
 	{
 		ft_lstnew(&ret, expand2(s, envr, ex), 0);
 		s = get_next_line(fd);
@@ -166,10 +104,10 @@ int read_and_expand(int fd, env *envr, int *ex)
 	close(fd);
 	fd = open(s, O_CREAT | O_RDWR | O_TRUNC, 0644);
 	fd_ret = open(s, O_CREAT | O_RDWR | O_TRUNC, 0644);
-	while(ret)
+	while (ret)
 	{
 		write(fd, ret->value, ft_strlen(ret->value));
 		ret = ret->next;
 	}
-	return fd_ret;
+	return (fd_ret);
 }

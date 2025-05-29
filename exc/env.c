@@ -1,38 +1,22 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   env.c                                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/05/28 16:27:36 by aayache           #+#    #+#             */
+/*   Updated: 2025/05/29 16:30:32 by aayache          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "s.h"
 
-int is_all_num(char *s)
+void	no_env(env **ret)
 {
-	if (!s)
-		return 0;
-	while (*s >= '0' && *s <= '9')
-		s++;
-	if (!*s)
-		return 1;
-	return 0;
-}
+	char	*s;
 
-void no_env(env **ret)
-{
-	char *s;
-
-	s = get_value(*ret, "PATH=");
-	if (!s)
-		ft_lstnew(ret, "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin", 2);
-	s = get_value(*ret, "PWD");
-	if (!s)
-	{
-		s = getcwd(NULL, 0);
-		ft_lstnew(ret, ft_strjoin(ft_strdup("PWD="), s), 1);
-		free(s);
-		s = NULL;
-	}
-	else
-	{
-		s = getcwd(NULL, 0);
-		search_replace(*ret, "PWD", s);
-		free(s);
-		s = NULL;
-	}
+	no_env2(ret);
 	s = get_value(*ret, "OLDPWD");
 	if (!s)
 		ft_lstnew(ret, "OLDPWD", 0);
@@ -41,58 +25,59 @@ void no_env(env **ret)
 		ft_lstnew(ret, "_=/usr/bin/env", 2);
 	else
 		search_replace(*ret, "_", NULL);
-	
 	s = get_value(*ret, "SHLVL");
 	if (!s)
 		ft_lstnew(ret, "SHLVL=1", 1);
-	else if(is_all_num(s + 1) && (int)ft_atoi(s + 1) >= 999)
-	{	
-		printf("bash: warning: shell level (%d) too high, resetting to 1\n", (int)ft_atoi(s + 1));
+	else if (is_all_num(s + 1) && (int)ft_atoi(s + 1) >= 999)
+	{
+		printf("bash: warning: shell level (%d) too high, resetting to 1\n",
+			(int)ft_atoi(s + 1));
 		search_replace(*ret, "SHLVL", "1");
 	}
-	else 
+	else
 		search_replace(*ret, "SHLVL", ft_itoa(ft_atoi(s + 1) + 1));
 }
 
-int check_value(char *str)
+int	check_value(char *str)
 {
 	while (*str && *str != '=')
 		str++;
 	if (!*str)
-		return 0;
-	return 1;
+		return (0);
+	return (1);
 }
 
-env *creat_env(char **envr)
+env	*creat_env(char **envr)
 {
-	env *tmp;
-	env *ret;
+	env	*tmp;
+	env	*ret;
+
 	ret = NULL;
 	while (*envr)
 	{
 		ft_lstnew(&ret, *envr, check_value(*envr));
 		envr++;
 	}
-	// if (!*envr)
 	no_env(&ret);
-	// handle_shlvl(ret);
-	return ret;
+	return (ret);
 }
 
-void remove_node(env **envrr, char *str)
+void	remove_node(env **envrr, char *str)
 {
-	char *tmp;
-	env *envr;
-	env *prev;
+	char	*tmp;
+	env		*envr;
+	env		*prev;
 
 	envr = *envrr;
 	tmp = ft_strjoin(ft_strdup(str), ft_strdup("="));
-	if (envr && (!ft_strcmp(str, envr->value) || !ft_strncmp(envr->value, tmp, ft_strlen(tmp))))
+	if (envr && (!ft_strcmp(str, envr->value) || !ft_strncmp(envr->value, tmp,
+				ft_strlen(tmp))))
 	{
 		*envrr = envr->next;
 		return ;
 	}
-	while (envr && (ft_strncmp(envr->value, tmp, ft_strlen(tmp)) && ft_strcmp(envr->value, str)))
+	while (envr && (ft_strncmp(envr->value, tmp, ft_strlen(tmp))
+			&& ft_strcmp(envr->value, str)))
 	{
 		prev = envr;
 		envr = envr->next;
@@ -104,12 +89,12 @@ void remove_node(env **envrr, char *str)
 	free(envr);
 }
 
-int unset(env **env, char **str, int *ex)
+int	unset(env **env, char **str, int *ex)
 {
 	if (!str)
 	{
 		*ex = 0;
-		return 0;
+		return (0);
 	}
 	while (*str)
 	{
@@ -118,5 +103,5 @@ int unset(env **env, char **str, int *ex)
 		str++;
 	}
 	*ex = 0;
-	return 0;
+	return (0);
 }

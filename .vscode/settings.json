@@ -3,6 +3,7 @@
 		"typeinfo": "c",
 		"span": "c",
 		"type_traits": "c",
-		"fstream": "c"
+		"fstream": "c",
+		"s.h": "c"
 	}
 }

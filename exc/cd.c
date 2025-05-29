@@ -1,210 +1,115 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   cd.c                                               :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/05/28 15:52:27 by aayache           #+#    #+#             */
+/*   Updated: 2025/05/29 16:47:52 by aayache          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "s.h"
-char *get_value(env *env, char *key)
+
+char	*get_value(env *env, char *key)
 {
-	while (env && ft_strcmp(env->value, key) && ft_strncmp(env->value, key, ft_strlen(key)))
+	while (env && ft_strcmp(env->value, key) && ft_strncmp(env->value, key,
+			ft_strlen(key)))
 		env = env->next;
 	if (!env)
 		return (NULL);
 	return (ft_strdup(env->value + ft_strlen(key)));
 }
-int pwd(env *env, int *ex)
-{
-	char *s;
 
-	s = getcwd(NULL, 0);
-	if (s)
-		printf("%s\n", s);
-	else
-	
+int	cd_home(env *env, char **path, int *ex)
+{
+	char	*tmp;
+
+	tmp = get_value(env, "HOME=");
+	if (!tmp)
 	{
-		s = get_value(env, "PWD=");
-		printf("%s\n", s);
+		free(tmp);
+		tmp = NULL;
+		printf("cd: HOME not set\n");
+		*ex = 1;
+		return (1);
 	}
-
-	free(s);
-	s = NULL;
-	*ex = 0;
-	return 0;
-}
-int echo_option(char *str)
-{
-	if (!str)
-		return 1;
-	if (*str != '-')
-		return 1;
-	str++;
-	if (!*str)
-		return 1;
-	while (*str && *str == 'n')
-		str++;
-	if (!*str)
-		return 0;
-	return 1;
-}
-
-int echo(char **str, int *ex)
-{
-
-	int opt = echo_option(*str);
-	while(!echo_option(*str))
-		str++;
-	while (*str)
+	if (!*tmp)
 	{
-		if (**str)
-		{
-			write(1, *str, ft_strlen(*str));
-			if (*(str + 1))
-				write(1, " ", 1);
-		}
-		str++;	
+		free(tmp);
+		tmp = NULL;
+		*ex = 0;
+		return (0);
 	}
-	if(opt)
-		printf("\n");
-	*ex = 0;
-	return 0;
-}
-int envr(env* env, int *ex)
-{
-	while (env)
-	{
-		if ((env->f && env->f != 2) || !ft_strcmp("_=/usr/bin/env", env->value))
-			printf("%s\n", env->value);
-		env = env->next;
-	}
-	*ex = 0;
-	return 0;
+	*ex = cd2(env, tmp);
+	return (*ex);
 }
 
 int	cd(env *env, char **path, int *ex)
 {
-	char *tmp;
+	char	*tmp;
+
 	if (*path && path[1])
 	{
 		write(2, "cd: too many arguments\n", 24);
 		*ex = 1;
-		return 1;
+		return (1);
 	}
 	if (!*path || !**path)
-	{
-		tmp = get_value(env, "HOME=");
-		if(!tmp)
-		{
-			free(tmp);
-			tmp = NULL;
-			printf("cd: HOME not set\n");
-			*ex = 1;
-			return 1;
-		}
-		if (!*tmp)
-		{
-			free(tmp);
-			tmp = NULL;
-			*ex = 0;
-			return 0;
-		}
-		*ex = cd2(env, tmp);
-		return *ex;
-	}
+		return (cd_home(env, path, ex));
 	else
 		*ex = cd2(env, *path);
-	return *ex;
+	return (*ex);
 }
-char	*trim_last_dir(char *path)
-{
-	char	*last_slash;
 
-	if (!ft_strcmp("/", path))
-		return ft_strdup("/");
-	last_slash = ft_strrchr(path, '/');
-	free(path);
-	return (word((char *)path, last_slash));
+int	cd_error(char *path, env *env)
+{
+	if (errno == EACCES)
+	{
+		if (!ft_strcmp(path, ".."))
+			return (cd2(env, trim_last_dir(getcwd(NULL, 0))));
+		else
+			write(2, "cd: Permission denied.\n", 24);
+	}
+	else if (errno == ENOENT)
+	{
+		write(2, "cd: ", 4);
+		write(2, path, ft_strlen(path));
+		write(2, ": No such file or directory\n", 29);
+	}
+	else if (errno == ENOTDIR)
+	{
+		write(2, "cd: ", 4);
+		write(2, path, ft_strlen(path));
+		write(2, ": is not a directory.\n", 23);
+	}
+	else
+		write(2, "cd: Failed to change directory\n", 31);
+	return (1);
 }
 
 int	cd2(env *env, char *path)
 {
-	char *pwd;
-	char *oldpwd;
-	char *tmp;
+	char	*pwd;
+	char	*oldpwd;
+	char	*tmp;
+	char	*oldpwd1;
+
 	oldpwd = get_value(env, "PWD=");
 	if (!oldpwd)
-		oldpwd = getcwd(NULL, 0); // free needed in this case;
+		oldpwd1 = getcwd(NULL, 0);
 	if (chdir(path) == 0)
 	{
-		pwd = getcwd(NULL, 0);
-		if (!pwd)
-		{
-			tmp  = ft_strjoin(ft_strdup("/"), ft_strdup(path));
-			printf("cd: error retrieving current directory: getcwd: cannot access parent directories: No such file or directory\n");
-			pwd = ft_strjoin(ft_strdup(oldpwd), tmp);
-		}
+		cd3(path, &tmp, &pwd, oldpwd);
 		search_replace(env, "PWD", pwd);
 		if (oldpwd)
-		{
 			search_replace(env, "OLDPWD", oldpwd);
-		}
-		free(pwd);
-		pwd = NULL;
-		return 0;
+		else
+			search_replace(env, "OLDPWD", oldpwd1);
+		free(oldpwd1);
+		oldpwd1 = NULL;
+		return (0);
 	}
-	switch (errno)
-	{
-		case EACCES:
-		{
-			if (!ft_strcmp(path, ".."))
-				cd2(env, trim_last_dir(getcwd(NULL, 0)));
-			else
-				printf("cd: Permission denied.\n");
-		}
-			break;
-		case ENOENT:
-			printf("cd: Directory does not exist.\n");
-			break;
-		case ENOTDIR:    
-			printf("cd: is not a directory.\n");
-			break;
-		default:
-			printf("cd: Failed to change directory\n");
-			break;
-        }
-	// free(oldpwd);
-	// oldpwd = NULL;
-	return 1;
-}
-
-void search_replace(env *env, char *key, char *rep)
-{
-	char *tmp;
-	tmp = ft_strjoin(ft_strdup(key), ft_strdup("="));
-	while (env && ft_strcmp(key, env->value) && ft_strncmp(env->value, tmp, ft_strlen(tmp)))
-		env = env->next;
-	if (!env)
-		return ;
-	if(rep)
-	{
-		env->value = NULL;
-		env->value = ft_strjoin(tmp, rep);
-	}
-	env->f = 1;
-
-}
-void replace_create(env *env, char *key, char *rep)
-{
-	char *tmp;
-
-	tmp = ft_strjoin(ft_strdup(key), ft_strdup("="));
-	while (env && ft_strcmp(key, env->value) && ft_strncmp(env->value, key, ft_strlen(key)))
-		env = env->next;
-	// printf("%s\n", env->value);
-	if (!env)
-	{
-
-		free(tmp);
-		return ;
-	}
-	free(env->value);
-	env->value = NULL;
-	env->value = ft_strjoin(tmp, rep);
-	env->f = 1;
-	// printf("%s\n", env->value);
-
+	return (cd_error(path, env));
 }

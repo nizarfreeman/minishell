@@ -1,5 +1,17 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   lst.c                                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/05/29 12:27:14 by aayache           #+#    #+#             */
+/*   Updated: 2025/05/29 12:27:42 by aayache          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "s.h"
+
 env	*ft_lstlast(env *lst)
 {
 	if (!lst)
@@ -8,7 +20,8 @@ env	*ft_lstlast(env *lst)
 		lst = lst->next;
 	return (lst);
 }
-int ft_lstsize(env *env)
+
+int	ft_lstsize(env *env)
 {
 	int	i;
 
@@ -18,9 +31,8 @@ int ft_lstsize(env *env)
 		i++;
 		env = env->next;
 	}
-	return i;
-	
-}  
+	return (i);
+}
 
 void	ft_lstadd_back(env **lst, env *new)
 {
@@ -42,9 +54,8 @@ void	ft_lstadd_back(env **lst, env *new)
 env	*ft_lstnew(env **lst, void *content, int f)
 {
 	env	*ret;
-	env	*tmp;
 
-	ret = malloc(sizeof(env));
+	ret = gc_malloc(sizeof(env));
 	if (!ret)
 		return (NULL);
 	ret->value = ft_strdup(content);
@@ -52,8 +63,8 @@ env	*ft_lstnew(env **lst, void *content, int f)
 		ret->tmp = ft_strdup(content);
 	ret->f = f;
 	ret->next = NULL;
-	tmp = *lst;
-	ft_lstadd_back(lst, ret);
+	if (lst)
+		ft_lstadd_back(lst, ret);
 	return (ret);
 }
 

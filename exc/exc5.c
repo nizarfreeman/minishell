@@ -1,0 +1,81 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   exc5.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/05/29 16:08:47 by aayache           #+#    #+#             */
+/*   Updated: 2025/05/29 16:08:54 by aayache          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "s.h"
+
+int	check_signal(int *status)
+{
+	if (WTERMSIG(*status) == SIGQUIT)
+	{
+		write(1, "Quit (core dumped)\n", 20);
+		*status = 131;
+	}
+	else if (WTERMSIG(*status) == SIGINT)
+	{
+		*status = 130;
+		write(1, "\n", 1);
+	}
+	*status = WEXITSTATUS(*status);
+	return (*status);
+}
+
+int	excute_cmd(char **cmd, env **env, int fd_in, int *status)
+{
+	char	**envr;
+	char	*path;
+	pid_t	pid;
+
+	(1) && (envr = lst_to_arr(*env), path = get_path(cmd, envr));
+	if (!path)
+		printerr(cmd[0], 0);
+	pid = fork();
+	if (pid == 0)
+	{
+		if (fd_in != -1)
+		{
+			dup2(fd_in, STDIN_FILENO);
+			close(fd_in);
+		}
+		g_han = 0;
+		signal(SIGQUIT, SIG_DFL);
+		signal(SIGINT, SIG_DFL);
+		if (execve(path, cmd, envr) == -1)
+			exit(127);
+	}
+	close(fd_in);
+	wait(status);
+	if (WIFSIGNALED(*status))
+		return (check_signal(status));
+}
+
+void	wildcar_split2(char *s, char **src, env **ret)
+{
+	char	*tmp;
+	int		p;
+
+	if (*s == '\'' || *s == '"')
+	{
+		tmp = creat_word(s + 1, 1, *s, &p);
+		s++;
+		if (ft_strcmp("", tmp))
+			ft_lstnew(ret, tmp, 0);
+		s += p;
+	}
+	else if (*s && *s != '*')
+	{
+		tmp = s;
+		while (*s && *s != '*')
+			s++;
+		ft_lstnew(ret, word(tmp, s), 0);
+	}
+	*src = s;
+}
