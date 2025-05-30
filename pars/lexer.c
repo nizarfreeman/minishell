@@ -3,11 +3,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-#include <signal.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <fcntl.h>
+
 /* Basic character checks */
 int ft_isdigit(int c)
 {
@@ -26,7 +26,7 @@ int ft_isalnum(int c)
 
 int ft_isspace(int c)
 {
-    return (c == ' ' || c == '\t');
+    return (c == ' ' || c == '\t' || c == '\n');
 }
 
 /* Check if character is a special operator */
@@ -49,38 +49,78 @@ size_t ft_strlen(char *s)
     return len;
 }
 
-/* Joins two strings into a new one, freeing the first string */
-char *ft_strjoin(char *s1, char *s2)
+/* GC-safe version of strdup */
+char *gc_strdup(const char *s)
 {
-    size_t len1 = (s1) ? ft_strlen(s1) : 0;
-    size_t len2 = (s2) ? ft_strlen(s2) : 0;
-    char *res = malloc(len1 + len2 + 1);
-    size_t i = 0;
-
-    if (!res)
+    if (!s)
         return NULL;
+    
+    size_t len = ft_strlen((char *)s);
+    char *result = gc_malloc(len + 1);
+    
+    if (!result)
+        return NULL;
+    
+    strcpy(result, s);
+    return result;
+}
+
+/* Joins two strings into a new one */
+char    *ft_strjoin(char *s1, char *s2)
+{
+    size_t  len1;
+    size_t  len2;
+    char    *res;
+    size_t  i;
+    size_t  j;
+
+    len1 = 0;
+    len2 = 0;
     if (s1)
-    {
-        for (size_t j = 0; j < len1; j++)
-            res[i++] = s1[j];
-    }
+        len1 = ft_strlen(s1);
     if (s2)
-    {
-        for (size_t j = 0; j < len2; j++)
-            res[i++] = s2[j];
-    }
+        len2 = ft_strlen(s2);
+    res = gc_malloc(len1 + len2 + 1);
+    if (!res)
+        return (NULL);
+    i = 0;
+    j = 0;
+    while (s1 && j < len1)
+        res[i++] = s1[j++];
+    j = 0;
+    while (s2 && j < len2)
+        res[i++] = s2[j++];
     res[i] = '\0';
-    return res;
+    return (res);
+}
+
+char    *ft_strncpy(char *dest, const char *src, unsigned int n)
+{
+    int i;
+
+    i = 0;
+
+    while (src[i] && i <= n)
+    {
+        dest[i] = src[i];
+        i++;
+    }
+    while (i <= n)
+    {
+        dest[i++] = '\0';
+    }
+    return (dest);
 }
 
 /* A custom implementation of strndup */
 char *ft_strndup(const char *s, size_t n)
 {
-    char *result = malloc(n + 1);
-    
+    char *result;
+
+    result = gc_malloc(n + 1);
     if (!result)
         return NULL;
-    strncpy(result, s, n);
+    ft_strncpy(result, s, n);
     result[n] = '\0';
     return result;
 }
@@ -97,49 +137,92 @@ int is_there_char(char *s, char c)
     return 0;
 }
 
+void    *ft_memset(void *s, int c, size_t n)
+{
+    unsigned char   *src;
+
+    src = (unsigned char *) s;
+    while (n--)
+        *src++ = (unsigned char) c;
+    return (s);
+}
+
 /* Handle quoted string tokenization */
 int handle_quotes(char *s, int i, t_token **head, int preserve_quotes)
 {
-    char quote = s[i];
-    int start = i;
-    int space = 0;
-    char *token;
-    int type;
+    char    quote;
+    int     start;
+    int     space;
+    char    *token;
+    int     type;
+    t_arg *arg;
 
+    // Allocate memory for arg - this was missing!
+    arg = gc_malloc(sizeof(t_arg));
+    if (!arg)
+        return i; // Handle allocation failure
+
+    quote = s[i];
+    start = i;
+    space = 0;
     i++;
     while (s[i] && s[i] != quote)
         i++;
     if (s[i] == quote)
         i++;
+    
+    // Initialize arg fields
+    arg->space = 0;  // Initialize to 0 first
     if (ft_isspace(s[i]))
-        space = 1;
-    token = ft_strndup(&s[start], i - start);
+        arg->space = 1;
+    
+    arg->token = ft_strndup(&s[start], i - start);
     if (preserve_quotes)
-        type = WORD;
+        arg->type = WORD;
+    else if (quote == '\'')
+    {
+        arg->quoted = 1;
+        arg->type = S_QUOTE;
+    }
     else
-        type = (quote == '\'') ? S_QUOTE : D_QUOTE;
-    add_token(head, token, type, 0, space, NULL);
-    return i;
+    {
+        arg->quoted = 1;
+        arg->type = D_QUOTE;
+    }
+    arg->file = NULL;
+    add_token(head, arg);
+    return (i);
 }
-
 
 /* Handle AND operator tokenization */
 int handle_and_operator(char *s, int i, t_token **head)
 {
-    int space = 0;
+    t_arg *arg;
 
+    arg = gc_malloc(sizeof(t_arg));
+    if (!arg)
+        return i;
+    
+    arg->space = 0;  // Initialize to 0
+    arg->quoted = 0;
+    arg->file = NULL;
+    
     if (s[i + 1] == '&')
     {
         if (ft_isspace(s[i + 2]))
-            space = 1;
-        add_token(head, strdup("&&"), AND_IF, 0, space, NULL);
+            arg->space = 1;
+        arg->token = gc_strdup("&&");
+        arg->type = AND_IF;
+        add_token(head, arg);
         return i + 2;
     }
     else
     {
-        if (ft_isspace(s[i + 2]))
-            space = 1;
-        add_token(head, strdup("&"), AND, 0, space, NULL);
+        if (ft_isspace(s[i + 1]))
+            arg->space = 1;
+        arg->token = gc_strdup("&");
+        arg->type = WORD;
+        add_token(head, arg);
         return i + 1;
     }
 }
@@ -147,20 +230,32 @@ int handle_and_operator(char *s, int i, t_token **head)
 /* Handle OR and PIPE operator tokenization */
 int handle_or_pipe_operator(char *s, int i, t_token **head)
 {
-    int space = 0;
+    t_arg *arg;
 
+    arg = gc_malloc(sizeof(t_arg));
+    if (!arg)
+        return i;
+    
+    arg->space = 0;  // Initialize to 0
+    arg->quoted = 0;
+    arg->file = NULL;
+    
     if (s[i + 1] == '|')
     {
         if (ft_isspace(s[i + 2]))
-            space = 1;
-        add_token(head, strdup("||"), OR_IF, 0, space, NULL);
+            arg->space = 1;
+        arg->token = gc_strdup("||");
+        arg->type = OR_IF;
+        add_token(head, arg);
         return i + 2;
     }
     else
     {
         if (ft_isspace(s[i + 1]))
-            space = 1;
-        add_token(head, strdup("|"), PIPE, 0, space, NULL);
+            arg->space = 1;
+        arg->token = gc_strdup("|");
+        arg->type = PIPE;
+        add_token(head, arg);
         return i + 1;
     }
 }
@@ -168,20 +263,32 @@ int handle_or_pipe_operator(char *s, int i, t_token **head)
 /* Handle output redirection tokenization */
 int handle_output_redirection(char *s, int i, t_token **head)
 {
-    int space = 0;
+    t_arg *arg;
 
+    arg = gc_malloc(sizeof(t_arg));
+    if (!arg)
+        return i;
+    
+    arg->space = 0;  // Initialize to 0
+    arg->quoted = 0;
+    arg->file = NULL;
+    
     if (s[i + 1] == '>')
     {
         if (ft_isspace(s[i + 2]))
-            space = 1;
-        add_token(head, strdup(">>"), APPEND, 0, space, NULL);
+            arg->space = 1;
+        arg->token = gc_strdup(">>");
+        arg->type = APPEND;
+        add_token(head, arg);
         return i + 2;
     }
     else
     {
         if (ft_isspace(s[i + 1]))
-            space = 1;
-        add_token(head, strdup(">"), REDIRECTION_OUT, 0, space, NULL);
+            arg->space = 1;
+        arg->token = gc_strdup(">");
+        arg->type = REDIRECTION_OUT;
+        add_token(head, arg);
         return i + 1;
     }
 }
@@ -189,20 +296,32 @@ int handle_output_redirection(char *s, int i, t_token **head)
 /* Handle input redirection tokenization */
 int handle_input_redirection(char *s, int i, t_token **head)
 {
-    int space = 0;
+    t_arg *arg;
 
+    arg = gc_malloc(sizeof(t_arg));
+    if (!arg)
+        return i;
+    
+    arg->space = 0;  // Initialize to 0
+    arg->quoted = 0;
+    arg->file = NULL;
+    
     if (s[i + 1] == '<')
     {
         if (ft_isspace(s[i + 2]))
-            space = 1;
-        add_token(head, strdup("<<"), HERE_ODC, 0, space, NULL);
+            arg->space = 1;
+        arg->token = gc_strdup("<<");
+        arg->type = HERE_ODC;
+        add_token(head, arg);
         return i + 2;
     }
     else
     {
         if (ft_isspace(s[i + 1]))
-            space = 1;
-        add_token(head, strdup("<"), REDIRECTION_IN, 0, space, NULL);
+            arg->space = 1;
+        arg->token = gc_strdup("<");
+        arg->type = REDIRECTION_IN;
+        add_token(head, arg);
         return i + 1;
     }
 }
@@ -210,20 +329,32 @@ int handle_input_redirection(char *s, int i, t_token **head)
 /* Handle parentheses tokenization (for bonus) */
 int handle_parentheses(char *s, int i, t_token **head)
 {
-    int space = 0;
+    t_arg *arg;
 
+    arg = gc_malloc(sizeof(t_arg));
+    if (!arg)
+        return i;
+    
+    arg->space = 0;  // Initialize to 0
+    arg->quoted = 0;
+    arg->file = NULL;
+    
     if (s[i] == '(')
     {
         if (ft_isspace(s[i + 1]))
-            space = 1;
-        add_token(head, strdup("("), OPEN_PER, 0, space, NULL);
+            arg->space = 1;
+        arg->token = gc_strdup("(");
+        arg->type = OPEN_PER;
+        add_token(head, arg);
         return i + 1;
     }
     else if (s[i] == ')')
     {
         if (ft_isspace(s[i + 1]))
-            space = 1;
-        add_token(head, strdup(")"), CLOSE_PER, 0, space, NULL);
+            arg->space = 1;
+        arg->token = gc_strdup(")");
+        arg->type = CLOSE_PER;
+        add_token(head, arg);
         return i + 1;
     }
     return i;
@@ -232,42 +363,74 @@ int handle_parentheses(char *s, int i, t_token **head)
 /* Handle assignment operator tokenization */
 int handle_assignment(char *s, int i, t_token **head)
 {
-    int space = 0;
+    t_arg *arg;
 
+    arg = gc_malloc(sizeof(t_arg));
+    if (!arg)
+        return i;
+    
+    arg->space = 0;  // Initialize to 0
+    arg->quoted = 0;
+    arg->file = NULL;
+    
     if (ft_isspace(s[i + 1]))
-            space = 1;
-    add_token(head, strdup("="), ASSIGN, 0, space, NULL);
+        arg->space = 1;
+    arg->token = gc_strdup("=");
+    arg->type = ASSIGN;
+    add_token(head, arg);
     return i + 1;
 }
 
 /* Handle wildcard tokenization (for bonus) */
 int handle_wildcard(char *s, int i, t_token **head)
 {
-    int space = 0;
+    t_arg *arg;
 
+    arg = gc_malloc(sizeof(t_arg));
+    if (!arg)
+        return i;
+    
+    arg->space = 0;  // Initialize to 0
+    arg->quoted = 0;
+    arg->file = NULL;
+    
     if (ft_isspace(s[i + 1]))
-            space = 1;
-    add_token(head, strdup("*"), WORD, 0, space, NULL);
+        arg->space = 1;
+    arg->token = gc_strdup("*");
+    arg->type = WORD;
+    add_token(head, arg);
     return i + 1;
 }
 
 /* Handle dollar sign for environment variables and exit status */
 int handle_dollar(char *s, int i, t_token **head)
 {
-    int space = 0;
+    t_arg *arg;
 
+    arg = gc_malloc(sizeof(t_arg));
+    if (!arg)
+        return i;
+    
+    arg->space = 0;  // Initialize to 0
+    arg->quoted = 0;
+    arg->file = NULL;
+    
     if (s[i + 1] == '?')
     {
         if (ft_isspace(s[i + 2]))
-            space = 1;
-        add_token(head, strdup("$?"), WORD, 0, space, NULL);
+            arg->space = 1;
+        arg->token = gc_strdup("$?");
+        arg->type = WORD;
+        add_token(head, arg);
         return i + 2;
     }
     else
     {
         if (ft_isspace(s[i + 1]))
-            space = 1;
-        add_token(head, strdup("$"), DOLLAR, 0, space, NULL);
+            arg->space = 1;
+        arg->token = gc_strdup("$");
+        arg->type = DOLLAR;
+        add_token(head, arg);
         return i + 1;
     }
 }
@@ -276,32 +439,43 @@ int handle_dollar(char *s, int i, t_token **head)
 int handle_word(char *s, int i, t_token **head)
 {
     int start = i;
-    int space = 0;
+    t_arg *arg;
 
+    arg = gc_malloc(sizeof(t_arg));
+    if (!arg)
+        return i;
+    
     while (s[i] && !ft_isspace(s[i]) && !ft_is_operator_char(s[i]) && 
            !ft_is_quote(s[i]) && s[i] != '$')
         i++;
-    if (ft_isspace(s[i]))
-        space = 1;
-    char *token = ft_strndup(&s[start], i - start);
-    if (strcmp(token, "echo") == 0)
-        add_token(head, token, BUILTIN_ECHO, 0, space, NULL);
-    else if (strcmp(token, "cd") == 0)
-        add_token(head, token, BUILTIN_CD, 0, space, NULL);
-    else if (strcmp(token, "pwd") == 0)
-        add_token(head, token, BUILTIN_PWD, 0, space, NULL);
-    else if (strcmp(token, "export") == 0)
-        add_token(head, token, BUILTIN_EXPORT, 0, space, NULL);
-    else if (strcmp(token, "unset") == 0)
-        add_token(head, token, BUILTIN_UNSET, 0, space, NULL);
-    else if (strcmp(token, "env") == 0)
-        add_token(head, token, BUILTIN_ENV, 0, space, NULL);
-    else if (strcmp(token, "exit") == 0)
-        add_token(head, token, BUILTIN_EXIT, 0, space, NULL);
-    else
-        add_token(head, token, WORD, 0, space, NULL);
     
-    return (i);
+    arg->space = 0;  // Initialize to 0
+    if (ft_isspace(s[i]))
+        arg->space = 1;
+    arg->token = ft_strndup(&s[start], i - start);
+    arg->quoted = 0;
+    arg->file = NULL;
+    
+    // Set appropriate type based on the token
+    if (strcmp(arg->token, "echo") == 0)
+        arg->type = BUILTIN_ECHO;
+    else if (strcmp(arg->token, "cd") == 0)
+        arg->type = BUILTIN_CD;
+    else if (strcmp(arg->token, "pwd") == 0)
+        arg->type = BUILTIN_PWD;
+    else if (strcmp(arg->token, "export") == 0)
+        arg->type = BUILTIN_EXPORT;
+    else if (strcmp(arg->token, "unset") == 0)
+        arg->type = BUILTIN_UNSET;
+    else if (strcmp(arg->token, "env") == 0)
+        arg->type = BUILTIN_ENV;
+    else if (strcmp(arg->token, "exit") == 0)
+        arg->type = BUILTIN_EXIT;
+    else
+        arg->type = WORD;
+    
+    add_token(head, arg);
+    return i;
 }
 
 void tokenize_input(char *s, t_token **head)
@@ -361,6 +535,8 @@ int is_redirection_target(t_token *token)
 {
     return (token && token->prev && is_redirection(token->prev));
 }
+
+
 
 t_token *find_current_command_token(t_token *start)
 {
@@ -433,10 +609,7 @@ void insert_node_after(t_token **head, t_token *position, t_token *node)
     }
 }
 
-
-
 /* Process a single command segment (between operators) */
-//}
 void reorganize_single_command(t_token **head, t_token *start, t_token *end)
 {
     if (!start)
@@ -482,7 +655,6 @@ void reorganize_command_args(t_token **head)
     if (segment_start)
         reorganize_single_command(head, segment_start, NULL);
 }
-
 
 /* Process token list to properly organize command arguments and redirections */
 void handle_redirection_first(t_token **head, t_token *start, t_token *end)
@@ -549,98 +721,59 @@ void revise_redirections(t_token **head)
     reorganize_command_args(head);
 }
 
-
-
 void revise_args(t_token **head)
 {
+    if (!head || !*head)
+        return;
+        
     t_token *current = *head;
-    
     while (current)
     {
-        if ((current->type == 0 || current->type >= 19 || 
-             current->type == 10 || current->type == 11 || 
-             current->type == 12 || current->type == 17) && 
-             current->space_after == 0)
+        if ((current->type == WORD || current->type == S_QUOTE || 
+             current->type == D_QUOTE || current->type == DOLLAR) && 
+             current->space == 0)
         {
-            char *combined = strdup(current->token);
+            char *combined = gc_strdup(current->token);
             if (!combined)
                 return;
-            t_token *start_node = current;
-            t_token *next_node = current->next;
+                
+            t_token *next_token = current->next;
             t_token *last_joined = current;
-            if (current->type == 12 && next_node && next_node->type == 0)
+            while (next_token && 
+                   (next_token->type == WORD || next_token->type == S_QUOTE || 
+                    next_token->type == D_QUOTE || next_token->type == DOLLAR) &&
+                   last_joined->space == 0)
             {
                 char *temp = combined;
-                combined = ft_strjoin(temp, next_node->token);
-                free(temp);
-                
+                combined = ft_strjoin(temp, next_token->token);
                 if (!combined)
                     return;
-                    
-                last_joined = next_node;
-                next_node = next_node->next;
+                last_joined = next_token;
+                next_token = next_token->next;
             }
-            while (next_node && (next_node->type == 0 || next_node->type >= 19 || 
-                   next_node->type == 10 || next_node->type == 11 || 
-                   next_node->type == 12 || next_node->type == 17) &&  
-                   last_joined->space_after == 0)
+            if (last_joined != current)
             {
-                char *temp = combined;
-                combined = ft_strjoin(temp, next_node->token);
-                free(temp);
-                
-                if (!combined)
-                    return;
-                    
-                last_joined = next_node;
-                next_node = next_node->next;
+                current->token = combined;
+                current->type = WORD;
+                current->space = last_joined->space;
+                t_token *to_remove = current->next;
+                current->next = next_token;
+                if (next_token)
+                    next_token->prev = current;
+                while (to_remove && to_remove != next_token)
+                {
+                    t_token *temp = to_remove->next;
+                    if (to_remove->prev)
+                        to_remove->prev->next = to_remove->next;
+                    if (to_remove->next)
+                        to_remove->next->prev = to_remove->prev;
+                    to_remove->prev = NULL;
+                    to_remove->next = NULL;
+                    to_remove = temp;
+                }
             }
-            
-            char *new_token_str = strdup(combined);
-            if (!new_token_str)
-            {
-                free(combined);
-                return;
-            }
-            
-            int space_after = last_joined->space_after;
-            t_token *prev_node = start_node->prev;
-            t_token *to_remove = start_node;
-            while (to_remove != next_node)
-            {
-                t_token *next_to_remove = to_remove->next;
-                free(to_remove->token);
-                free(to_remove);
-                to_remove = next_to_remove;
-            }
-            t_token *new_node = malloc(sizeof(t_token));
-            if (!new_node)
-            {
-                free(combined);
-                free(new_token_str);
-                return;
-            }
-            
-            memset(new_node, 0, sizeof(t_token));
-            new_node->token = new_token_str;
-            new_node->type = 0;
-            new_node->space_after = space_after;
-            new_node->next = next_node;
-            new_node->prev = prev_node;
-            new_node->file = NULL;
-            if (prev_node)
-                prev_node->next = new_node;
-            else
-                *head = new_node;    
-                
-            if (next_node)
-                next_node->prev = new_node;
-                
-            free(combined);
-            current = next_node;
-        }
-        else
-            current = current->next;
+        }  
+        current = current->next;
     }
 }
 
@@ -654,7 +787,7 @@ char *unquote_string(char *str)
     char *ret;
     
     len = strlen(str);
-    ret = malloc(len + 1);
+    ret = gc_malloc(len + 1);
     if (!ret)
         return (NULL);
     
@@ -679,24 +812,28 @@ char *unquote_string(char *str)
 
 static char *ft_strrev(char *str)
 {
-    int i;
-    int j;
-    int tmp;
+    int i = 0;
+    int j = 0;
+    char tmp;
 
+    if (!str)
+        return (NULL);
+    
     i = 0;
-    j = strlen(str);
+    j = strlen(str) - 1;
+    
     while (j > i)
     {
-        j--;
         tmp = str[i];
         str[i] = str[j];
         str[j] = tmp;
         i++;
+        j--;
     }
-    return str;
+    return (str);
 }
 
-// char    *ft_itoa(int nbr)
+// char *ft_itoa(int nbr)
 // {
 //     int i;
 //     int neg;
@@ -704,42 +841,47 @@ static char *ft_strrev(char *str)
 
 //     i = 0;
 //     neg = 0;
-//     tmp = malloc(sizeof(char) * 12);
-//     if (tmp == NULL || nbr == 0)
-//         return ((nbr == 0) ? "0" : NULL);
+//     if (nbr == 0)
+//         return (gc_strdup("0"));
 //     if (nbr == -2147483648)
-//         return ("-2147483648");
+//         return (gc_strdup("-2147483648"));
+    
+//     tmp = gc_malloc(sizeof(char) * 12);
+//     if (tmp == NULL)
+//         return (NULL);
+//     ft_memset(tmp, 0, 12);
+    
 //     if (nbr < 0)
 //     {
 //         neg = 1;
-//         nbr *= -1;
+//         nbr = -nbr;
 //     }
-//     while (nbr)
+//     while (nbr > 0)
 //     {
 //         tmp[i++] = (nbr % 10) + '0';
 //         nbr /= 10;
 //     }
 //     if (neg)
-//         tmp[i] = '-';
-//     return ft_strrev(tmp);
+//         tmp[i++] = '-';
+//     tmp[i] = '\0';
+//     return (ft_strrev(tmp));
 // }
 
-int  create_temp_file(void)
+int create_temp_file(void)
 {
-    char    *name;
-    int     fd;
+    char *name;
+    int fd;
 
     name = ft_strjoin("/tmp/", ft_itoa(rand()));
     if (!name)
         return (-1);
     fd = open(name, O_CREAT | O_RDWR | O_TRUNC, 0644);
-    free(name);
     return (fd);
 }
 
-int  read_heredoc_input(int fd, char *delim)
+int read_heredoc_input(int fd, char *delim)
 {
-    char    *s;
+    char *s;
 
     while ((s = readline("> ")) != NULL)
     {
@@ -755,56 +897,44 @@ int  read_heredoc_input(int fd, char *delim)
     return (-1);
 }
 
-int  process_single_heredoc(t_token *token, int comm_fd)
+int process_single_heredoc(t_token *token, int comm_fd)
 {
-    char    *name;
-    char    *delim;
-    int     fd;
-    int     result;
+    char *name;
+    char *delim;
+    int fd;
+    int result;
 
     name = ft_strjoin("/tmp/", ft_itoa(rand()));
     if (!name)
         return (-1);
     fd = open(name, O_CREAT | O_RDWR | O_TRUNC, 0644);
     if (fd == -1)
-    {
-        free(name);
         return (-1);
-    }
     delim = unquote_string(token->next->token);
     if (!delim)
     {
         close(fd);
-        free(name);
         return (-1);
     }
     result = read_heredoc_input(fd, delim);
     close(fd);
-    free(delim);
     if (result == -1)
-    {
-        free(name);
         return (-1);
-    }
     write(comm_fd, name, strlen(name));
     write(comm_fd, "\n", 1);
-    free(name);
     return (0);
 }
 
 void child_process(t_token **head, char *comm_file)
 {
-    int     comm_fd;
+    int comm_fd;
     t_token *list;
 
     signal(SIGINT, SIG_DFL);
     signal(SIGQUIT, SIG_DFL);
     comm_fd = open(comm_file, O_CREAT | O_WRONLY | O_TRUNC, 0644);
     if (comm_fd == -1)
-    {
-        free(comm_file);
         exit(1);
-    }
     list = *head;
     while (list)
     {
@@ -813,20 +943,18 @@ void child_process(t_token **head, char *comm_file)
             if (process_single_heredoc(list, comm_fd) == -1)
             {
                 close(comm_fd);
-                free(comm_file);
                 exit(1);
             }
         }
         list = list->next;
     }
     close(comm_fd);
-    free(comm_file);
     exit(0);
 }
 
 void setup_signal_handling(struct sigaction *old_sigint)
 {
-    struct sigaction    ignore_action;
+    struct sigaction ignore_action;
 
     ignore_action.sa_handler = SIG_IGN;
     sigemptyset(&ignore_action.sa_mask);
@@ -836,8 +964,8 @@ void setup_signal_handling(struct sigaction *old_sigint)
 
 void parse_buffer_to_tokens(char *buffer, t_token **list)
 {
-    char    *line_start;
-    char    *newline_pos;
+    char *line_start;
+    char *newline_pos;
 
     line_start = buffer;
     while (*list && (newline_pos = strchr(line_start, '\n')) != NULL)
@@ -845,7 +973,7 @@ void parse_buffer_to_tokens(char *buffer, t_token **list)
         if ((*list)->type == 9 && (*list)->next)
         {
             *newline_pos = '\0';
-            (*list)->file = strdup(line_start);
+            (*list)->file = gc_strdup(line_start);
             line_start = newline_pos + 1;
         }
         *list = (*list)->next;
@@ -854,9 +982,9 @@ void parse_buffer_to_tokens(char *buffer, t_token **list)
 
 void read_comm_file_data(char *comm_file, t_token **head)
 {
-    int     comm_fd;
-    char    buffer[1024];
-    int     bytes_read;
+    int comm_fd;
+    char buffer[1024];
+    int bytes_read;
     t_token *list;
 
     comm_fd = open(comm_file, O_RDONLY);
@@ -901,8 +1029,8 @@ void handle_child_failure(int status, t_token **head)
 
 void parent_process(pid_t pid, char *comm_file, t_token **head)
 {
-    struct sigaction    old_sigint;
-    int                 status;
+    struct sigaction old_sigint;
+    int status;
 
     setup_signal_handling(&old_sigint);
     waitpid(pid, &status, 0);
@@ -914,10 +1042,10 @@ void parent_process(pid_t pid, char *comm_file, t_token **head)
     unlink(comm_file);
 }
 
-void    revise_heredocs(t_token **head)
+void revise_heredocs(t_token **head)
 {
-    char    *comm_file;
-    pid_t   pid;
+    char *comm_file;
+    pid_t pid;
 
     srand(time(NULL));
     comm_file = ft_strjoin("/tmp/", ft_itoa(getpid()));
@@ -927,14 +1055,12 @@ void    revise_heredocs(t_token **head)
     if (pid == -1)
     {
         perror("fork");
-        free(comm_file);
         return;
     }
     if (pid == 0)
         child_process(head, comm_file);
     else
         parent_process(pid, comm_file, head);
-    free(comm_file);
 }
 
 t_token *lexer(char *s)

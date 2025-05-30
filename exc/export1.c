@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 12:22:41 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/29 12:23:07 by aayache          ###   ########.fr       */
+/*   Updated: 2025/05/30 15:07:07 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ int	export(env **envr, char **args, int *ex)
 
 	flag = 0;
 	args = export_expand(args, *envr, ex);
-	if ((args && !*args) || (args[1] && !*args[1]))
+	if ((args && !*args) || (args && args[1] && !*args[1]))
 	{
 		print_export(sort_arr(lst_to_arr2(*envr)));
 		*ex = 0;

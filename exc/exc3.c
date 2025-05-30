@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 13:31:51 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/29 16:10:32 by aayache          ###   ########.fr       */
+/*   Updated: 2025/05/30 15:41:59 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,13 +49,14 @@ int	expand_wildcard(char *s, env **ret)
 	(1) && (args = wildcar_split(s), dir = NULL);
 	get_dir(&dir);
 	filter_first(&dir, args);
-	(1) && (args = args->next, last = ft_lstlast(args));
+	(1) && (last = ft_lstlast(args), args = args->next);
 	while (args && args != last)
 	{
 		filter_mid(&dir, args);
 		args = args->next;
 	}
 	filter_last(&dir, last);
+	// printf("here\n");
 	if (!dir)
 		return (0);
 	else
@@ -125,6 +126,6 @@ char	*expand2(char *str, env *envr, int *ex)
 	if (*str != '$')
 		return (expand2_1(str, envr, ex));
 	if (*str == '$')
-		expand2_2(str, envr, ex);
+		return (expand2_2(str, envr, ex));
 	return (NULL);
 }

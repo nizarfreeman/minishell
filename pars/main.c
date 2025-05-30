@@ -24,7 +24,6 @@ int check_quotes(char *s)
 {
 	int i = 0;
 	int partner;
-
 	if (!s)
 		return (1);
 	while (s[i])
@@ -46,7 +45,6 @@ int	grab_main_level(t_token *head)
 {
 	t_token *tail = head;
 	int count = 1;
-
 	while (tail->next)
 	{
 		tail = tail->next;
@@ -87,42 +85,50 @@ int main(int argc, char const *argv[])
 	struct sigaction sa;
 	t_token *head = NULL;
 	t_tree *root;
-
+	
+	memset(&sa, 0, sizeof(sa));
 	sa.sa_sigaction = signal_handler;
 	sa.sa_flags = SA_SIGINFO | SA_RESTART;
+	sigemptyset(&sa.sa_mask);
 	sigaction(SIGINT, &sa, NULL);
+	
 	while (1)
 	{
 		char *s = readline("$ ");
 		if (!s)
-			break ;
+		{
+			printf("exit\n");
+			break;
+		}
+		
 		if (*s)
 			add_history(s);
+			
 		if (strcmp(s, "") == 0)
 		{
 			free(s);
-			continue ;
+			continue;
 		}
+		
 		if (!check_quotes(s))
 		{
 			printf("Error! syntax error: unclosed quote !\n");
 			free(s);
-			continue ;
+			continue;
 		}
-		//printf("%s\n", unquote_string(s));
 		head = lexer(s);
 		root = parse_expression(head);
 		//print_token_list(&head);
 		if (root)
 		{
 			printf("\n\n");
-			//print_tree(root);
-     		print_ast(root);
-			free_token_list(&head);
+   	    	print_ast(root);
 		}
+		gc_free();
 		free(s);
+		head = NULL;
 	}
-
+	gc_free();
 	rl_clear_history();
 	return (0);
 }

@@ -1,14 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   parser.c                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: nfaska <marvin@42.fr>                      +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/19 10:53:36 by nfaska            #+#    #+#             */
-/*   Updated: 2025/04/19 10:54:04 by nfaska           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
 #include "minishell.h"
 
 int	check_start_end(t_token *head)
@@ -59,7 +48,7 @@ int	check_parentheses(t_token *head)
 				return (0);
 			}
 		}
-		if (current->type == OPEN_PER && current->next &&
+		if (current->type == OPEN_PER &&
 			current->next->type == CLOSE_PER)
 		{
 			printf("syntax error: empty subshell ()\n");
@@ -345,21 +334,16 @@ char	**get_args(t_token *head)
 		i++;
 		tmp = tmp->next;
 	}
-	ret = malloc(sizeof(char *) * (i + 1));
+	ret = gc_malloc(sizeof(char *) * (i + 1));
 	if (!ret)
 		return (NULL);
 	y = 0;
 	tmp = head;
 	while (y < i && tmp)
 	{
-		ret[y] = strdup(tmp->token);
+		ret[y] = gc_strdup(tmp->token);
 		if (!ret[y])
-		{
-			while (--y >= 0)
-				free(ret[y]);
-			free(ret);
 			return (NULL);
-		}
 		tmp = tmp->next;
 		y++;
 	}
@@ -372,17 +356,17 @@ t_tree	*insert_command(t_token *head)
 {
 	t_tree *new_node;
 
-	new_node = malloc(sizeof(t_tree));
+	new_node = gc_malloc(sizeof(t_tree));
 	if (!new_node)
 		return (NULL);
 	new_node->left = NULL;
 	new_node->right = NULL;
 	new_node->type = head->type;
-	new_node->cmd = strdup(head->token);
+	new_node->cmd = gc_strdup(head->token);
 	new_node->args = get_args(head);
 	new_node->file = NULL;
 	if (head->file)
-		new_node->file = strdup(head->file);
+		new_node->file = gc_strdup(head->file);
 	new_node->fd = -1;
 	return (new_node);
 }
@@ -479,54 +463,39 @@ t_tree *root(t_token *head, int root_pos)
 		head = head->next;
 		i++;
 	}
-	new_node = malloc(sizeof(t_tree));
+	new_node = gc_malloc(sizeof(t_tree));
 	if (!new_node)
 		return (NULL);
 	new_node->left = NULL;
 	new_node->right = NULL;
 	new_node->type = head->type;
-	new_node->cmd = strdup(head->token);
+	new_node->cmd = gc_strdup(head->token);
 	new_node->args = NULL;
+	new_node->file = NULL;
 	if (head->file)
-		new_node->file = strdup(head->file);
+		new_node->file = gc_strdup(head->file);
 	new_node->fd = -1;
 	return (new_node);
-}
-
-/* function to free the tree */
-void	free_tree(t_tree *root)
-{
-	if (!root)
-		return;
-
-	free_tree(root->left);
-	free_tree(root->right);
-	if (root->cmd)
-		free(root->cmd);
-	if (root->args)
-	{
-		int i = 0;
-		while (root->args[i])
-		{
-			free(root->args[i]);
-			i++;
-		}
-		free(root->args);
-	}
-	free(root);
 }
 
 t_token	*deep_copy_tokens(t_token *start, t_token *end)
 {
 	t_token *result = NULL;
 	t_token *current = start;
+	t_arg *arg;
 
+	arg = gc_malloc(sizeof(t_arg));
+	arg->token = gc_strdup(current->token);
+	arg->type = current->type;
+	arg->quoted = current->quoted;
+	arg->space = current->space;
+	arg->file = NULL;
+	if (current->file)
+		arg->file = current->file;
 	while (current && current != end)
 	{
-		if (!add_token(&result, strdup(current->token), current->type, 
-			current->quoted, current->space_after, current->file))
+		if (!add_token(&result, arg))
 		{
-			free_token_list(&result);
 			return NULL;
 		}
 		current = current->next;
@@ -565,7 +534,9 @@ t_tree	*build_tree(t_token *head)
 {
 	t_tree *node = NULL;
 	int root_pos;
+	t_arg *arg;
 
+	arg = NULL;
 	if (!head)
 		return (NULL);
 	if (is_enclosed_in_parentheses(head))
@@ -574,7 +545,6 @@ t_tree	*build_tree(t_token *head)
 		if (inner_tokens)
 		{
 			node = build_tree(inner_tokens);
-			free_token_list(&inner_tokens);
 			return (node);
 		}
 	}
@@ -592,11 +562,16 @@ t_tree	*build_tree(t_token *head)
 	t_token *curr = head;
 	for (int i = 0; i < root_pos && curr; i++)
 	{
-		if (!add_token(&left_side, strdup(curr->token), curr->type,
-			curr->quoted, curr->space_after, curr->file))
+		arg = gc_malloc(sizeof(t_arg));
+		arg->token = gc_strdup(curr->token);
+		arg->type = curr->type;
+		arg->quoted = curr->quoted;
+		arg->space = curr->space;
+		arg->file = NULL;
+		if (curr->file)
+			arg->file = curr->file;
+		if (!add_token(&left_side, arg))
 		{
-			free_tree(node);
-			free_token_list(&left_side);
 			return (NULL);
 		}
 		curr = curr->next;
@@ -604,12 +579,16 @@ t_tree	*build_tree(t_token *head)
 	curr = curr->next;
 	while (curr)
 	{
-		if (!add_token(&right_side, strdup(curr->token), curr->type,
-			curr->quoted, curr->space_after, curr->file))
+		arg = gc_malloc(sizeof(t_arg));
+		arg->token = gc_strdup(curr->token);
+		arg->type = curr->type;
+		arg->quoted = curr->quoted;
+		arg->space = curr->space;
+		arg->file = NULL;
+		if (curr->file)
+			arg->file = curr->file;
+		if (!add_token(&right_side, arg))
 		{
-			free_tree(node);
-			free_token_list(&left_side);
-			free_token_list(&right_side);
 			return (NULL);
 		}
 		curr = curr->next;
@@ -617,17 +596,14 @@ t_tree	*build_tree(t_token *head)
 	if (left_side)
 	{
 		node->left = build_tree(left_side);
-		free_token_list(&left_side);
 	}
 	if (right_side)
 	{
 		node->right = build_tree(right_side);
-		free_token_list(&right_side);
 	}
 	if ((node->type == PIPE && (!node->left || !node->right)) ||
 		((node->type == AND_IF || node->type == OR_IF) && !node->right))
 	{
-		free_tree(node);
 		return (NULL);
 	}
 	return (node);

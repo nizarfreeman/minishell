@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 12:27:52 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/29 12:30:40 by aayache          ###   ########.fr       */
+/*   Updated: 2025/05/29 20:59:49 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,10 +44,8 @@ char	*creat_path(char *cmd, char **path)
 		s = ft_strjoin(ft_strdup(path[i]), ft_strdup(tmp));
 		if (access(s, X_OK) == 0)
 			break ;
-		free(s);
 		(1) && (s = NULL, i++);
 	}
-	free(tmp);
 	return (s);
 }
 

@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 12:06:25 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/29 16:30:09 by aayache          ###   ########.fr       */
+/*   Updated: 2025/05/30 15:04:43 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,10 +67,10 @@ int	export3(char *arg, env **envr, char **spl, int flag)
 		if (!tmp)
 		{
 			tmp = ft_strjoin(ft_strjoin(spl[0], ft_strdup("=")), spl[1]);
-			ft_lstnew(envr, tmp, 1);
+			ft_lstnew1(envr, tmp, 1);
 			return (0);
 		}
-		search_replace(*envr, spl[0], spl[1]);
+		search_replace1(*envr, spl[0], spl[1]);
 		return (0);
 	}
 	if (flag == 0)
@@ -78,10 +78,10 @@ int	export3(char *arg, env **envr, char **spl, int flag)
 		tmp = get_value(*envr, spl[0]);
 		if (tmp == NULL)
 		{
-			ft_lstnew(envr, spl[0], 0);
+			ft_lstnew1(envr, spl[0], 0);
 			return (0);
 		}
-		search_replace(*envr, spl[0], NULL);
+		search_replace1(*envr, spl[0], NULL);
 	}
 	return (0);
 }
@@ -95,7 +95,7 @@ int	export4(char *arg, env **envr, char **spl, int flag)
 	if (!tmp)
 	{
 		tmp = ft_strjoin(ft_strjoin(spl[0], ft_strdup("=")), spl[1]);
-		ft_lstnew(envr, tmp, 1);
+		ft_lstnew1(envr, tmp, 1);
 		return (0);
 	}
 	if (*tmp == '=')
@@ -105,7 +105,7 @@ int	export4(char *arg, env **envr, char **spl, int flag)
 	}
 	else
 		tmp = ft_strjoin(tmp, spl[1]);
-	search_replace(*envr, spl[0], tmp);
+	search_replace1(*envr, spl[0], tmp);
 	return (0);
 }
 

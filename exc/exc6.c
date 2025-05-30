@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:11:23 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/29 16:28:05 by aayache          ###   ########.fr       */
+/*   Updated: 2025/05/29 20:55:33 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ void	filter_mid(env **files, env *arg)
 			}
 			search_pos++;
 		}
-		filter_mid2(files, found, &tmp, prev);
+		filter_mid2(files, found, &tmp, &prev);
 	}
 }
 

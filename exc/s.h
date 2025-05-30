@@ -24,17 +24,21 @@ typedef struct env
 	struct	env *next;
 } env;
 
-typedef struct gc
-{
-	void		*ptr;
-	struct gc	*next;
-}				t_gc;
-
 
 void			gc_free(void);
 env	*ft_lstnew(env **lst, void *content, int f);
+void	ft_lstadd_back(env **lst, env *new);
+int	is_all_num(char *s);
+void	*ft_malloc(int size);
+char    *ft_strjoin1(char *s1, char *s2);
+void	ft_free(void);
+void	search_replace1(env *env, char *key, char *rep);
+env	*ft_lstnew1(env **lst, void *content, int f);
+char	*ft_strdup1(const char *s1);
+void	filter_mid2(env **files, int found, env **tmp, env **prev);
 env	*ft_lstlast(env *lst);
 char	*ft_strdup(const char *s1);
+void	no_env2(env **ret);
 void	*ft_memcpy(void *dst, const void *src, size_t n);
 size_t	ft_strlen(const char *s);
 int	ft_strncmp(const char *s1, const char *s2, size_t n);

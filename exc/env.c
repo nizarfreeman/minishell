@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 16:27:36 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/29 16:30:32 by aayache          ###   ########.fr       */
+/*   Updated: 2025/05/30 15:01:41 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,23 +19,23 @@ void	no_env(env **ret)
 	no_env2(ret);
 	s = get_value(*ret, "OLDPWD");
 	if (!s)
-		ft_lstnew(ret, "OLDPWD", 0);
+		ft_lstnew1(ret, "OLDPWD", 0);
 	s = get_value(*ret, "_");
 	if (!s)
-		ft_lstnew(ret, "_=/usr/bin/env", 2);
+		ft_lstnew1(ret, "_=/usr/bin/env", 2);
 	else
-		search_replace(*ret, "_", NULL);
+		search_replace1(*ret, "_", NULL);
 	s = get_value(*ret, "SHLVL");
 	if (!s)
-		ft_lstnew(ret, "SHLVL=1", 1);
+		ft_lstnew1(ret, "SHLVL=1", 1);
 	else if (is_all_num(s + 1) && (int)ft_atoi(s + 1) >= 999)
 	{
 		printf("bash: warning: shell level (%d) too high, resetting to 1\n",
-			(int)ft_atoi(s + 1));
-		search_replace(*ret, "SHLVL", "1");
+			(int)ft_atoi(s + 1)); // write err;
+		search_replace1(*ret, "SHLVL", "1");
 	}
 	else
-		search_replace(*ret, "SHLVL", ft_itoa(ft_atoi(s + 1) + 1));
+		search_replace1(*ret, "SHLVL", ft_itoa(ft_atoi(s + 1) + 1));
 }
 
 int	check_value(char *str)
@@ -55,7 +55,7 @@ env	*creat_env(char **envr)
 	ret = NULL;
 	while (*envr)
 	{
-		ft_lstnew(&ret, *envr, check_value(*envr));
+		ft_lstnew1(&ret, *envr, check_value(*envr));
 		envr++;
 	}
 	no_env(&ret);
@@ -85,8 +85,6 @@ void	remove_node(env **envrr, char *str)
 	if (!envr)
 		return ;
 	prev->next = envr->next;
-	free(envr->value);
-	free(envr);
 }
 
 int	unset(env **env, char **str, int *ex)

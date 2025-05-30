@@ -1,22 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   test.c                                             :+:      :+:    :+:   */
+/*   gc.c                                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/29 16:28:31 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/29 16:29:20 by aayache          ###   ########.fr       */
+/*   Created: 2025/05/30 15:07:52 by aayache           #+#    #+#             */
+/*   Updated: 2025/05/30 15:08:53 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "s.h"
 
-void	*gc_malloc(int size)
+void	*ft_malloc(int size)
 {
-	static t_gc	*head = NULL;
-	void		*ptr;
-	t_gc		*new_node;
+	static t_gc *head = NULL;
+	void *ptr;
+	t_gc *new_node;
 
 	if (size == -1)
 		return ((void *)&head);
@@ -24,6 +24,7 @@ void	*gc_malloc(int size)
 	if (!ptr)
 	{
 		gc_free();
+		ft_free();
 		exit(1);
 	}
 	new_node = malloc(sizeof(t_gc));
@@ -31,6 +32,7 @@ void	*gc_malloc(int size)
 	{
 		free(ptr);
 		gc_free();
+		ft_free();
 		exit(1);
 	}
 	new_node->ptr = ptr;
@@ -39,13 +41,13 @@ void	*gc_malloc(int size)
 	return (ptr);
 }
 
-void	gc_free(void)
+void	ft_free(void)
 {
-	t_gc	**head_ptr;
-	t_gc	*curr;
-	t_gc	*tmp;
+	t_gc **head_ptr;
+	t_gc *curr;
+	t_gc *tmp;
 
-	head_ptr = (t_gc **)gc_malloc(-1);
+	head_ptr = (t_gc **)ft_malloc(-1);
 	curr = *head_ptr;
 	while (curr)
 	{

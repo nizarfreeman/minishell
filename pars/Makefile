@@ -1,5 +1,5 @@
 CC = gcc
-C_FLAGS = -g
+C_FLAGS = -g -fsanitize=address
 LIBS = -lreadline
 NAME = minishell
 HEADER = minishell.h
@@ -8,8 +8,9 @@ SRCS = main.c\
         split.c\
         lexer.c\
         token_list.c\
+        test.c\
         parser.c\
-		print_tree.c
+        print_tree.c
 OBJS = $(addprefix $(OBJ_DIR)/, $(SRCS:.c=.o))
 
 all: $(NAME)
@@ -32,3 +33,6 @@ fclean: clean
 re: fclean all
 
 .PHONY: all clean fclean re
+#ls | "aaa" && a && adfdsf $?$DDDD$?
+#&&&&&a
+#ls > a

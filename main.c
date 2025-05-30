@@ -1,17 +1,6 @@
 #include "pars/minishell.h"
 #include "exc/s.h"
 
-// void	signal_handler(int signal, siginfo_t *info, void *oldact)
-// {
-// 	(void)signal;
-// 	(void)info;
-// 	(void)(oldact);
-// 	printf("\n");
-// 	rl_replace_line("", 0);
-//     rl_on_new_line();
-//     rl_redisplay();
-// }
-
 int check_partner(char *s, char c, int i)
 {
 	i++;
@@ -112,6 +101,7 @@ int main(int argc, char const *argv[], char **envr)
 		}
 		if(!*s)
 		{
+			free(s);
 			ex = 0;
 			continue;
 		}
@@ -130,13 +120,15 @@ int main(int argc, char const *argv[], char **envr)
 		{
 			// printf("\n\n");
 			// print_tree(root);
-    		// print_ast(root);
+    		print_ast(root);
 			exec_tree(root, &env, &ex);
 			free_token_list(&head);
 		}
 		free(s);
+		gc_free();
 	}
-
+	gc_free();
+	ft_free();
 	rl_clear_history();
 	return (ex);
 }

@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 12:05:53 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/29 16:30:36 by aayache          ###   ########.fr       */
+/*   Updated: 2025/05/30 15:01:26 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,21 +85,21 @@ void	no_env2(env **ret)
 
 	s = get_value(*ret, "PATH=");
 	if (!s)
-		ft_lstnew(ret,
+		ft_lstnew1(ret,
 			"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
 			2);
 	s = get_value(*ret, "PWD");
 	if (!s)
 	{
 		s = getcwd(NULL, 0);
-		ft_lstnew(ret, ft_strjoin(ft_strdup("PWD="), s), 1);
+		ft_lstnew1(ret, ft_strjoin(ft_strdup("PWD="), s), 1);
 		free(s);
 		s = NULL;
 	}
 	else
 	{
 		s = getcwd(NULL, 0);
-		search_replace(*ret, "PWD", s);
+		search_replace1(*ret, "PWD", s);
 		free(s);
 		s = NULL;
 	}

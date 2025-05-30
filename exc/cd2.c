@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 16:29:41 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/29 16:48:23 by aayache          ###   ########.fr       */
+/*   Updated: 2025/05/29 20:55:20 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ void	cd3(char *path, char **tmp, char **pwd, char *oldpwd)
 		write(2, "cd: error retrieving current directory: getcwd: ", 49);
 		write(2, "cannot access parent ", 22);
 		write(2, "directories: No such file or directory\n", 40);
-		pwd = ft_strjoin(ft_strdup(oldpwd), *tmp);
+		*pwd = ft_strjoin(ft_strdup(oldpwd), *tmp);
 	}
 	free(pwdtmp);
 	pwdtmp = NULL;

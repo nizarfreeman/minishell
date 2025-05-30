@@ -5,7 +5,6 @@
 # include <string.h>
 # include <signal.h>
 # include <unistd.h>
-#include <signal.h>
 # include <stdbool.h>
 # include <readline/readline.h>
 # include <readline/history.h>
@@ -45,11 +44,29 @@ typedef struct tokens
     char    *token;
     t_tokentype type;
     int quoted;
-    int space_after;
+    int space;
     struct tokens   *next;
     struct tokens   *prev;
     char *file;
 } t_token;
+
+typedef struct token_arg
+{
+    char *token;
+    int type;
+    int quoted;
+    int space;
+    char *file;
+} t_arg;
+
+typedef struct dsa_arg
+{
+    int type;
+    char *cmd;
+    char **args;
+    char *file;
+    int fd;
+} t_dsa_arg;
 
 typedef struct dsa
 {
@@ -62,6 +79,19 @@ typedef struct dsa
     int fd; 
 } t_tree;
 
+
+typedef struct gc
+{
+    void    *ptr;
+    struct gc *next;
+} t_gc;
+
+void    *gc_malloc(int size);
+void    gc_free(void);
+char *gc_strdup(const char *s);
+char *ft_strjoin(char *s1, char *s2);
+char *ft_strndup(const char *s, size_t n);
+void    *ft_memset(void *s, int c, size_t n);
 char *unquote_string(char *str);
 
 int check_quotes(char *s);
@@ -71,7 +101,7 @@ char    **split(const char *s, const char *delim);
 t_token   *lexer(char *s);
 void    free_token_list(t_token **head);
 void    print_token_list(t_token **head);
-int add_token(t_token **head, char *token, int type, int quoted, int space, char *file);
+int add_token(t_token **head, t_arg *arg);
 int is_there_char(char *s, char c);
 
 /*parser*/
@@ -88,4 +118,5 @@ void print_tree_horizontal(t_tree *root, int level, char *prefix, int is_left);
 void print_ast(t_tree *root);
 int check_parenthesess(const char *text);
 char    *ft_itoa(int n);
+int *get_exit_status(int *ex);
 #endif
