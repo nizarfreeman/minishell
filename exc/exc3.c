@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 13:31:51 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/30 15:41:59 by aayache          ###   ########.fr       */
+/*   Updated: 2025/05/30 15:42:57 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,6 @@ int	expand_wildcard(char *s, env **ret)
 		args = args->next;
 	}
 	filter_last(&dir, last);
-	// printf("here\n");
 	if (!dir)
 		return (0);
 	else

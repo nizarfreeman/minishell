@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 16:27:36 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/30 15:01:41 by aayache          ###   ########.fr       */
+/*   Updated: 2025/05/30 15:47:48 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,9 @@ void	no_env(env **ret)
 		ft_lstnew1(ret, "SHLVL=1", 1);
 	else if (is_all_num(s + 1) && (int)ft_atoi(s + 1) >= 999)
 	{
-		printf("bash: warning: shell level (%d) too high, resetting to 1\n",
-			(int)ft_atoi(s + 1)); // write err;
+		write(2, "bash: warning: shell level (", 29);
+		write(2, ft_itoa(s + 1), ft_strlen(ft_itoa(s + 1)));
+		write(2, ") too high, resetting to 1\n", 28);
 		search_replace1(*ret, "SHLVL", "1");
 	}
 	else

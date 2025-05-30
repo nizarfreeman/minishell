@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/30 15:07:52 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/30 15:08:53 by aayache          ###   ########.fr       */
+/*   Updated: 2025/05/30 15:44:02 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,9 @@
 
 void	*ft_malloc(int size)
 {
-	static t_gc *head = NULL;
-	void *ptr;
-	t_gc *new_node;
+	static t_gc	*head = NULL;
+	void		*ptr;
+	t_gc		*new_node;
 
 	if (size == -1)
 		return ((void *)&head);
@@ -43,9 +43,9 @@ void	*ft_malloc(int size)
 
 void	ft_free(void)
 {
-	t_gc **head_ptr;
-	t_gc *curr;
-	t_gc *tmp;
+	t_gc	**head_ptr;
+	t_gc	*curr;
+	t_gc	*tmp;
 
 	head_ptr = (t_gc **)ft_malloc(-1);
 	curr = *head_ptr;

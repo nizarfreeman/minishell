@@ -47,32 +47,32 @@ void	search_replace1(env *env, char *key, char *rep)
 	env->f = 1;
 }
 
-char    *ft_strjoin1(char *s1, char *s2)
+char	*ft_strjoin1(char *s1, char *s2)
 {
-    size_t  len1;
-    size_t  len2;
-    char    *res;
-    size_t  i;
-    size_t  j;
+	size_t	len1;
+	size_t	len2;
+	char	*res;
+	size_t	i;
+	size_t	j;
 
-    len1 = 0;
-    len2 = 0;
-    if (s1)
-        len1 = ft_strlen(s1);
-    if (s2)
-        len2 = ft_strlen(s2);
-    res = ft_malloc(len1 + len2 + 1);
-    if (!res)
-        return (NULL);
-    i = 0;
-    j = 0;
-    while (s1 && j < len1)
-        res[i++] = s1[j++];
-    j = 0;
-    while (s2 && j < len2)
-        res[i++] = s2[j++];
-    res[i] = '\0';
-    return (res);
+	len1 = 0;
+	len2 = 0;
+	if (s1)
+		len1 = ft_strlen(s1);
+	if (s2)
+		len2 = ft_strlen(s2);
+	res = ft_malloc(len1 + len2 + 1);
+	if (!res)
+		return (NULL);
+	i = 0;
+	j = 0;
+	while (s1 && j < len1)
+		res[i++] = s1[j++];
+	j = 0;
+	while (s2 && j < len2)
+		res[i++] = s2[j++];
+	res[i] = '\0';
+	return (res);
 }
 
 char	*ft_strdup1(const char *s1)
