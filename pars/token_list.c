@@ -7,9 +7,9 @@ void	free_token_list(t_token **head)
 	while (*head)
 	{
 		tmp = (*head)->next;
-		// free((*head)->token);
-		// free((*head)->file);
-		// free(*head);
+		free((*head)->token);
+		free((*head)->file);
+		free(*head);
 		*head = tmp;
 	}
 }
@@ -24,9 +24,10 @@ void print_token_list(t_token **head)
     current = *head;
     while (current)
     {
-        printf("%s %d %d %d\n", current->token, current->type, current->space, current->quoted);
+        printf("%s ", current->token);
         current = current->next;
     }
+    printf("\n");
 }
 
 #include <string.h>

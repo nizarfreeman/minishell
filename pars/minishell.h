@@ -117,6 +117,5 @@ void print_tree_horizontal(t_tree *root, int level, char *prefix, int is_left);
 // void print_tree_h(t_tree *root);
 void print_ast(t_tree *root);
 int check_parenthesess(const char *text);
-char    *ft_itoa(int n);
 int *get_exit_status(int *ex);
 #endif

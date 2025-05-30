@@ -1,308 +1,5 @@
 #include "minishell.h"
 
-int	check_start_end(t_token *head)
-{
-	t_token *tail;
-
-	if (!head)
-		return (1);
-	tail = head;
-	while (tail && tail->next)
-		tail = tail->next;
-	if (head->type == PIPE || head->type == AND ||
-		head->type == AND_IF || head->type == OR_IF)
-	{
-		printf("syntax error near unexpected token `%s'\n", head->token);
-		return (0);
-	}
-	if (tail && (tail->type == PIPE || tail->type == AND ||
-		tail->type == AND_IF || tail->type == OR_IF))
-	{
-		printf("syntax error near unexpected token `newline'\n");
-		return (0);
-	}
-	return (1);
-}
-
-/*
-** check_parentheses:
-** Validates balanced parentheses and subshell syntax
-*/
-int	check_parentheses(t_token *head)
-{
-	t_token *current;
-	int     count;
-
-	count = 0;
-	current = head;
-	while (current)
-	{
-		if (current->type == OPEN_PER)
-			count++;
-		else if (current->type == CLOSE_PER)
-		{
-			count--;
-			if (count < 0)
-			{
-				printf("syntax error: unexpected closing parenthesis ')'\n");
-				return (0);
-			}
-		}
-		if (current->type == OPEN_PER &&
-			current->next->type == CLOSE_PER)
-		{
-			printf("syntax error: empty subshell ()\n");
-			return (0);
-		}
-		current = current->next;
-	}
-	if (count > 0)
-	{
-		printf("syntax error: unexpected EOF while looking for matching `)'\n");
-		return (0);
-	}
-	return (1);
-}
-
-/*
-** check_redirection_target:
-** Checks if a redirection token has a valid target
-*/
-int	check_redirection_target(t_token *redir)
-{
-	t_token *next;
-
-	if (!redir->next)
-	{
-		printf("syntax error near unexpected token `newline'\n");
-		return (0);
-	}
-	next = redir->next;
-	if (next->type == PIPE || next->type == AND || next->type == AND_IF ||
-		next->type == OR_IF || next->type == REDIRECTION_IN ||
-		next->type == REDIRECTION_OUT || next->type == APPEND ||
-		next->type == HERE_ODC || next->type == CLOSE_PER)
-	{
-		printf("syntax error near unexpected token `%s'\n", next->token);
-		return (0);
-	}
-	return (1);
-}
-
-/*
-** check_redirections:
-** Checks for ambiguous and invalid redirections
-*/
-int	check_redirections(t_token *head)
-{
-	t_token *current;
-
-	current = head;
-	while (current)
-	{
-		if (current->type == REDIRECTION_IN || current->type == REDIRECTION_OUT ||
-			current->type == APPEND || current->type == HERE_ODC)
-		{
-			if (!check_redirection_target(current))
-				return (0);
-			if ((current->type == REDIRECTION_IN ||
-				current->type == REDIRECTION_OUT) && current->next &&
-				(current->next->type == REDIRECTION_IN ||
-				current->next->type == REDIRECTION_OUT))
-			{
-				printf("syntax error: ambiguous redirection\n");
-				return (0);
-			}
-		}
-		current = current->next;
-	}
-	return (1);
-}
-
-/*
-** check_operators:
-** Validates pipe and logical operators
-*/
-int	check_operators(t_token *head)
-{
-	t_token *current;
-
-	current = head;
-	while (current)
-	{
-		if (current->type == PIPE || current->type == AND ||
-			current->type == AND_IF || current->type == OR_IF)
-		{
-			if (current->next && (current->next->type == PIPE ||
-				current->next->type == AND || current->next->type == AND_IF ||
-				current->next->type == OR_IF))
-			{
-				printf("syntax error near unexpected token `%s'\n",
-					current->next->token);
-				return (0);
-			}
-			if (current->next && current->next->type == CLOSE_PER)
-			{
-				printf("syntax error near unexpected token `)'\n");
-				return (0);
-			}
-			if (!current->next)
-			{
-				printf("syntax error near unexpected token `newline'\n");
-				return (0);
-			}
-		}
-		current = current->next;
-	}
-	return (1);
-}
-
-/*
-** check_assignments:
-** Validates assignment syntax
-*/
-int	check_assignments(t_token *head)
-{
-	t_token *current;
-
-	current = head;
-	while (current)
-	{
-		if (current->type == ASSIGN)
-		{
-			if (current == head && (current->prev == NULL ||
-				(current->prev->type != WORD && !current->prev->quoted)))
-			{
-				printf("syntax error near unexpected token `='\n");
-				return (0);
-			}
-			if (!current->next)
-			{
-				printf("syntax error near unexpected token `newline'\n");
-				return (0);
-			}
-		}
-		current = current->next;
-	}
-	return (1);
-}
-
-/*
-** check_heredoc:
-** Validates here-document syntax
-*/
-int	check_heredoc(t_token *head)
-{
-	t_token *current;
-
-	current = head;
-	while (current)
-	{
-		if (current->type == HERE_ODC)
-		{
-			if (!current->next)
-			{
-				printf("syntax error: missing delimiter for here-document\n");
-				return (0);
-			}
-			if (current->next->type != WORD && current->next->type != S_QUOTE &&
-				current->next->type != D_QUOTE)
-			{
-				printf("syntax error near unexpected token `%s'\n",
-					current->next->token);
-				return (0);
-			}
-		}
-		current = current->next;
-	}
-	return (1);
-}
-
-/*
-** is_command_token:
-** Helper function to check if token can start a command
-*/
-int	is_command_token(t_token *token)
-{
-	return (token->type == WORD ||
-		(token->type >= BUILTIN_ECHO && token->type <= BUILTIN_EXIT) ||
-		token->type == OPEN_PER);
-}
-
-/*
-** check_cmd_sequences:
-** Validates command sequences
-*/
-int	check_cmd_sequences(t_token *head)
-{
-	t_token *current;
-	int     expect_cmd;
-	int     found_cmd;
-	int     has_redirection;
-
-	current = head;
-	expect_cmd = 1;
-	found_cmd = 0;
-	has_redirection = 0;
-	
-	while (current)
-	{
-		if (current->type == REDIRECTION_IN || current->type == REDIRECTION_OUT ||
-			current->type == APPEND || current->type == HERE_ODC)
-		{
-			has_redirection = 1;
-			if (current->next)
-				current = current->next;
-			else
-				break ;
-		}
-		else if (current->type == PIPE || current->type == AND_IF ||
-			current->type == OR_IF)
-		{
-			if (expect_cmd && has_redirection)
-				found_cmd = 1;
-			expect_cmd = 1;
-			found_cmd = 0;
-			has_redirection = 0;
-		}
-		else if (expect_cmd && is_command_token(current))
-		{
-			expect_cmd = 0;
-			found_cmd = 1;
-		}
-		current = current->next;
-	}
-	if (expect_cmd && !found_cmd && !has_redirection)
-	{
-		printf("syntax error: incomplete command\n");
-		return (0);
-	}
-	return (1);
-}
-
-/*
-** initial_syntax_check:
-** Main function for syntax validation
-*/
-int initial_syntax_check(t_token *head)
-{
-	if (!check_start_end(head))
-		return (0);
-	if (!check_parentheses(head))
-		return (0);
-	if (!check_redirections(head))
-		return (0);
-	if (!check_operators(head))
-		return (0);
-	if (!check_assignments(head))
-		return (0);
-	if (!check_heredoc(head))
-		return (0);
-	if (!check_cmd_sequences(head))
-		return (0);
-	return (1);
-}
-
 /*checks if the command is simple, meaning it contains no logical operators
 or redirections and generally follow the syntax : command + options + args*/
 int	is_simple(t_token *head)
@@ -484,20 +181,27 @@ t_token	*deep_copy_tokens(t_token *start, t_token *end)
 	t_token *current = start;
 	t_arg *arg;
 
-	arg = gc_malloc(sizeof(t_arg));
-	arg->token = gc_strdup(current->token);
-	arg->type = current->type;
-	arg->quoted = current->quoted;
-	arg->space = current->space;
-	arg->file = NULL;
-	if (current->file)
-		arg->file = current->file;
 	while (current && current != end)
 	{
+		// Create a new t_arg for EACH token
+		arg = gc_malloc(sizeof(t_arg));
+		if (!arg)
+			return NULL;
+			
+		// Copy data from the CURRENT token
+		arg->token = gc_strdup(current->token);
+		arg->type = current->type;
+		arg->quoted = current->quoted;
+		arg->space = current->space;
+		arg->file = NULL;
+		if (current->file)
+			arg->file = gc_strdup(current->file);
+		
 		if (!add_token(&result, arg))
 		{
 			return NULL;
 		}
+		
 		current = current->next;
 	}
 	return result;
@@ -534,11 +238,10 @@ t_tree	*build_tree(t_token *head)
 {
 	t_tree *node = NULL;
 	int root_pos;
-	t_arg *arg;
 
-	arg = NULL;
 	if (!head)
 		return (NULL);
+		
 	if (is_enclosed_in_parentheses(head))
 	{
 		t_token *inner_tokens = extract_paren_content(head);
@@ -548,51 +251,70 @@ t_tree	*build_tree(t_token *head)
 			return (node);
 		}
 	}
+	
 	if (is_simple(head))
 		return (insert_command(head));
+		
 	root_pos = get_root_pos(head);
 	if (root_pos == -1)
 		return (NULL);
+		
 	node = root(head, root_pos);
 	if (!node)
 		return (NULL);
+		
 	t_token *left_side = NULL;
 	t_token *right_side = NULL;
 
+	// Build left side - copy tokens from start to root_pos
 	t_token *curr = head;
 	for (int i = 0; i < root_pos && curr; i++)
 	{
-		arg = gc_malloc(sizeof(t_arg));
+		t_arg *arg = gc_malloc(sizeof(t_arg));
+		if (!arg)
+			return NULL;
+			
 		arg->token = gc_strdup(curr->token);
 		arg->type = curr->type;
 		arg->quoted = curr->quoted;
 		arg->space = curr->space;
 		arg->file = NULL;
 		if (curr->file)
-			arg->file = curr->file;
+			arg->file = gc_strdup(curr->file);
+			
 		if (!add_token(&left_side, arg))
 		{
 			return (NULL);
 		}
 		curr = curr->next;
 	}
-	curr = curr->next;
+	
+	// Skip the root token
+	if (curr)
+		curr = curr->next;
+	
+	// Build right side - copy remaining tokens
 	while (curr)
 	{
-		arg = gc_malloc(sizeof(t_arg));
+		t_arg *arg = gc_malloc(sizeof(t_arg));
+		if (!arg)
+			return NULL;
+			
 		arg->token = gc_strdup(curr->token);
 		arg->type = curr->type;
 		arg->quoted = curr->quoted;
 		arg->space = curr->space;
 		arg->file = NULL;
 		if (curr->file)
-			arg->file = curr->file;
+			arg->file = gc_strdup(curr->file);
+			
 		if (!add_token(&right_side, arg))
 		{
 			return (NULL);
 		}
 		curr = curr->next;
 	}
+	
 	if (left_side)
 	{
 		node->left = build_tree(left_side);
@@ -601,17 +323,19 @@ t_tree	*build_tree(t_token *head)
 	{
 		node->right = build_tree(right_side);
 	}
+	
 	if ((node->type == PIPE && (!node->left || !node->right)) ||
 		((node->type == AND_IF || node->type == OR_IF) && !node->right))
 	{
 		return (NULL);
 	}
+	
 	return (node);
 }
 
 t_tree	*parse_expression(t_token *head)
 {
-	if (!initial_syntax_check(head))
-		return (NULL);
+	if (!head)
+		return NULL;
 	return (build_tree(head));
 }

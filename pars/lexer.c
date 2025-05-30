@@ -376,7 +376,7 @@ int handle_assignment(char *s, int i, t_token **head)
     if (ft_isspace(s[i + 1]))
         arg->space = 1;
     arg->token = gc_strdup("=");
-    arg->type = ASSIGN;
+    arg->type = WORD;
     add_token(head, arg);
     return i + 1;
 }
@@ -536,189 +536,125 @@ int is_redirection_target(t_token *token)
     return (token && token->prev && is_redirection(token->prev));
 }
 
-
-
-t_token *find_current_command_token(t_token *start)
+t_token *copy_token(t_token *head)
 {
-    t_token *current = start;
-    while (current && !is_pipe_or_logical(current))
-    {
-        if (is_command(current))
-            return (current);
-        current = current->next;
-    }
-    current = start;
-    while (current && !is_pipe_or_logical(current))
-    {
-        if (!is_redirection(current) && !is_redirection_target(current))
-            return (current);
-        current = current->next;
-    }
-    return (start);
+    if (!head)
+        return NULL;
+    t_token *copy = gc_malloc(sizeof(t_token));
+    if (!copy)
+        return NULL;
+    copy->token = gc_strdup(head->token);
+    copy->type = head->type;
+    copy->quoted = head->quoted;
+    copy->space = head->space;
+    copy->next = NULL;
+    copy->prev = NULL;
+    copy->file = gc_strdup(head->file);
+    return copy;
 }
 
-/* Find the last argument already adjacent to the command */
-t_token *find_last_command_arg(t_token *cmd_token)
+void    adjust_list(t_token **head)
 {
-    t_token *last_arg = cmd_token;
-    t_token *current = cmd_token->next;
+    t_token *copy = copy_token((*head)->next->next);
+    copy->next = *head;
+    (*head)->prev = copy;
+}
+
+// void move_args(t_token **head)
+// {
+//     t_token *hold = NULL;
+//     t_token *copy = NULL;
+//     while ((*head)->next && (*head)->next->next && (*head)->next->next->type == WORD)
+//     {
+//         if ((*head)->prev == NULL && (*head)->next->next->type != WORD)
+//             return ;
+//         if ((*head)->prev == NULL && (*head)->next->next->type == WORD)
+//         {
+//             adjust_list(head);
+//             continue ;
+//         }
+//         hold = (*head)->prev;
+//         copy = copy_token((*head)->next->next);
+//         copy->next = *head;
+//         copy->prev = hold;
+//         hold->next = copy;
+//         (*head)->prev = copy;
+//         (*head)->next = (*head)->next->next;
+//     }
+// }
+void move_args(t_token *redirection, t_token **head)
+{
+    if (!redirection || !redirection->next || !redirection->next->next)
+        return;
     
-    while (current && is_argument(current) && !is_redirection(current) && 
-           !is_redirection_target(current) && !is_pipe_or_logical(current))
-    {
-        last_arg = current;
-        current = current->next;
-    }
+    t_token *delimiter = redirection->next;  // The delimiter (first arg after redirection)
+    t_token *current = delimiter->next;      // Start from the token after delimiter
     
-    return (last_arg);
-}
-
-/* Extract a node from the linked list */
-void extract_node(t_token **head, t_token *node)
-{
-    if (node->prev)
-        node->prev->next = node->next;
-    else if (*head == node)
-        *head = node->next;
-        
-    if (node->next)
-        node->next->prev = node->prev;
-    node->prev = NULL;
-    node->next = NULL;
-}
-
-/* Insert a node after the specified position */
-void insert_node_after(t_token **head, t_token *position, t_token *node)
-{
-    if (!position)
-    {
-        node->next = *head;
-        if (*head)
-            (*head)->prev = node;
-        *head = node;
-    }
-    else
-    {
-        node->next = position->next;
-        node->prev = position;
-        
-        if (position->next)
-            position->next->prev = node;
-            
-        position->next = node;
-    }
-}
-
-/* Process a single command segment (between operators) */
-void reorganize_single_command(t_token **head, t_token *start, t_token *end)
-{
-    if (!start)
-        return;
-    t_token *cmd_token = find_current_command_token(start);
-    if (!cmd_token || cmd_token == end)
-        return;
-    t_token *last_cmd_arg = find_last_command_arg(cmd_token);
-    t_token *current = last_cmd_arg->next;
-    while (current && current != end)
-    {
-        t_token *next = current->next;
-        if (is_argument(current) && !is_redirection_target(current) && 
-            !is_redirection(current->prev))
-        {
-            extract_node(head, current);
-            insert_node_after(head, last_cmd_arg, current);
-            last_cmd_arg = current;
-        }
-        
-        current = next;
-    }
-}
-
-/* Reorganize the token list to process each command segment separately */
-void reorganize_command_args(t_token **head)
-{
-    if (!head || !*head)
-        return;
-        
-    t_token *current = *head;
-    t_token *segment_start = current;
-    while (current)
-    {
-        if (is_pipe_or_logical(current))
-        {
-            reorganize_single_command(head, segment_start, current);
-            segment_start = current->next;
-        }
-        
-        current = current->next;
-    }
-    if (segment_start)
-        reorganize_single_command(head, segment_start, NULL);
-}
-
-/* Process token list to properly organize command arguments and redirections */
-void handle_redirection_first(t_token **head, t_token *start, t_token *end)
-{
-    if (!start || !is_redirection(start))
-        return;
-    t_token *current = start;
-    t_token *command_candidate = NULL;
+    // Collect all arguments that need to be moved
+    t_token *first_moved = NULL;
+    t_token *last_moved = NULL;
     
-    while (current && current != end && !is_pipe_or_logical(current))
+    while (current && current->type == WORD)
     {
-        if (is_redirection(current))
-        {
-            current = current->next;
-            if (current)
-                current = current->next;
-            continue;
-        }
-        if (!is_redirection_target(current))
-        {
-            command_candidate = current;
-            break;
-        }
+        t_token *next_token = current->next;
         
-        current = current->next;
-    }
-    if (command_candidate)
-    {
-        extract_node(head, command_candidate);
-        if (start->prev)
+        // Remove current from its position
+        delimiter->next = current->next;
+        if (current->next)
+            current->next->prev = delimiter;
+        
+        // Add to our moved list
+        current->next = NULL;
+        current->prev = NULL;
+        
+        if (!first_moved)
         {
-            command_candidate->prev = start->prev;
-            command_candidate->next = start;
-            start->prev->next = command_candidate;
-            start->prev = command_candidate;
+            first_moved = current;
+            last_moved = current;
         }
         else
         {
-            command_candidate->next = start;
-            start->prev = command_candidate;
-            *head = command_candidate;
+            last_moved->next = current;
+            current->prev = last_moved;
+            last_moved = current;
         }
+        
+        current = next_token;
+    }
+    
+    // If we have arguments to move, insert them before the redirection
+    if (first_moved)
+    {
+        // Connect the moved arguments before the redirection
+        last_moved->next = redirection;
+        first_moved->prev = redirection->prev;
+        
+        if (redirection->prev)
+            redirection->prev->next = first_moved;
+        else
+            *head = first_moved;  // Update head if redirection was at the beginning
+        
+        redirection->prev = last_moved;
     }
 }
 
 void revise_redirections(t_token **head)
 {
-    if (!head || !*head)
-        return;
     t_token *current = *head;
-    t_token *segment_start = current;
     while (current)
     {
-        if (is_pipe_or_logical(current))
+        if (current->type >= 6 && current->type <= 9)  // redirection types
         {
-            handle_redirection_first(head, segment_start, current);
-            segment_start = current->next;
+            move_args(current, head);
+            // After moving args, continue from the redirection token
+            // (it might not be in the same position anymore)
+            current = current->next;
         }
-        
-        current = current->next;
+        else
+        {
+            current = current->next;
+        }
     }
-    if (segment_start)
-        handle_redirection_first(head, segment_start, NULL);
-    reorganize_command_args(head);
 }
 
 void revise_args(t_token **head)
@@ -812,16 +748,14 @@ char *unquote_string(char *str)
 
 static char *ft_strrev(char *str)
 {
-    int i = 0;
-    int j = 0;
+    int i;
+    int j;
     char tmp;
 
     if (!str)
         return (NULL);
-    
     i = 0;
     j = strlen(str) - 1;
-    
     while (j > i)
     {
         tmp = str[i];
@@ -833,53 +767,39 @@ static char *ft_strrev(char *str)
     return (str);
 }
 
-// char *ft_itoa(int nbr)
-// {
-//     int i;
-//     int neg;
-//     char *tmp;
-
-//     i = 0;
-//     neg = 0;
-//     if (nbr == 0)
-//         return (gc_strdup("0"));
-//     if (nbr == -2147483648)
-//         return (gc_strdup("-2147483648"));
-    
-//     tmp = gc_malloc(sizeof(char) * 12);
-//     if (tmp == NULL)
-//         return (NULL);
-//     ft_memset(tmp, 0, 12);
-    
-//     if (nbr < 0)
-//     {
-//         neg = 1;
-//         nbr = -nbr;
-//     }
-//     while (nbr > 0)
-//     {
-//         tmp[i++] = (nbr % 10) + '0';
-//         nbr /= 10;
-//     }
-//     if (neg)
-//         tmp[i++] = '-';
-//     tmp[i] = '\0';
-//     return (ft_strrev(tmp));
-// }
-
-int create_temp_file(void)
+static char *ft_itoa(int nbr)
 {
-    char *name;
-    int fd;
+    int i;
+    int neg;
+    char *tmp;
 
-    name = ft_strjoin("/tmp/", ft_itoa(rand()));
-    if (!name)
-        return (-1);
-    fd = open(name, O_CREAT | O_RDWR | O_TRUNC, 0644);
-    return (fd);
+    i = 0;
+    neg = 0;
+    if (nbr == 0)
+        return (gc_strdup("0"));
+    if (nbr == -2147483648)
+        return (gc_strdup("-2147483648"));
+    tmp = gc_malloc(sizeof(char) * 12);
+    if (tmp == NULL)
+        return (NULL);
+    ft_memset(tmp, 0, 12);
+    if (nbr < 0)
+    {
+        neg = 1;
+        nbr = -nbr;
+    }
+    while (nbr > 0)
+    {
+        tmp[i++] = (nbr % 10) + '0';
+        nbr /= 10;
+    }
+    if (neg)
+        tmp[i++] = '-';
+    tmp[i] = '\0';
+    return (ft_strrev(tmp));
 }
 
-int read_heredoc_input(int fd, char *delim)
+static int read_heredoc_input(int fd, char *delim)
 {
     char *s;
 
@@ -894,10 +814,11 @@ int read_heredoc_input(int fd, char *delim)
         write(fd, "\n", 1);
         free(s);
     }
-    return (-1);
+    printf("bash: warning: here-document delimited by end-of-file (wanted `%s')\n", delim);
+    return (0);
 }
 
-int process_single_heredoc(t_token *token, int comm_fd)
+static int process_single_heredoc(t_token *token, int comm_fd)
 {
     char *name;
     char *delim;
@@ -925,13 +846,18 @@ int process_single_heredoc(t_token *token, int comm_fd)
     return (0);
 }
 
-void child_process(t_token **head, char *comm_file)
+static void setup_child_signals(void)
+{
+    signal(SIGINT, SIG_DFL);
+    signal(SIGQUIT, SIG_DFL);
+}
+
+static void child_process(t_token **head, char *comm_file)
 {
     int comm_fd;
     t_token *list;
 
-    signal(SIGINT, SIG_DFL);
-    signal(SIGQUIT, SIG_DFL);
+    setup_child_signals();
     comm_fd = open(comm_file, O_CREAT | O_WRONLY | O_TRUNC, 0644);
     if (comm_fd == -1)
         exit(1);
@@ -952,7 +878,7 @@ void child_process(t_token **head, char *comm_file)
     exit(0);
 }
 
-void setup_signal_handling(struct sigaction *old_sigint)
+static void setup_signal_handling(struct sigaction *old_sigint)
 {
     struct sigaction ignore_action;
 
@@ -962,7 +888,7 @@ void setup_signal_handling(struct sigaction *old_sigint)
     sigaction(SIGINT, &ignore_action, old_sigint);
 }
 
-void parse_buffer_to_tokens(char *buffer, t_token **list)
+static void parse_buffer_to_tokens(char *buffer, t_token **list)
 {
     char *line_start;
     char *newline_pos;
@@ -980,7 +906,7 @@ void parse_buffer_to_tokens(char *buffer, t_token **list)
     }
 }
 
-void read_comm_file_data(char *comm_file, t_token **head)
+static void read_comm_file_data(char *comm_file, t_token **head)
 {
     int comm_fd;
     char buffer[1024];
@@ -1002,7 +928,7 @@ void read_comm_file_data(char *comm_file, t_token **head)
     close(comm_fd);
 }
 
-void set_heredoc_files_null(t_token **head)
+static void set_heredoc_files_null(t_token **head)
 {
     t_token *list;
 
@@ -1015,19 +941,19 @@ void set_heredoc_files_null(t_token **head)
     }
 }
 
-void handle_child_success(char *comm_file, t_token **head)
+static void handle_child_success(char *comm_file, t_token **head)
 {
     read_comm_file_data(comm_file, head);
 }
 
-void handle_child_failure(int status, t_token **head)
+static void handle_child_failure(int status, t_token **head)
 {
     set_heredoc_files_null(head);
     if (WIFSIGNALED(status) && WTERMSIG(status) == SIGINT)
         printf("\n");
 }
 
-void parent_process(pid_t pid, char *comm_file, t_token **head)
+static void parent_process(pid_t pid, char *comm_file, t_token **head)
 {
     struct sigaction old_sigint;
     int status;
@@ -1042,25 +968,37 @@ void parent_process(pid_t pid, char *comm_file, t_token **head)
     unlink(comm_file);
 }
 
-void revise_heredocs(t_token **head)
+int revise_null(t_token *head)
+{
+    while (head)
+    {
+        if (head->file == NULL && head->type == HERE_ODC)
+            return (-1);
+        head = head->next;
+    }
+    return (0);
+}
+
+int revise_heredocs(t_token **head)
 {
     char *comm_file;
     pid_t pid;
 
     srand(time(NULL));
     comm_file = ft_strjoin("/tmp/", ft_itoa(getpid()));
-    if (!comm_file)
-        return ;
     pid = fork();
     if (pid == -1)
     {
         perror("fork");
-        return;
+        return (-1);
     }
     if (pid == 0)
         child_process(head, comm_file);
     else
         parent_process(pid, comm_file, head);
+    if (revise_null(*head) == -1)
+        return (-1);
+    return (0);
 }
 
 t_token *lexer(char *s)
@@ -1070,6 +1008,7 @@ t_token *lexer(char *s)
     tokenize_input(s, &head);
     revise_args(&head);
     revise_redirections(&head);
-    revise_heredocs(&head);
+    if (revise_heredocs(&head) == -1)
+        return (NULL);
     return (head);
 }
