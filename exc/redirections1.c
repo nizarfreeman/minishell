@@ -6,13 +6,13 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 13:12:56 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/29 13:13:28 by aayache          ###   ########.fr       */
+/*   Updated: 2025/05/31 15:12:28 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "s.h"
 
-void	redirections_expand2(t_tree *root, env **env, int *ex)
+int	redirections_expand2(t_tree *root, env **env, int *ex)
 {
 	char	**tmp;
 
@@ -21,16 +21,17 @@ void	redirections_expand2(t_tree *root, env **env, int *ex)
 	{
 		write(2, "ambiguous redirect\n", 20);
 		*ex = 1;
-		return ;
+		return (1);
 	}
 	else
 	{
 		root->right->cmd = *tmp;
 		*ex = 0;
+		return (0);
 	}
 }
 
-void	redirections_expand(t_tree *root, env **env, int *ex)
+int	redirections_expand(t_tree *root, env **env, int *ex)
 {
 	char	**tmp;
 
@@ -41,16 +42,17 @@ void	redirections_expand(t_tree *root, env **env, int *ex)
 		{
 			write(2, "ambiguous redirect\n", 20);
 			*ex = 1;
-			return ;
+			return (1);
 		}
 		else
 		{
 			root->right->left->cmd = *tmp;
 			*ex = 0;
+			return (0);
 		}
 	}
 	else
-		redirections_expand2(root, env, ex);
+		return (redirections_expand2(root, env, ex));
 }
 
 void	red_out(t_tree *root, env **env, int *ex, t_tree *left)
@@ -64,7 +66,7 @@ void	red_out(t_tree *root, env **env, int *ex, t_tree *left)
 	if (fd != -1)
 	{
 		*ex = 0;
-		dup2(fd, STDOUT_FILENO);
+		ft_dup2(fd, STDOUT_FILENO);
 		if (root->right->type >= 6 && root->right->type <= 9)
 			redirections(root->right, env, ex, left);
 		close(fd);
@@ -111,7 +113,7 @@ void	red_app(t_tree *root, env **env, int *ex, t_tree *left)
 	if (fd != -1)
 	{
 		*ex = 0;
-		dup2(fd, STDOUT_FILENO);
+		ft_dup2(fd, STDOUT_FILENO);
 		if (root->right->type >= 6 && root->type <= 9)
 			redirections(root->right, env, ex, left);
 		close(fd);

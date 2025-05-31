@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:08:47 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/29 16:08:54 by aayache          ###   ########.fr       */
+/*   Updated: 2025/05/31 14:41:37 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,21 +37,22 @@ int	excute_cmd(char **cmd, env **env, int fd_in, int *status)
 	(1) && (envr = lst_to_arr(*env), path = get_path(cmd, envr));
 	if (!path)
 		printerr(cmd[0], 0);
-	pid = fork();
+	pid = ft_fork();
 	if (pid == 0)
 	{
 		if (fd_in != -1)
 		{
-			dup2(fd_in, STDIN_FILENO);
+			ft_dup2(fd_in, STDIN_FILENO);
 			close(fd_in);
 		}
 		g_han = 0;
 		signal(SIGQUIT, SIG_DFL);
 		signal(SIGINT, SIG_DFL);
-		if (execve(path, cmd, envr) == -1)
+		if (path && execve(path, cmd, envr) == -1)
 			exit(127);
 	}
-	close(fd_in);
+	if (fd_in != -1)
+		close(fd_in);
 	wait(status);
 	if (WIFSIGNALED(*status))
 		return (check_signal(status));

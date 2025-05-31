@@ -7,9 +7,9 @@ void	free_token_list(t_token **head)
 	while (*head)
 	{
 		tmp = (*head)->next;
-		free((*head)->token);
-		free((*head)->file);
-		free(*head);
+		// free((*head)->token);
+		// free((*head)->file);
+		// free(*head);
 		*head = tmp;
 	}
 }

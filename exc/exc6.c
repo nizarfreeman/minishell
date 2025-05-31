@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:11:23 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/30 18:03:32 by aayache          ###   ########.fr       */
+/*   Updated: 2025/05/31 13:55:57 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ int	exec_tree2(t_tree *root, env **env, int *ex)
 		return (exce_pipe(root, env, ex));
 	if (root->type >= 6 && root->type <= 9)
 	{
-		status = fork();
+		status = ft_fork();
 		if (status == 0)
 		{
 			redirections(root, env, ex, root->left);

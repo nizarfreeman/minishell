@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 12:30:57 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/30 15:44:37 by aayache          ###   ########.fr       */
+/*   Updated: 2025/05/31 14:56:36 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,8 +74,8 @@ void	redirections(t_tree *root, env **env, int *ex, t_tree *left)
 	int		fd;
 	char	**tmp;
 
-	if (root->type != HERE_ODC)
-		redirections_expand(root, env, ex);
+	if (root->type != HERE_ODC && redirections_expand(root, env, ex))
+		return ;
 	if (root->type == REDIRECTION_OUT)
 		red_out(root, env, ex, left);
 	else if (root->type == REDIRECTION_IN)

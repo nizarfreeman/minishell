@@ -120,13 +120,12 @@ int main(int argc, char const *argv[], char **envr)
 		{
 			// printf("\n\n");
 			// print_tree(root);
-    		// print_ast(root);
+    		print_ast(root);
 			exec_tree(root, &env, &ex);
-				// printf("here\n");
 			free_token_list(&head);
 		}
 		free(s);
-		// gc_free();
+		gc_free();
 	}
 	gc_free();
 	ft_free();
