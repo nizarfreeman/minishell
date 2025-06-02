@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 15:52:27 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/31 14:48:02 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/02 13:46:48 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ int	cd_home(env *env, char **path, int *ex)
 	tmp = get_value(env, "HOME=");
 	if (!tmp)
 	{
-		free(tmp);
 		tmp = NULL;
 		printf("cd: HOME not set\n");
 		*ex = 1;
@@ -37,7 +36,6 @@ int	cd_home(env *env, char **path, int *ex)
 	}
 	if (!*tmp)
 	{
-		free(tmp);
 		tmp = NULL;
 		*ex = 0;
 		return (0);
@@ -96,17 +94,18 @@ int	cd2(env *env, char *path)
 	char	*tmp;
 	char	*oldpwd1;
 
+	oldpwd1 = NULL;
 	oldpwd = get_value(env, "PWD=");
 	if (!oldpwd)
 		oldpwd1 = getcwd(NULL, 0);
 	if (chdir(path) == 0)
 	{
 		cd3(path, &tmp, &pwd, oldpwd);
-		search_replace(env, "PWD", pwd);
+		search_replace1(env, "PWD", pwd);
 		if (oldpwd)
-			search_replace(env, "OLDPWD", oldpwd);
+			search_replace1(env, "OLDPWD", oldpwd);
 		else
-			search_replace(env, "OLDPWD", oldpwd1);
+			search_replace1(env, "OLDPWD", oldpwd1);
 		free(oldpwd1);
 		oldpwd1 = NULL;
 		return (0);

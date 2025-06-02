@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 11:56:20 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/30 15:39:05 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/01 14:10:59 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,12 +78,13 @@ char	*expand_quotes(env *envr, int *p, char **tmp1)
 		*tmp1 += *p + 1;
 		return (ret);
 	}
+	return (NULL);
 }
 
 int	append_to_lst(char **ret, env **list, char *tmp1, char *tmp)
 {
 	*ret = ft_strjoin(*ret, tmp1);
-	ft_lstnew(list, ret, 0);
+	ft_lstnew(list, *ret, 0);
 	*ret = tmp;
 	return (1);
 }
@@ -96,8 +97,6 @@ int	expand3(char **ret, char **tmp1, env **list, env *envr)
 
 	tmp = *ret;
 	ex = get_exit_status(NULL);
-	*ret = ft_strjoin(*ret, *tmp1);
-	ft_lstnew(list, *ret, 0);
 	tmp1++;
 	*ret = expand2(creat_word(tmp, 0, 0, &p), envr, ex);
 	if (*(*ret + ft_strlen(*ret) - 1) == ' ' || *(*ret + ft_strlen(*ret)

@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 16:27:55 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/28 16:29:15 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/01 12:41:06 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,14 +15,14 @@
 int	pwd(env *env, int *ex)
 {
 	char	*s;
-
+	char *tmp;
 	s = getcwd(NULL, 0);
 	if (s)
 		printf("%s\n", s);
 	else
 	{
-		s = get_value(env, "PWD=");
-		printf("%s\n", s);
+		tmp = get_value(env, "PWD=");
+		printf("%s\n", tmp);
 	}
 	free(s);
 	s = NULL;

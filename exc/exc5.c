@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:08:47 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/31 14:41:37 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/01 12:29:06 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,15 +14,20 @@
 
 int	check_signal(int *status)
 {
-	if (WTERMSIG(*status) == SIGQUIT)
+	if (WIFSIGNALED(*status))
 	{
-		write(1, "Quit (core dumped)\n", 20);
-		*status = 131;
-	}
-	else if (WTERMSIG(*status) == SIGINT)
-	{
-		*status = 130;
-		write(1, "\n", 1);
+		if (WTERMSIG(*status) == SIGQUIT)
+		{
+			write(1, "Quit (core dumped)\n", 20);
+			*status = 131;
+			return (*status);
+		}
+		else if (WTERMSIG(*status) == SIGINT)
+		{
+			*status = 130;
+			write(1, "\n", 1);
+			return (*status);
+		}
 	}
 	*status = WEXITSTATUS(*status);
 	return (*status);
@@ -48,14 +53,13 @@ int	excute_cmd(char **cmd, env **env, int fd_in, int *status)
 		g_han = 0;
 		signal(SIGQUIT, SIG_DFL);
 		signal(SIGINT, SIG_DFL);
-		if (path && execve(path, cmd, envr) == -1)
+		if (!path || execve(path, cmd, envr) == -1)
 			exit(127);
 	}
 	if (fd_in != -1)
 		close(fd_in);
 	wait(status);
-	if (WIFSIGNALED(*status))
-		return (check_signal(status));
+	return (check_signal(status));
 }
 
 void	wildcar_split2(char *s, char **src, env **ret)

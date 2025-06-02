@@ -869,7 +869,7 @@ static void child_process(t_token **head, char *comm_file)
             if (process_single_heredoc(list, comm_fd) == -1)
             {
                 close(comm_fd);
-                exit(1);
+                exit(130);
             }
         }
         list = list->next;
@@ -948,6 +948,7 @@ static void handle_child_success(char *comm_file, t_token **head)
 
 static void handle_child_failure(int status, t_token **head)
 {
+    *(get_exit_status(NULL)) = 130;
     set_heredoc_files_null(head);
     if (WIFSIGNALED(status) && WTERMSIG(status) == SIGINT)
         printf("\n");
@@ -1001,13 +1002,27 @@ int revise_heredocs(t_token **head)
     return (0);
 }
 
+int count(t_token *head)
+{
+    int i = 0;
+    while (head)
+    {
+        if (head->type >= 6 && head->type <= 9)
+            i++;
+        head = head->next;
+    }
+    return (i);
+}
+
 t_token *lexer(char *s)
 {
     t_token *head = NULL;
-    
+    int  i = 0;
     tokenize_input(s, &head);
     revise_args(&head);
-    revise_redirections(&head);
+    int y = count(head);
+    while(y--)
+        revise_redirections(&head);
     if (revise_heredocs(&head) == -1)
         return (NULL);
     return (head);

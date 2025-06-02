@@ -120,7 +120,7 @@ int main(int argc, char const *argv[], char **envr)
 		{
 			// printf("\n\n");
 			// print_tree(root);
-    		print_ast(root);
+    		// print_ast(root);
 			exec_tree(root, &env, &ex);
 			free_token_list(&head);
 		}
@@ -130,7 +130,9 @@ int main(int argc, char const *argv[], char **envr)
 	gc_free();
 	ft_free();
 	rl_clear_history();
+
 	return (ex);
 }
 
 //echo '(('"()(09009-0-"""''"((((''))))"""
+//valgrind --gen-suppressions=all --show-leak-kinds=all --leak-check=full --track-fds=yes   ./minishell
