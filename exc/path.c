@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 12:27:52 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/03 21:36:44 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/03 22:52:27 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,12 +27,12 @@ char	*creat_path2(char *cmd)
 
 char	*creat_path(char *cmd, char **path)
 {
-	int		i;
-	char	*s;
-	char	*tmp = NULL;
+	int			i;
+	char		*s;
+	char		*tmp;
 	struct stat	*sb;
 
-    sb = gc_malloc(sizeof(struct stat));
+	sb = gc_malloc(sizeof(struct stat));
 	ft_memset(sb, 0, sizeof(struct stat));
 	stat(cmd, sb);
 	if (sb && S_ISDIR(sb->st_mode))
@@ -95,7 +95,7 @@ void	printerr(char *cmd, int *ex)
 {
 	char	*s;
 
-	*ex = 127; 
+	*ex = 127;
 	if (ft_strrchr(cmd, '/'))
 		printerr2(cmd, ex);
 	else

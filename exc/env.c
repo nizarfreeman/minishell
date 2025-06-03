@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 16:27:36 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/03 15:38:57 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/03 22:54:10 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,8 +71,8 @@ void	remove_node(env **envrr, char *str)
 
 	envr = *envrr;
 	tmp = ft_strjoin(str, "=");
-	if (envr && envr->value && (!ft_strcmp(str, envr->value) || !ft_strncmp(envr->value, tmp,
-				ft_strlen(tmp))))
+	if (envr && envr->value && (!ft_strcmp(str, envr->value)
+			|| !ft_strncmp(envr->value, tmp, ft_strlen(tmp))))
 	{
 		*envrr = envr->next;
 		return ;

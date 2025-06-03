@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 13:12:56 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/03 22:41:41 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/03 22:52:56 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,8 @@ int	redirections_expand2(t_tree *root, env **env, int *ex)
 	char	**tmp;
 
 	tmp = pre_expand(root->right->args, *env, ex);
-	if (!ft_strcmp(root->right->cmd, "''") || !ft_strcmp(root->right->cmd, "\"\""))
+	if (!ft_strcmp(root->right->cmd, "''")
+		|| !ft_strcmp(root->right->cmd, "\"\""))
 	{
 		root->right->cmd = *tmp;
 		*ex = 0;

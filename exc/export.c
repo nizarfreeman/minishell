@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 12:06:25 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/03 15:48:02 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/03 22:53:11 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ int	check_export_arg(char *arg)
 		return (1);
 	arg++;
 	while (*arg && ((*arg >= 'a' && *arg <= 'z') || (*arg >= 'A' && *arg <= 'Z')
-		|| *arg == '_' || (*arg >= '0' && *arg <= '9')))
+			|| *arg == '_' || (*arg >= '0' && *arg <= '9')))
 		arg++;
 	if (!*arg)
 		return (0);
