@@ -1,14 +1,19 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
+
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
 # include <signal.h>
 # include <unistd.h>
 # include <stdbool.h>
+# include <time.h>
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <sys/wait.h>
+# include <fcntl.h>
 # include <readline/readline.h>
 # include <readline/history.h>
-#define SUBSHELL 13 
 
 typedef enum e_tokentype
 {
@@ -86,36 +91,21 @@ typedef struct gc
     struct gc *next;
 } t_gc;
 
-void    *gc_malloc(int size);
-void    gc_free(void);
-char *gc_strdup(const char *s);
-char *ft_strjoin(char *s1, char *s2);
-char *ft_strndup(const char *s, size_t n);
-void    *ft_memset(void *s, int c, size_t n);
-char *unquote_string(char *str);
-
-int check_quotes(char *s);
-
-/*tokenizer*/
-char    **split(const char *s, const char *delim);
-t_token   *lexer(char *s);
-void    free_token_list(t_token **head);
-void    print_token_list(t_token **head);
 int add_token(t_token **head, t_arg *arg);
-int is_there_char(char *s, char c);
+int syntax_check(t_token *head);
+/* ========================================================================== */
+/*                              MODULE INCLUDES                               */
+/* ========================================================================== */
 
-/*parser*/
-t_tree	*parse_expression(t_token *head);
+/* 
+ * Include the PROJECT module headers.
+ * These should be included after the main structures are defined
+ * to avoid circular dependencies.
+ */
 
-/*tree print functions*/
-int get_height(t_tree *root);
-void print_node_data(t_tree *node);
-void print_spaces(int count);
-void print_level(t_tree *root, int level, int space_width);
-void print_tree(t_tree *root);
-void print_tree_horizontal(t_tree *root, int level, char *prefix, int is_left);
-// void print_tree_h(t_tree *root);
-void print_ast(t_tree *root);
-int check_parenthesess(const char *text);
-int *get_exit_status(int *ex);
-#endif
+# include "PROJECT/lexer/lexer.h"
+# include "PROJECT/parser/parser.h"
+# include "PROJECT/syntax_check/syntax_check.h"
+# include "PROJECT/utilities/utilities.h"
+
+# endif

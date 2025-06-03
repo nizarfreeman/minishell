@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 15:52:27 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/02 13:46:48 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/03 15:38:48 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ char	*get_value(env *env, char *key)
 	return (ft_strdup(env->value + ft_strlen(key)));
 }
 
-int	cd_home(env *env, char **path, int *ex)
+int	cd_home(env *env, int *ex)
 {
 	char	*tmp;
 
@@ -46,8 +46,6 @@ int	cd_home(env *env, char **path, int *ex)
 
 int	cd(env *env, char **path, int *ex)
 {
-	char	*tmp;
-
 	if (*path && path[1])
 	{
 		write(2, "cd: too many arguments\n", 24);
@@ -55,7 +53,7 @@ int	cd(env *env, char **path, int *ex)
 		return (1);
 	}
 	if (!*path || !**path)
-		return (cd_home(env, path, ex));
+		return (cd_home(env, ex));
 	else
 		*ex = cd2(env, *path);
 	return (*ex);

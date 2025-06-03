@@ -97,7 +97,7 @@ int main(int argc, char const *argv[], char **envr)
 		if (!s)
 		{
 			write(1, "exit\n", 5);
-			exit(1);
+			exit(ex);
 		}
 		if(!*s)
 		{
@@ -122,7 +122,7 @@ int main(int argc, char const *argv[], char **envr)
 			// print_tree(root);
     		// print_ast(root);
 			exec_tree(root, &env, &ex);
-			free_token_list(&head);
+			// free_token_list(&head);
 		}
 		free(s);
 		gc_free();

@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 17:45:07 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/29 13:41:24 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/03 22:02:34 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,19 +16,15 @@ char	**pre_expand(char **args, env *envr, int *ex)
 {
 	env		*list;
 	char	*tmp;
-	char	*ret;
-	char	**tmp1;
-	int		p;
 
 	list = NULL;
-	ret = NULL;
 	while (*args)
 	{
 		tmp = *args;
 		if (is_wildcard(tmp) && expand_wildcard(tmp, &list))
-			p = 0;
+			*ex = *ex;
 		else if (expand5(&list, tmp, envr))
-			p = 0;
+			*ex = *ex;
 		args++;
 	}
 	return (lst_to_arr2(list));
@@ -42,7 +38,7 @@ int	excute2(char **cmd, env **env, int fd_in, int *ex)
 		return (envr(*env, ex));
 	else if (!ft_strcmp(*cmd, "exit"))
 		(my_exit(&cmd[1], ex));
-	else if (!**cmd)
+	else if (cmd && *cmd && !**cmd)
 	{
 		*ex = 0;
 		if (cmd[1])
@@ -65,7 +61,7 @@ int	excute(char **cmd, env **env, int fd_in, int *ex)
 	if (ft_strcmp(*cmd, "export") || ft_strcmp(*(pre_expand(cmd, *env, ex)),
 			"export"))
 		cmd = pre_expand(cmd, *env, ex);
-	if (!cmd)
+	if (!cmd || !*cmd)
 		return (1);
 	else if (!ft_strcmp(*cmd, "cd"))
 		return (cd(*env, &cmd[1], ex));
@@ -88,5 +84,9 @@ void	handle_int(int sig)
 		rl_on_new_line();
 		rl_redisplay();
 		*(get_exit_status(NULL)) = 130;
+	}
+	else
+	{
+		(void)(sig);
 	}
 }

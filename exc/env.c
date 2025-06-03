@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 16:27:36 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/01 13:11:47 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/03 15:38:57 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,6 @@ int	check_value(char *str)
 
 env	*creat_env(char **envr)
 {
-	env	*tmp;
 	env	*ret;
 
 	ret = NULL;

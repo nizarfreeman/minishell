@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/30 14:56:58 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/30 15:10:14 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/03 15:49:18 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,9 +82,7 @@ char	*ft_strdup1(const char *s1)
 
 	if (!s1)
 		return (NULL);
-	(1 == 1) && (i = ft_strlen(s1), str = ft_malloc(i + 1));
-	if (str == NULL)
-		return (NULL);
+	(1 == 1) && (i = ft_strlen((char *)s1), str = ft_malloc(i + 1));
 	ft_memcpy(str, s1, i);
 	str[i] = 0;
 	return (str);

@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 12:06:25 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/01 13:33:55 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/03 15:48:02 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@ int	check_export_arg(char *arg)
 		&& *arg != '_')
 		return (1);
 	arg++;
-	while (*arg && (*arg >= 'a' && *arg <= 'z') || (*arg >= 'A' && *arg <= 'Z')
-		|| *arg == '_' || (*arg >= '0' && *arg <= '9'))
+	while (*arg && ((*arg >= 'a' && *arg <= 'z') || (*arg >= 'A' && *arg <= 'Z')
+		|| *arg == '_' || (*arg >= '0' && *arg <= '9')))
 		arg++;
 	if (!*arg)
 		return (0);
@@ -40,7 +40,6 @@ char	**export_split(char *str)
 {
 	char	**ret;
 	char	*s;
-	char	*e;
 
 	ret = gc_malloc(sizeof(char *) * 3);
 	s = str;
@@ -57,7 +56,7 @@ char	**export_split(char *str)
 	return (ret);
 }
 
-int	export3(char *arg, env **envr, char **spl, int flag)
+int	export3(env **envr, char **spl, int flag)
 {
 	char	*tmp;
 
@@ -86,10 +85,9 @@ int	export3(char *arg, env **envr, char **spl, int flag)
 	return (0);
 }
 
-int	export4(char *arg, env **envr, char **spl, int flag)
+int	export4(env **envr, char **spl)
 {
 	char	*tmp;
-	char	*tmp1;
 
 	tmp = get_value(*envr, spl[0]);
 	if (!tmp)
@@ -99,10 +97,7 @@ int	export4(char *arg, env **envr, char **spl, int flag)
 		return (0);
 	}
 	if (*tmp == '=')
-	{
-		tmp1 = tmp;
 		tmp = ft_strjoin(ft_strdup(tmp + 1), spl[1]);
-	}
 	else
 		tmp = ft_strjoin(tmp, spl[1]);
 	search_replace1(*envr, spl[0], tmp);
@@ -113,8 +108,6 @@ int	export2(char *arg, env **envr)
 {
 	char	**spl;
 	int		flag;
-	char	*tmp;
-	char	*tmp1;
 
 	spl = export_split(arg);
 	flag = check_export_arg(spl[0]);
@@ -124,8 +117,8 @@ int	export2(char *arg, env **envr)
 		return (1);
 	}
 	if (flag == 2)
-		return (export4(arg, envr, spl, flag));
+		return (export4(envr, spl));
 	else
-		return (export3(arg, envr, spl, flag));
+		return (export3(envr, spl, flag));
 	return (0);
 }

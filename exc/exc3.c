@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 13:31:51 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/30 15:42:57 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/03 15:44:02 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,6 @@
 env	*wildcar_split(char *s)
 {
 	env		*ret;
-	char	*tmp;
-	int		p;
 
 	ret = NULL;
 	if (*s == '*')
@@ -117,11 +115,6 @@ char	*expand2_2(char *str, env *envr, int *ex)
 
 char	*expand2(char *str, env *envr, int *ex)
 {
-	char	*ret;
-	char	*s;
-
-	s = NULL;
-	ret = NULL;
 	if (*str != '$')
 		return (expand2_1(str, envr, ex));
 	if (*str == '$')

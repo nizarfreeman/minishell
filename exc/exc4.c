@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:07:02 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/29 16:07:52 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/03 15:44:09 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,6 @@ char	**expand_split(char **args)
 
 char	**expand(char **args, env *envr, int *ex)
 {
-	char	*s;
 	char	**tmp;
 
 	tmp = args;

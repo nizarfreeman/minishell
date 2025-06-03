@@ -13,6 +13,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
+#include <sys/stat.h>
 # include <unistd.h>
 extern int		g_han;
 
@@ -40,7 +41,7 @@ void			ft_dup2(int a, int b);
 char			*ft_strdup(const char *s1);
 void			no_env2(env **ret);
 void			*ft_memcpy(void *dst, const void *src, size_t n);
-size_t			ft_strlen(const char *s);
+size_t			ft_strlen(char *s);
 int				ft_strncmp(const char *s1, const char *s2, size_t n);
 char			*ft_strjoin(char *s1, char *s2);
 void			cd3(char *path, char **tmp, char **pwd, char *oldpwd);
@@ -93,7 +94,7 @@ int				ft_lstsize(env *env);
 char			*get_path(char **cmd, char **env);
 char			*trim_last_dir(char *path);
 char			*creat_path(char *cmd, char **path);
-void			printerr(char *cmd, int i);
+void			printerr(char *cmd, int *ex);
 int				exec_tree(t_tree *root, env **env, int *ex);
 int				excute(char **cmd, env **env, int fd_in, int *ex);
 long long		ft_atoi(const char *str);

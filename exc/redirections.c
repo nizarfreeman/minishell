@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 12:30:57 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/31 14:56:36 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/03 22:33:21 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 
 void	here_doc2(t_tree *root, env **env, int *ex, t_tree *left)
 {
+	if (!root || !root->right || !root->right->cmd || !left || !env || !ex)
+		return;
 	if (ft_strrchr(root->right->cmd, '\'') || ft_strrchr(root->right->cmd, '"'))
 	{
 		if (left->fd != -1)
@@ -32,6 +34,8 @@ void	here_doc2(t_tree *root, env **env, int *ex, t_tree *left)
 
 void	here_doc3(t_tree *root, env **env, int *ex, t_tree *left)
 {
+	if (!root || !root->right || !root->right->cmd || !left || !env || !ex)
+		return;
 	if (ft_strrchr(root->right->left->cmd, '\'')
 		|| ft_strrchr(root->right->left->cmd, '"'))
 	{
@@ -71,8 +75,6 @@ void	here_doc(t_tree *root, env **env, int *ex, t_tree *left)
 
 void	redirections(t_tree *root, env **env, int *ex, t_tree *left)
 {
-	int		fd;
-	char	**tmp;
 
 	if (root->type != HERE_ODC && redirections_expand(root, env, ex))
 		return ;

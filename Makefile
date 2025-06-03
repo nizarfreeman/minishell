@@ -1,32 +1,37 @@
-CC       = cc #-fsanitize=address
-C_FLAGS  = -g -I. -I pars #-Wall -Wextra -Werror
-LIBS     = -lreadline
-NAME     = minishell
-OBJ_DIR  = obj
+# Compiler and flags
+CC = gcc
+CFLAGS = -Wall -Wextra -Werror -Ipars/PROJECT -Ipars
 
-PARS_SRC := $(filter-out pars/main.c, $(wildcard pars/*.c))
-EXC_SRC  := $(filter-out exc/main.c, $(wildcard exc/*.c))
-SRCS     := main.c $(PARS_SRC) $(EXC_SRC)
+# Directories
+SRC_DIRS = exc pars/PROJECT
+MAIN = main.c
+EXCLUDED = pars/PROJECT/main.c
+EXEC = minishell
 
-OBJS := $(SRCS:%.c=$(OBJ_DIR)/%.o)
+# Find all .c files recursively and exclude main files
+SRC = $(filter-out $(MAIN) $(EXCLUDED), $(shell find $(SRC_DIRS) -name "*.c"))
 
-all: $(NAME)
+# Object directory and object files
+OBJ_DIR = obj
+OBJ = $(SRC:%.c=$(OBJ_DIR)/%.o)
 
-# pattern rule: any %.c → obj/%.o
+# Default rule
+all: $(EXEC)
+
+# Compile .c to .o into obj/ keeping directory structure
 $(OBJ_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
-	$(CC) $(C_FLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
-# link
-$(NAME): $(OBJS)
-	$(CC) $(C_FLAGS) $(OBJS) $(LIBS) -o $@
+# Link all objects with main.c and readline
+$(EXEC): $(OBJ) $(MAIN)
+	$(CC) $(CFLAGS) $(OBJ) $(MAIN) -lreadline -o $(EXEC)
 
+# Clean rules
 clean:
 	rm -rf $(OBJ_DIR)
 
 fclean: clean
-	rm -f $(NAME)
+	rm -f $(EXEC)
 
 re: fclean all
-
-.PHONY: all clean fclean re

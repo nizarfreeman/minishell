@@ -6,13 +6,13 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 12:27:52 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/29 20:59:49 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/03 21:36:44 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "s.h"
 
-char	*creat_path2(char *cmd, char **path)
+char	*creat_path2(char *cmd)
 {
 	if (access(cmd, X_OK) == 0)
 		return (ft_strdup(cmd));
@@ -29,13 +29,19 @@ char	*creat_path(char *cmd, char **path)
 {
 	int		i;
 	char	*s;
-	char	*tmp;
+	char	*tmp = NULL;
+	struct stat	*sb;
 
+    sb = gc_malloc(sizeof(struct stat));
+	ft_memset(sb, 0, sizeof(struct stat));
+	stat(cmd, sb);
+	if (sb && S_ISDIR(sb->st_mode))
+		return (NULL);
 	(1) && (i = 0, s = NULL);
 	if (!path && access(cmd, X_OK) == 0)
 		return (ft_strdup(cmd));
 	if (ft_strncmp(cmd, "./", 2) == 0 || cmd[0] == '/')
-		return (creat_path2(cmd, path));
+		return (creat_path2(cmd));
 	if (!path)
 		return (NULL);
 	tmp = ft_strjoin(ft_strdup("/"), ft_strdup(cmd));
@@ -63,20 +69,35 @@ char	*get_path(char **cmd, char **env)
 	return (path);
 }
 
-void	printerr(char *cmd, int i)
+void	printerr2(char *cmd, int *ex)
 {
-	char	*shell;
+	char		*s;
+	struct stat	sb;
+
+	*ex = 127;
+	s = ": No such file or directory";
+	if (stat(cmd, &sb) == -1)
+	{
+		perror("stat");
+		return ;
+	}
+	if (S_ISDIR(sb.st_mode))
+	{
+		*ex = 126;
+		s = ": Is a directory";
+	}
+	write(STDERR_FILENO, cmd, ft_strlen(cmd));
+	write(STDERR_FILENO, s, ft_strlen(s));
+	write(STDERR_FILENO, "\n", 1);
+}
+
+void	printerr(char *cmd, int *ex)
+{
 	char	*s;
 
-	if (i || ft_strrchr(cmd, '/'))
-	{
-		s = ": No such file or directory";
-		shell = "bash: ";
-		write(STDERR_FILENO, shell, ft_strlen(shell));
-		write(STDERR_FILENO, cmd, ft_strlen(cmd));
-		write(STDERR_FILENO, s, ft_strlen(s));
-		write(STDERR_FILENO, "\n", 1);
-	}
+	*ex = 127; 
+	if (ft_strrchr(cmd, '/'))
+		printerr2(cmd, ex);
 	else
 	{
 		s = ": command not found";

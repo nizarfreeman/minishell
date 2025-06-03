@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 12:22:41 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/30 15:07:07 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/03 15:44:17 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,6 @@ char	**export_expand(char **s, env *envr, int *ex)
 {
 	char	*tmp;
 	char	**tmp1;
-	int		p;
 	env		*ret;
 
 	ret = NULL;
