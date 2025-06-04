@@ -6,17 +6,17 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/30 14:56:58 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/03 15:49:18 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/04 14:20:12 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "s.h"
 
-env	*ft_lstnew1(env **lst, void *content, int f)
+t_env	*ft_lstnew1(t_env **lst, void *content, int f)
 {
-	env	*ret;
+	t_env	*ret;
 
-	ret = ft_malloc(sizeof(env));
+	ret = ft_malloc(sizeof(t_env));
 	if (!ret)
 		return (NULL);
 	ret->value = ft_strdup1(content);
@@ -29,22 +29,22 @@ env	*ft_lstnew1(env **lst, void *content, int f)
 	return (ret);
 }
 
-void	search_replace1(env *env, char *key, char *rep)
+void	search_replace1(t_env *t_env, char *key, char *rep)
 {
 	char	*tmp;
 
 	tmp = ft_strjoin1(ft_strdup1(key), ft_strdup("="));
-	while (env && ft_strcmp(key, env->value) && ft_strncmp(env->value, tmp,
-			ft_strlen(tmp)))
-		env = env->next;
-	if (!env)
+	while (t_env && ft_strcmp(key, t_env->value) && ft_strncmp(t_env->value,
+			tmp, ft_strlen(tmp)))
+		t_env = t_env->next;
+	if (!t_env)
 		return ;
 	if (rep)
 	{
-		env->value = NULL;
-		env->value = ft_strjoin1(tmp, rep);
+		t_env->value = NULL;
+		t_env->value = ft_strjoin1(tmp, rep);
 	}
-	env->f = 1;
+	t_env->f = 1;
 }
 
 char	*ft_strjoin1(char *s1, char *s2)

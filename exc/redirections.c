@@ -6,15 +6,15 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 12:30:57 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/03 22:51:37 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/04 14:21:41 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "s.h"
 
-void	here_doc2(t_tree *root, env **env, int *ex, t_tree *left)
+void	here_doc2(t_tree *root, t_env **t_env, int *ex, t_tree *left)
 {
-	if (!root || !root->right || !root->right->cmd || !left || !env || !ex)
+	if (!root || !root->right || !root->right->cmd || !left || !t_env || !ex)
 		return ;
 	if (ft_strrchr(root->right->cmd, '\'') || ft_strrchr(root->right->cmd, '"'))
 	{
@@ -28,13 +28,13 @@ void	here_doc2(t_tree *root, env **env, int *ex, t_tree *left)
 		{
 			close(left->fd);
 		}
-		left->fd = read_and_expand(root->fd, *env, ex);
+		left->fd = read_and_expand(root->fd, *t_env, ex);
 	}
 }
 
-void	here_doc3(t_tree *root, env **env, int *ex, t_tree *left)
+void	here_doc3(t_tree *root, t_env **t_env, int *ex, t_tree *left)
 {
-	if (!root || !root->right || !root->right->cmd || !left || !env || !ex)
+	if (!root || !root->right || !root->right->cmd || !left || !t_env || !ex)
 		return ;
 	if (ft_strrchr(root->right->left->cmd, '\'')
 		|| ft_strrchr(root->right->left->cmd, '"'))
@@ -42,18 +42,18 @@ void	here_doc3(t_tree *root, env **env, int *ex, t_tree *left)
 		if (left->fd != -1)
 			close(left->fd);
 		left->fd = root->fd;
-		redirections(root->right, env, ex, left);
+		redirections(root->right, t_env, ex, left);
 	}
 	else
 	{
 		if (left->fd != -1)
 			close(left->fd);
-		left->fd = read_and_expand(root->fd, *env, ex);
-		redirections(root->right, env, ex, left);
+		left->fd = read_and_expand(root->fd, *t_env, ex);
+		redirections(root->right, t_env, ex, left);
 	}
 }
 
-void	here_doc(t_tree *root, env **env, int *ex, t_tree *left)
+void	here_doc(t_tree *root, t_env **t_env, int *ex, t_tree *left)
 {
 	int	fd;
 
@@ -68,37 +68,37 @@ void	here_doc(t_tree *root, env **env, int *ex, t_tree *left)
 	else
 		root->fd = fd;
 	if (root->right->type >= 6 && root->type <= 9)
-		here_doc3(root, env, ex, left);
+		here_doc3(root, t_env, ex, left);
 	else
-		here_doc2(root, env, ex, left);
+		here_doc2(root, t_env, ex, left);
 }
 
-void	redirections(t_tree *root, env **env, int *ex, t_tree *left)
+void	redirections(t_tree *root, t_env **t_env, int *ex, t_tree *left)
 {
-	if (root->type != HERE_ODC && redirections_expand(root, env, ex))
+	if (root->type != HERE_ODC && redirections_expand(root, t_env, ex))
 		return ;
 	if (root->type == REDIRECTION_OUT)
-		red_out(root, env, ex, left);
+		red_out(root, t_env, ex, left);
 	else if (root->type == REDIRECTION_IN)
-		red_in(root, env, ex, left);
+		red_in(root, t_env, ex, left);
 	else if (root->type == APPEND)
-		red_app(root, env, ex, left);
+		red_app(root, t_env, ex, left);
 	else
-		here_doc(root, env, ex, left);
+		here_doc(root, t_env, ex, left);
 	return ;
 }
 
-int	read_and_expand(int fd, env *envr, int *ex)
+int	read_and_expand(int fd, t_env *t_envr, int *ex)
 {
 	char	*s;
 	int		fd_ret;
-	env		*ret;
+	t_env	*ret;
 
 	s = get_next_line(fd);
 	ret = NULL;
 	while (s)
 	{
-		ft_lstnew(&ret, expand2(s, envr, ex), 0);
+		ft_lstnew(&ret, expand2(s, t_envr, ex), 0);
 		s = get_next_line(fd);
 	}
 	s = ft_strjoin("/tmp/", ft_itoa((uintptr_t)s));

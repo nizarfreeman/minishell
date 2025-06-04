@@ -6,19 +6,19 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 13:12:56 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/03 22:52:56 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/04 14:20:12 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "s.h"
 
-int	redirections_expand2(t_tree *root, env **env, int *ex)
+int	redirections_expand2(t_tree *root, t_env **t_env, int *ex)
 {
 	char	**tmp;
 
-	tmp = pre_expand(root->right->args, *env, ex);
-	if (!ft_strcmp(root->right->cmd, "''")
-		|| !ft_strcmp(root->right->cmd, "\"\""))
+	tmp = pre_expand(root->right->args, *t_env, ex);
+	if (!ft_strcmp(root->right->cmd, "''") || !ft_strcmp(root->right->cmd,
+			"\"\""))
 	{
 		root->right->cmd = *tmp;
 		*ex = 0;
@@ -38,13 +38,13 @@ int	redirections_expand2(t_tree *root, env **env, int *ex)
 	}
 }
 
-int	redirections_expand(t_tree *root, env **env, int *ex)
+int	redirections_expand(t_tree *root, t_env **t_env, int *ex)
 {
 	char	**tmp;
 
 	if (root->right->type >= 6 && root->right->type <= 9)
 	{
-		tmp = pre_expand(root->right->left->args, *env, ex);
+		tmp = pre_expand(root->right->left->args, *t_env, ex);
 		if (tmp && *tmp && tmp[1] && ft_strcmp(*(root->right->left->args), ""))
 		{
 			write(2, "ambiguous redirect\n", 20);
@@ -59,10 +59,10 @@ int	redirections_expand(t_tree *root, env **env, int *ex)
 		}
 	}
 	else
-		return (redirections_expand2(root, env, ex));
+		return (redirections_expand2(root, t_env, ex));
 }
 
-void	red_out(t_tree *root, env **env, int *ex, t_tree *left)
+void	red_out(t_tree *root, t_env **t_env, int *ex, t_tree *left)
 {
 	int	fd;
 
@@ -75,7 +75,7 @@ void	red_out(t_tree *root, env **env, int *ex, t_tree *left)
 		*ex = 0;
 		ft_dup2(fd, STDOUT_FILENO);
 		if (root->right->type >= 6 && root->right->type <= 9)
-			redirections(root->right, env, ex, left);
+			redirections(root->right, t_env, ex, left);
 		close(fd);
 	}
 	else
@@ -85,7 +85,7 @@ void	red_out(t_tree *root, env **env, int *ex, t_tree *left)
 	}
 }
 
-void	red_in(t_tree *root, env **env, int *ex, t_tree *left)
+void	red_in(t_tree *root, t_env **t_env, int *ex, t_tree *left)
 {
 	int	fd;
 
@@ -100,7 +100,7 @@ void	red_in(t_tree *root, env **env, int *ex, t_tree *left)
 			close(left->fd);
 		left->fd = fd;
 		if (root->right->type >= 6 && root->right->type <= 9)
-			redirections(root->right, env, ex, left);
+			redirections(root->right, t_env, ex, left);
 	}
 	else
 	{
@@ -109,7 +109,7 @@ void	red_in(t_tree *root, env **env, int *ex, t_tree *left)
 	}
 }
 
-void	red_app(t_tree *root, env **env, int *ex, t_tree *left)
+void	red_app(t_tree *root, t_env **t_env, int *ex, t_tree *left)
 {
 	int	fd;
 
@@ -122,7 +122,7 @@ void	red_app(t_tree *root, env **env, int *ex, t_tree *left)
 		*ex = 0;
 		ft_dup2(fd, STDOUT_FILENO);
 		if (root->right->type >= 6 && root->right->type <= 9)
-			redirections(root->right, env, ex, left);
+			redirections(root->right, t_env, ex, left);
 		close(fd);
 	}
 	else

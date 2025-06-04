@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 12:06:25 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/03 22:53:11 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/04 14:20:12 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,55 +56,55 @@ char	**export_split(char *str)
 	return (ret);
 }
 
-int	export3(env **envr, char **spl, int flag)
+int	export3(t_env **t_envr, char **spl, int flag)
 {
 	char	*tmp;
 
 	if (flag == 3)
 	{
-		tmp = get_value(*envr, spl[0]);
+		tmp = get_value(*t_envr, spl[0]);
 		if (!tmp)
 		{
 			tmp = ft_strjoin(ft_strjoin(spl[0], ft_strdup("=")), spl[1]);
-			ft_lstnew1(envr, tmp, 1);
+			ft_lstnew1(t_envr, tmp, 1);
 			return (0);
 		}
-		search_replace1(*envr, spl[0], spl[1]);
+		search_replace1(*t_envr, spl[0], spl[1]);
 		return (0);
 	}
 	if (flag == 0)
 	{
-		tmp = get_value(*envr, spl[0]);
+		tmp = get_value(*t_envr, spl[0]);
 		if (tmp == NULL)
 		{
-			ft_lstnew1(envr, spl[0], 0);
+			ft_lstnew1(t_envr, spl[0], 0);
 			return (0);
 		}
-		search_replace1(*envr, spl[0], NULL);
+		search_replace1(*t_envr, spl[0], NULL);
 	}
 	return (0);
 }
 
-int	export4(env **envr, char **spl)
+int	export4(t_env **t_envr, char **spl)
 {
 	char	*tmp;
 
-	tmp = get_value(*envr, spl[0]);
+	tmp = get_value(*t_envr, spl[0]);
 	if (!tmp)
 	{
 		tmp = ft_strjoin1(ft_strjoin(spl[0], ft_strdup("=")), spl[1]);
-		ft_lstnew1(envr, tmp, 1);
+		ft_lstnew1(t_envr, tmp, 1);
 		return (0);
 	}
 	if (*tmp == '=')
 		tmp = ft_strjoin(ft_strdup(tmp + 1), spl[1]);
 	else
 		tmp = ft_strjoin(tmp, spl[1]);
-	search_replace1(*envr, spl[0], tmp);
+	search_replace1(*t_envr, spl[0], tmp);
 	return (0);
 }
 
-int	export2(char *arg, env **envr)
+int	export2(char *arg, t_env **t_envr)
 {
 	char	**spl;
 	int		flag;
@@ -117,8 +117,8 @@ int	export2(char *arg, env **envr)
 		return (1);
 	}
 	if (flag == 2)
-		return (export4(envr, spl));
+		return (export4(t_envr, spl));
 	else
-		return (export3(envr, spl, flag));
+		return (export3(t_envr, spl, flag));
 	return (0);
 }

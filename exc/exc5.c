@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:08:47 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/02 16:00:41 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/04 14:20:12 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,13 +33,13 @@ int	check_signal(int *status)
 	return (*status);
 }
 
-int	excute_cmd(char **cmd, env **env, int fd_in, int *status)
+int	excute_cmd(char **cmd, t_env **t_env, int fd_in, int *status)
 {
-	char	**envr;
+	char	**t_envr;
 	char	*path;
 	pid_t	pid;
 
-	(1) && (envr = lst_to_arr(*env), path = get_path(cmd, envr));
+	(1) && (t_envr = lst_to_arr(*t_env), path = get_path(cmd, t_envr));
 	if (!path)
 		printerr(cmd[0], status);
 	pid = ft_fork();
@@ -53,7 +53,7 @@ int	excute_cmd(char **cmd, env **env, int fd_in, int *status)
 		g_han = 0;
 		signal(SIGQUIT, SIG_DFL);
 		signal(SIGINT, SIG_DFL);
-		if (!path || execve(path, cmd, envr) == -1)
+		if (!path || execve(path, cmd, t_envr) == -1)
 			exit(*status);
 	}
 	if (fd_in != -1)
@@ -62,7 +62,7 @@ int	excute_cmd(char **cmd, env **env, int fd_in, int *status)
 	return (check_signal(status));
 }
 
-void	wildcar_split2(char *s, char **src, env **ret)
+void	wildcar_split2(char *s, char **src, t_env **ret)
 {
 	char	*tmp;
 	int		p;

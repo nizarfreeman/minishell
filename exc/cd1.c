@@ -6,13 +6,13 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 16:27:55 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/03 22:54:28 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/04 14:20:12 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "s.h"
 
-int	pwd(env *env, int *ex)
+int	pwd(t_env *t_env, int *ex)
 {
 	char	*s;
 	char	*tmp;
@@ -22,7 +22,7 @@ int	pwd(env *env, int *ex)
 		printf("%s\n", s);
 	else
 	{
-		tmp = get_value(env, "PWD=");
+		tmp = get_value(t_env, "PWD=");
 		printf("%s\n", tmp);
 	}
 	free(s);
@@ -70,33 +70,34 @@ int	echo(char **str, int *ex)
 	return (0);
 }
 
-int	envr(env *env, int *ex)
+int	t_envr(t_env *t_env, int *ex)
 {
-	while (env)
+	while (t_env)
 	{
-		if ((env->f && env->f != 2) || !ft_strcmp("_=/usr/bin/env", env->value))
-			printf("%s\n", env->value);
-		env = env->next;
+		if ((t_env->f && t_env->f != 2) || !ft_strcmp("_=/usr/bin/t_env",
+				t_env->value))
+			printf("%s\n", t_env->value);
+		t_env = t_env->next;
 	}
 	*ex = 0;
 	return (0);
 }
 
-void	replace_create(env *env, char *key, char *rep)
+void	replace_create(t_env *t_env, char *key, char *rep)
 {
 	char	*tmp;
 
 	tmp = ft_strjoin(ft_strdup(key), ft_strdup("="));
-	while (env && ft_strcmp(key, env->value) && ft_strncmp(env->value, key,
-			ft_strlen(key)))
-		env = env->next;
-	if (!env)
+	while (t_env && ft_strcmp(key, t_env->value) && ft_strncmp(t_env->value,
+			key, ft_strlen(key)))
+		t_env = t_env->next;
+	if (!t_env)
 	{
 		free(tmp);
 		return ;
 	}
-	free(env->value);
-	env->value = NULL;
-	env->value = ft_strjoin(tmp, rep);
-	env->f = 1;
+	free(t_env->value);
+	t_env->value = NULL;
+	t_env->value = ft_strjoin(tmp, rep);
+	t_env->f = 1;
 }

@@ -6,28 +6,28 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 16:29:41 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/29 20:55:20 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/04 14:20:12 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "s.h"
 
-void	search_replace(env *env, char *key, char *rep)
+void	search_replace(t_env *t_env, char *key, char *rep)
 {
 	char	*tmp;
 
 	tmp = ft_strjoin(ft_strdup(key), ft_strdup("="));
-	while (env && ft_strcmp(key, env->value) && ft_strncmp(env->value, tmp,
-			ft_strlen(tmp)))
-		env = env->next;
-	if (!env)
+	while (t_env && ft_strcmp(key, t_env->value) && ft_strncmp(t_env->value,
+			tmp, ft_strlen(tmp)))
+		t_env = t_env->next;
+	if (!t_env)
 		return ;
 	if (rep)
 	{
-		env->value = NULL;
-		env->value = ft_strjoin(tmp, rep);
+		t_env->value = NULL;
+		t_env->value = ft_strjoin(tmp, rep);
 	}
-	env->f = 1;
+	t_env->f = 1;
 }
 
 char	*trim_last_dir(char *path)

@@ -6,15 +6,15 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 13:31:51 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/03 15:44:02 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/04 14:20:12 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "s.h"
 
-env	*wildcar_split(char *s)
+t_env	*wildcar_split(char *s)
 {
-	env		*ret;
+	t_env	*ret;
 
 	ret = NULL;
 	if (*s == '*')
@@ -38,11 +38,11 @@ env	*wildcar_split(char *s)
 	return (ret);
 }
 
-int	expand_wildcard(char *s, env **ret)
+int	expand_wildcard(char *s, t_env **ret)
 {
-	env	*args;
-	env	*dir;
-	env	*last;
+	t_env	*args;
+	t_env	*dir;
+	t_env	*last;
 
 	(1) && (args = wildcar_split(s), dir = NULL);
 	get_dir(&dir);
@@ -67,7 +67,7 @@ int	expand_wildcard(char *s, env **ret)
 	return (1);
 }
 
-char	*expand2_1(char *str, env *envr, int *ex)
+char	*expand2_1(char *str, t_env *t_envr, int *ex)
 {
 	char	*ret;
 	char	*s;
@@ -78,13 +78,13 @@ char	*expand2_1(char *str, env *envr, int *ex)
 	while (*str && *(str + 1) != '$')
 		str++;
 	if (*str && *(str + 1) == '$')
-		ret = ft_strjoin(word(s, str + 1), expand2(str + 1, envr, ex));
+		ret = ft_strjoin(word(s, str + 1), expand2(str + 1, t_envr, ex));
 	else
 		ret = word(s, str);
 	return (ret);
 }
 
-char	*expand2_2(char *str, env *envr, int *ex)
+char	*expand2_2(char *str, t_env *t_envr, int *ex)
 {
 	char	*ret;
 	char	*s;
@@ -92,13 +92,13 @@ char	*expand2_2(char *str, env *envr, int *ex)
 	ret = NULL;
 	if (expand_valid(*(str + 1)))
 	{
-		ret = ft_strjoin(ft_strdup("$"), expand2(str + 1, envr, ex));
+		ret = ft_strjoin(ft_strdup("$"), expand2(str + 1, t_envr, ex));
 		return (ret);
 	}
 	str++;
 	if (*str == '?')
 	{
-		ret = ft_strjoin(ft_itoa(*ex), expand2(str + 1, envr, ex));
+		ret = ft_strjoin(ft_itoa(*ex), expand2(str + 1, t_envr, ex));
 		return (ret);
 	}
 	else
@@ -106,18 +106,18 @@ char	*expand2_2(char *str, env *envr, int *ex)
 		s = str;
 		while (*str && !expand_valid(*(str)))
 			str++;
-		ret = ft_strjoin(get_value(envr, ft_strjoin(word(s, str), "=")),
-				expand2(str, envr, ex));
+		ret = ft_strjoin(get_value(t_envr, ft_strjoin(word(s, str), "=")),
+				expand2(str, t_envr, ex));
 		return (ret);
 	}
 	return (NULL);
 }
 
-char	*expand2(char *str, env *envr, int *ex)
+char	*expand2(char *str, t_env *t_envr, int *ex)
 {
 	if (*str != '$')
-		return (expand2_1(str, envr, ex));
+		return (expand2_1(str, t_envr, ex));
 	if (*str == '$')
-		return (expand2_2(str, envr, ex));
+		return (expand2_2(str, t_envr, ex));
 	return (NULL);
 }

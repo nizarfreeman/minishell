@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 17:38:28 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/29 16:11:18 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/04 14:20:12 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,10 +59,10 @@ int	is_wildcard(char *s)
 	return (0);
 }
 
-void	filter_first(env **files, env *arg)
+void	filter_first(t_env **files, t_env *arg)
 {
-	env	*tmp;
-	env	*next;
+	t_env	*tmp;
+	t_env	*next;
 
 	tmp = *files;
 	if (!ft_strcmp(arg->value, ""))
@@ -83,7 +83,7 @@ void	filter_first(env **files, env *arg)
 	}
 }
 
-void	get_dir(env **ret)
+void	get_dir(t_env **ret)
 {
 	DIR				*dir;
 	struct dirent	*entry;

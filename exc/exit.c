@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 12:05:53 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/03 18:46:18 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/04 14:20:12 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ int	is_all_num(char *s)
 	return (0);
 }
 
-void	no_env2(env **ret)
+void	no_t_env2(t_env **ret)
 {
 	char	*s;
 

@@ -1,37 +1,108 @@
-# Compiler and flags
-CC = gcc
-CFLAGS = -Wall -Wextra -Werror -Ipars/PROJECT -Ipars
+NAME        = minishell
+CC          = cc
+CFLAGS      = -Wall -Wextra -Werror
+OBJDIR      = obj
+INCLUDES    = -Ipars -Ipars/lexer -Ipars/parser -Ipars/syntax_check -Ipars/utilities -Iexc
+LIBS        = -lreadline
 
-# Directories
-SRC_DIRS = exc pars/PROJECT
-MAIN = main.c
-EXCLUDED = pars/PROJECT/main.c
-EXEC = minishell
+SRC = \
+	main.c \
+	exc/atoi.c \
+	exc/cd.c exc/cd1.c exc/cd2.c \
+	exc/env.c \
+	exc/exc.c exc/exc1.c exc/exc2.c exc/exc3.c exc/exc4.c exc/exc5.c exc/exc6.c exc/exc_tree.c \
+	exc/exit.c \
+	exc/export.c exc/export1.c \
+	exc/gc.c \
+	exc/gnl.c \
+	exc/lst.c exc/lst1.c \
+	exc/path.c \
+	exc/redirections.c exc/redirections1.c \
+	exc/split.c exc/split2.c \
+	exc/spu.c \
+	exc/strdup.c \
+	exc/utils.c exc/utils1.c \
+	pars/lexer/add_collect_args.c \
+	pars/lexer/adjust_list.c \
+	pars/lexer/child_process.c \
+	pars/lexer/handle_and_operator.c \
+	pars/lexer/handle_assignment.c \
+	pars/lexer/handle_dollar.c \
+	pars/lexer/handle_input_redirection.c \
+	pars/lexer/handle_or_pipe_operator.c \
+	pars/lexer/handle_output_redirection.c \
+	pars/lexer/handle_parentheses.c \
+	pars/lexer/handle_quote.c \
+	pars/lexer/handle_wildcard.c \
+	pars/lexer/handle_word.c \
+	pars/lexer/heredoc_utilities.c \
+	pars/lexer/insert_before_redirection.c \
+	pars/lexer/is.c \
+	pars/lexer/lexer.c \
+	pars/lexer/parent_process.c \
+	pars/lexer/parent_process_2.c \
+	pars/lexer/revise_args.c \
+	pars/lexer/revise_args_follow.c \
+	pars/lexer/revise_heredoc.c \
+	pars/lexer/revise_null.c \
+	pars/lexer/revise_redirections.c \
+	pars/lexer/tokenize_input.c \
+	pars/lexer/validate_remove_args.c \
+	pars/parser/buil_tree.c \
+	pars/parser/buil_tree_utilities.c \
+	pars/parser/check_paren_balance.c \
+	pars/parser/create_token_arg.c \
+	pars/parser/deep_copy_tokens.c \
+	pars/parser/extract_paren_content.c \
+	pars/parser/get_arg.c \
+	pars/parser/get_root_pos.c \
+	pars/parser/get_root_pos_utilities.c \
+	pars/parser/insert_command.c \
+	pars/parser/is_enclosed_in_parentheses.c \
+	pars/parser/parse_expression.c \
+	pars/parser/root.c \
+	pars/parser/simple.c \
+	pars/syntax_check/check_heredoc.c \
+	pars/syntax_check/check_operators.c \
+	pars/syntax_check/check_parentheses.c \
+	pars/syntax_check/check_parentheses_2.c \
+	pars/syntax_check/check_redirections.c \
+	pars/syntax_check/check_start_end.c \
+	pars/syntax_check/is_operator.c \
+	pars/syntax_check/syntax_check.c \
+	pars/utilities/ft_putstr.c \
+	pars/utilities/ft_strndup.c \
+	pars/utilities/gc_.c \
+	pars/utilities/is_data_1.c \
+	pars/utilities/is_data_and_utilites.c \
+	pars/utilities/utilities.c
 
-# Find all .c files recursively and exclude main files
-SRC = $(filter-out $(MAIN) $(EXCLUDED), $(shell find $(SRC_DIRS) -name "*.c"))
+BONUS_SRC = \
+	bonus/bonus_example.c
 
-# Object directory and object files
-OBJ_DIR = obj
-OBJ = $(SRC:%.c=$(OBJ_DIR)/%.o)
+OBJ = $(SRC:%.c=$(OBJDIR)/%.o)
+BONUS_OBJ = $(BONUS_SRC:%.c=$(OBJDIR)/%.o)
 
-# Default rule
-all: $(EXEC)
+all: $(NAME)
 
-# Compile .c to .o into obj/ keeping directory structure
-$(OBJ_DIR)/%.o: %.c
+$(NAME): $(OBJ)
+	@mkdir -p $(OBJDIR)
+	$(CC) $(CFLAGS) $(OBJ) -o $(NAME) $(LIBS)
+
+$(OBJDIR)/%.o: %.c pars/pars.h pars/lexer/lexer.h pars/parser/parser.h pars/syntax_check/syntax_check.h pars/utilities/utilities.h
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
-# Link all objects with main.c and readline
-$(EXEC): $(OBJ) $(MAIN)
-	$(CC) $(CFLAGS) $(OBJ) $(MAIN) -lreadline -o $(EXEC)
+bonus: $(OBJ) $(BONUS_OBJ)
+	@mkdir -p $(OBJDIR)
+	$(CC) $(CFLAGS) $(OBJ) $(BONUS_OBJ) -o $(NAME) $(LIBS)
 
-# Clean rules
 clean:
-	rm -rf $(OBJ_DIR)
+	rm -rf $(OBJDIR)
 
 fclean: clean
-	rm -f $(EXEC)
+	rm -f $(NAME)
 
 re: fclean all
+
+.PHONY: all clean fclean re bonus

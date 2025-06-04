@@ -6,13 +6,13 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:11:23 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/31 13:55:57 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/04 14:20:12 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "s.h"
 
-void	filter_mid2(env **files, int found, env **tmp, env **prev)
+void	filter_mid2(t_env **files, int found, t_env **tmp, t_env **prev)
 {
 	if (!found)
 	{
@@ -29,10 +29,10 @@ void	filter_mid2(env **files, int found, env **tmp, env **prev)
 	}
 }
 
-void	filter_mid(env **files, env *arg)
+void	filter_mid(t_env **files, t_env *arg)
 {
-	env		*tmp;
-	env		*prev;
+	t_env	*tmp;
+	t_env	*prev;
 	int		found;
 	char	*search_pos;
 
@@ -56,10 +56,10 @@ void	filter_mid(env **files, env *arg)
 	}
 }
 
-void	filter_last(env **files, env *arg)
+void	filter_last(t_env **files, t_env *arg)
 {
-	env	*tmp;
-	env	*next;
+	t_env	*tmp;
+	t_env	*next;
 
 	tmp = *files;
 	if (!ft_strcmp(arg->value, ""))
@@ -85,20 +85,20 @@ void	filter_last(env **files, env *arg)
 	}
 }
 
-int	exec_tree2(t_tree *root, env **env, int *ex)
+int	exec_tree2(t_tree *root, t_env **t_env, int *ex)
 {
 	int	status;
 
 	if (root->type == PIPE)
-		return (exce_pipe(root, env, ex));
+		return (exce_pipe(root, t_env, ex));
 	if (root->type >= 6 && root->type <= 9)
 	{
 		status = ft_fork();
 		if (status == 0)
 		{
-			redirections(root, env, ex, root->left);
+			redirections(root, t_env, ex, root->left);
 			if (!*ex && root->left)
-				exec_tree(root->left, env, ex);
+				exec_tree(root->left, t_env, ex);
 			exit(*ex);
 		}
 		waitpid(status, &status, 0);
@@ -107,27 +107,27 @@ int	exec_tree2(t_tree *root, env **env, int *ex)
 	return (*ex);
 }
 
-int	exec_tree(t_tree *root, env **env, int *ex)
+int	exec_tree(t_tree *root, t_env **t_env, int *ex)
 {
 	int	status;
 
 	if (root->type == WORD || root->type >= 18)
-		return (excute(root->args, env, root->fd, ex));
+		return (excute(root->args, t_env, root->fd, ex));
 	if (root->type == AND_IF)
 	{
-		status = exec_tree(root->left, env, ex);
+		status = exec_tree(root->left, t_env, ex);
 		if (!status)
-			return (exec_tree(root->right, env, ex));
+			return (exec_tree(root->right, t_env, ex));
 		return (status);
 	}
 	if (root->type == OR_IF)
 	{
-		status = exec_tree(root->left, env, ex);
+		status = exec_tree(root->left, t_env, ex);
 		if (status)
-			return (exec_tree(root->right, env, ex));
+			return (exec_tree(root->right, t_env, ex));
 		return (status);
 	}
 	else
-		return (exec_tree2(root, env, ex));
+		return (exec_tree2(root, t_env, ex));
 	return (*ex);
 }

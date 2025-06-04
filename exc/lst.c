@@ -6,13 +6,13 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 12:27:14 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/29 12:27:42 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/04 14:20:12 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "s.h"
 
-env	*ft_lstlast(env *lst)
+t_env	*ft_lstlast(t_env *lst)
 {
 	if (!lst)
 		return (NULL);
@@ -21,22 +21,22 @@ env	*ft_lstlast(env *lst)
 	return (lst);
 }
 
-int	ft_lstsize(env *env)
+int	ft_lstsize(t_env *t_env)
 {
 	int	i;
 
 	i = 0;
-	while (env)
+	while (t_env)
 	{
 		i++;
-		env = env->next;
+		t_env = t_env->next;
 	}
 	return (i);
 }
 
-void	ft_lstadd_back(env **lst, env *new)
+void	ft_lstadd_back(t_env **lst, t_env *new)
 {
-	env	*last;
+	t_env	*last;
 
 	if (lst == NULL)
 		return ;
@@ -51,11 +51,11 @@ void	ft_lstadd_back(env **lst, env *new)
 	}
 }
 
-env	*ft_lstnew(env **lst, void *content, int f)
+t_env	*ft_lstnew(t_env **lst, void *content, int f)
 {
-	env	*ret;
+	t_env	*ret;
 
-	ret = gc_malloc(sizeof(env));
+	ret = gc_malloc(sizeof(t_env));
 	if (!ret)
 		return (NULL);
 	ret->value = ft_strdup(content);
@@ -68,10 +68,10 @@ env	*ft_lstnew(env **lst, void *content, int f)
 	return (ret);
 }
 
-void	ft_lstclear(env **lst)
+void	ft_lstclear(t_env **lst)
 {
-	env	*l1;
-	env	*l2;
+	t_env	*l1;
+	t_env	*l2;
 
 	if (lst == NULL)
 		return ;

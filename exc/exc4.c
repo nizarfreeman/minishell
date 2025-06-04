@@ -6,51 +6,51 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:07:02 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/03 15:44:09 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/04 14:20:12 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "s.h"
 
-char	**lst_to_arr2(env *env)
+char	**lst_to_arr2(t_env *t_env)
 {
 	int		size;
 	char	**ret;
 	int		i;
 
-	size = ft_lstsize(env) + 1;
+	size = ft_lstsize(t_env) + 1;
 	ret = gc_malloc(sizeof(char *) * size);
 	i = 0;
-	while (env)
+	while (t_env)
 	{
-		if (env->f != 2)
+		if (t_env->f != 2)
 		{
-			ret[i] = ft_strdup(env->value);
+			ret[i] = ft_strdup(t_env->value);
 			i++;
 		}
-		env = env->next;
+		t_env = t_env->next;
 	}
 	ret[i] = NULL;
 	return (ret);
 }
 
-char	**lst_to_arr(env *env)
+char	**lst_to_arr(t_env *t_env)
 {
 	int		size;
 	char	**ret;
 	int		i;
 
-	size = ft_lstsize(env) + 1;
+	size = ft_lstsize(t_env) + 1;
 	ret = gc_malloc(sizeof(char *) * size);
 	i = 0;
-	while (env)
+	while (t_env)
 	{
-		if (env->f)
+		if (t_env->f)
 		{
-			ret[i] = ft_strdup(env->value);
+			ret[i] = ft_strdup(t_env->value);
 			i++;
 		}
-		env = env->next;
+		t_env = t_env->next;
 	}
 	ret[i] = NULL;
 	return (ret);
@@ -64,7 +64,7 @@ int	expand_valid(char c)
 
 char	**expand_split(char **args)
 {
-	env		*ret;
+	t_env	*ret;
 	char	**tmp;
 
 	ret = NULL;
@@ -81,7 +81,7 @@ char	**expand_split(char **args)
 	return (lst_to_arr2(ret));
 }
 
-char	**expand(char **args, env *envr, int *ex)
+char	**expand(char **args, t_env *t_envr, int *ex)
 {
 	char	**tmp;
 
@@ -94,7 +94,7 @@ char	**expand(char **args, env *envr, int *ex)
 	tmp = args;
 	while (*args)
 	{
-		*args = expand2(*args, envr, ex);
+		*args = expand2(*args, t_envr, ex);
 		if (!*args || !**args)
 			*args = ft_strdup("");
 		args++;

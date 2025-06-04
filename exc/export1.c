@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 12:22:41 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/03 15:44:17 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/04 23:19:49 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ void	print_export(char **arr)
 		s = export_split(*arr);
 		write(1, "declare -x ", 11);
 		write(1, *s, ft_strlen(*s));
-		if (s[1])
+		if (ft_strchr(*arr, '='))
 		{
 			write(1, "\"", 1);
 			write(1, *(s + 1), ft_strlen(*(s + 1)));
@@ -69,11 +69,11 @@ void	print_export(char **arr)
 	}
 }
 
-char	**export_expand(char **s, env *envr, int *ex)
+char	**export_expand(char **s, t_env *t_envr, int *ex)
 {
 	char	*tmp;
 	char	**tmp1;
-	env		*ret;
+	t_env	*ret;
 
 	ret = NULL;
 	while (*s)
@@ -81,7 +81,7 @@ char	**export_expand(char **s, env *envr, int *ex)
 		tmp = *s;
 		if (*tmp == '$')
 		{
-			tmp1 = pre_expand(lst_to_arr2(ft_lstnew(NULL, tmp, 0)), envr, ex);
+			tmp1 = pre_expand(lst_to_arr2(ft_lstnew(NULL, tmp, 0)), t_envr, ex);
 			while (*tmp1)
 			{
 				if (**tmp1)
@@ -90,27 +90,27 @@ char	**export_expand(char **s, env *envr, int *ex)
 			}
 		}
 		else
-			ft_lstnew(&ret, expand2(unquote_string(tmp), envr, ex), 0);
+			ft_lstnew(&ret, expand2(unquote_string(tmp), t_envr, ex), 0);
 		s++;
 	}
 	return (lst_to_arr2(ret));
 }
 
-int	export(env **envr, char **args, int *ex)
+int	export(t_env **t_envr, char **args, int *ex)
 {
 	int	flag;
 
 	flag = 0;
-	args = export_expand(args, *envr, ex);
+	args = export_expand(args, *t_envr, ex);
 	if ((args && !*args) || (args && args[1] && !*args[1]))
 	{
-		print_export(sort_arr(lst_to_arr2(*envr)));
+		print_export(sort_arr(lst_to_arr2(*t_envr)));
 		*ex = 0;
 		return (0);
 	}
 	while (*args)
 	{
-		if (export2(*args, envr))
+		if (export2(*args, t_envr))
 			flag = 1;
 		args++;
 	}

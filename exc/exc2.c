@@ -6,13 +6,13 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 11:56:20 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/01 14:10:59 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/04 14:20:12 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "s.h"
 
-int	expand5(env **list, char *tmp, env *envr)
+int	expand5(t_env **list, char *tmp, t_env *t_envr)
 {
 	char	*ret;
 	char	**tmp1;
@@ -22,13 +22,13 @@ int	expand5(env **list, char *tmp, env *envr)
 	while (*tmp)
 	{
 		if (*tmp == '"' || *tmp == '\'')
-			ret = ft_strjoin(ret, expand_quotes(envr, &p, &(tmp)));
+			ret = ft_strjoin(ret, expand_quotes(t_envr, &p, &(tmp)));
 		if (*tmp)
 		{
-			if (expand4(&tmp1, envr, &tmp))
+			if (expand4(&tmp1, t_envr, &tmp))
 				ret = ft_strjoin(ret, *tmp1);
 			else if (append_to_lst(&ret, list, *tmp1, tmp))
-				tmp += expand3(&ret, tmp1, list, envr);
+				tmp += expand3(&ret, tmp1, list, t_envr);
 		}
 		if (!*tmp)
 		{
@@ -39,7 +39,7 @@ int	expand5(env **list, char *tmp, env *envr)
 	return (1);
 }
 
-int	expand4(char ***tmp1, env *envr, char **tmp)
+int	expand4(char ***tmp1, t_env *t_envr, char **tmp)
 {
 	int	*ex;
 	int	p;
@@ -48,7 +48,7 @@ int	expand4(char ***tmp1, env *envr, char **tmp)
 	*tmp1 = gc_malloc(sizeof(char *) * 2);
 	(*tmp1)[0] = creat_word(*tmp, 0, 0, &p);
 	(*tmp1)[1] = NULL;
-	*tmp1 = expand(*tmp1, envr, ex);
+	*tmp1 = expand(*tmp1, t_envr, ex);
 	if ((*tmp1)[0] && !(*tmp1)[1])
 	{
 		*tmp += p;
@@ -57,7 +57,7 @@ int	expand4(char ***tmp1, env *envr, char **tmp)
 	return (0);
 }
 
-char	*expand_quotes(env *envr, int *p, char **tmp1)
+char	*expand_quotes(t_env *t_envr, int *p, char **tmp1)
 {
 	char	*ret;
 	int		*ex;
@@ -68,7 +68,8 @@ char	*expand_quotes(env *envr, int *p, char **tmp1)
 	ret = NULL;
 	if (*tmp == '"')
 	{
-		ret = ft_strjoin(ret, expand2(creat_word(++tmp, 1, '"', p), envr, ex));
+		ret = ft_strjoin(ret, expand2(creat_word(++tmp, 1, '"', p), t_envr,
+					ex));
 		*tmp1 += *p + 1;
 		return (ret);
 	}
@@ -81,7 +82,7 @@ char	*expand_quotes(env *envr, int *p, char **tmp1)
 	return (NULL);
 }
 
-int	append_to_lst(char **ret, env **list, char *tmp1, char *tmp)
+int	append_to_lst(char **ret, t_env **list, char *tmp1, char *tmp)
 {
 	*ret = ft_strjoin(*ret, tmp1);
 	ft_lstnew(list, *ret, 0);
@@ -89,7 +90,7 @@ int	append_to_lst(char **ret, env **list, char *tmp1, char *tmp)
 	return (1);
 }
 
-int	expand3(char **ret, char **tmp1, env **list, env *envr)
+int	expand3(char **ret, char **tmp1, t_env **list, t_env *t_envr)
 {
 	int		p;
 	int		*ex;
@@ -98,7 +99,7 @@ int	expand3(char **ret, char **tmp1, env **list, env *envr)
 	tmp = *ret;
 	ex = get_exit_status(NULL);
 	tmp1++;
-	*ret = expand2(creat_word(tmp, 0, 0, &p), envr, ex);
+	*ret = expand2(creat_word(tmp, 0, 0, &p), t_envr, ex);
 	if (*(*ret + ft_strlen(*ret) - 1) == ' ' || *(*ret + ft_strlen(*ret)
 			- 1) == '"')
 	{

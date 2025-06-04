@@ -6,13 +6,13 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 16:38:36 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/31 14:04:05 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/04 14:20:12 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "s.h"
 
-int	pipe_left(t_tree *root, env **env, int *fds, int *exi)
+int	pipe_left(t_tree *root, t_env **t_env, int *fds, int *exi)
 {
 	pid_t	pid;
 	int		ex;
@@ -24,14 +24,14 @@ int	pipe_left(t_tree *root, env **env, int *fds, int *exi)
 		ft_dup2(fds[1], STDOUT_FILENO);
 		close(fds[1]);
 		close(fds[0]);
-		ex = exec_tree(root, env, exi);
+		ex = exec_tree(root, t_env, exi);
 		exit(ex);
 	}
 	close(fds[1]);
 	return (pid);
 }
 
-int	exce_pipe(t_tree *root, env **env, int *exi)
+int	exce_pipe(t_tree *root, t_env **t_env, int *exi)
 {
 	int	fds[2];
 	int	ex;
@@ -44,13 +44,13 @@ int	exce_pipe(t_tree *root, env **env, int *exi)
 		ft_free();
 		exit(1);
 	}
-	left_pid = pipe_left(root->left, env, fds, exi);
+	left_pid = pipe_left(root->left, t_env, fds, exi);
 	pid = ft_fork();
 	if (pid == 0)
 	{
 		ft_dup2(fds[0], STDIN_FILENO);
 		close(fds[0]);
-		exec_tree(root->right, env, exi);
+		exec_tree(root->right, t_env, exi);
 		exit(*exi);
 	}
 	close(fds[0]);

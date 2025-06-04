@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 12:27:52 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/03 22:52:27 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/04 22:24:01 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,7 @@ char	*creat_path(char *cmd, char **path)
 	struct stat	*sb;
 
 	sb = gc_malloc(sizeof(struct stat));
-	ft_memset(sb, 0, sizeof(struct stat));
-	stat(cmd, sb);
+	(1) && (ft_memset(sb, 0, sizeof(struct stat)), stat(cmd, sb));
 	if (sb && S_ISDIR(sb->st_mode))
 		return (NULL);
 	(1) && (i = 0, s = NULL);
@@ -55,16 +54,16 @@ char	*creat_path(char *cmd, char **path)
 	return (s);
 }
 
-char	*get_path(char **cmd, char **env)
+char	*get_path(char **cmd, char **t_env)
 {
 	char	**tmp;
 	char	*path;
 
 	tmp = NULL;
-	while (*env && ft_strncmp(*env, "PATH=", 5))
-		env++;
-	if (*env)
-		tmp = ft_split(*env + 5, ':');
+	while (*t_env && ft_strncmp(*t_env, "PATH=", 5))
+		t_env++;
+	if (*t_env)
+		tmp = ft_split(*t_env + 5, ':');
 	path = creat_path(*cmd, tmp);
 	return (path);
 }

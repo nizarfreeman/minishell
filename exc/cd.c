@@ -6,27 +6,27 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 15:52:27 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/03 15:38:48 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/04 14:20:12 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "s.h"
 
-char	*get_value(env *env, char *key)
+char	*get_value(t_env *t_env, char *key)
 {
-	while (env && ft_strcmp(env->value, key) && ft_strncmp(env->value, key,
-			ft_strlen(key)))
-		env = env->next;
-	if (!env)
+	while (t_env && ft_strcmp(t_env->value, key) && ft_strncmp(t_env->value,
+			key, ft_strlen(key)))
+		t_env = t_env->next;
+	if (!t_env)
 		return (NULL);
-	return (ft_strdup(env->value + ft_strlen(key)));
+	return (ft_strdup(t_env->value + ft_strlen(key)));
 }
 
-int	cd_home(env *env, int *ex)
+int	cd_home(t_env *t_env, int *ex)
 {
 	char	*tmp;
 
-	tmp = get_value(env, "HOME=");
+	tmp = get_value(t_env, "HOME=");
 	if (!tmp)
 	{
 		tmp = NULL;
@@ -40,11 +40,11 @@ int	cd_home(env *env, int *ex)
 		*ex = 0;
 		return (0);
 	}
-	*ex = cd2(env, tmp);
+	*ex = cd2(t_env, tmp);
 	return (*ex);
 }
 
-int	cd(env *env, char **path, int *ex)
+int	cd(t_env *t_env, char **path, int *ex)
 {
 	if (*path && path[1])
 	{
@@ -53,18 +53,18 @@ int	cd(env *env, char **path, int *ex)
 		return (1);
 	}
 	if (!*path || !**path)
-		return (cd_home(env, ex));
+		return (cd_home(t_env, ex));
 	else
-		*ex = cd2(env, *path);
+		*ex = cd2(t_env, *path);
 	return (*ex);
 }
 
-int	cd_error(char *path, env *env)
+int	cd_error(char *path, t_env *t_env)
 {
 	if (errno == EACCES)
 	{
 		if (!ft_strcmp(path, ".."))
-			return (cd2(env, trim_last_dir(getcwd(NULL, 0))));
+			return (cd2(t_env, trim_last_dir(getcwd(NULL, 0))));
 		else
 			write(2, "cd: Permission denied.\n", 24);
 	}
@@ -85,7 +85,7 @@ int	cd_error(char *path, env *env)
 	return (1);
 }
 
-int	cd2(env *env, char *path)
+int	cd2(t_env *t_env, char *path)
 {
 	char	*pwd;
 	char	*oldpwd;
@@ -93,20 +93,20 @@ int	cd2(env *env, char *path)
 	char	*oldpwd1;
 
 	oldpwd1 = NULL;
-	oldpwd = get_value(env, "PWD=");
+	oldpwd = get_value(t_env, "PWD=");
 	if (!oldpwd)
 		oldpwd1 = getcwd(NULL, 0);
 	if (chdir(path) == 0)
 	{
 		cd3(path, &tmp, &pwd, oldpwd);
-		search_replace1(env, "PWD", pwd);
+		search_replace1(t_env, "PWD", pwd);
 		if (oldpwd)
-			search_replace1(env, "OLDPWD", oldpwd);
+			search_replace1(t_env, "OLDPWD", oldpwd);
 		else
-			search_replace1(env, "OLDPWD", oldpwd1);
+			search_replace1(t_env, "OLDPWD", oldpwd1);
 		free(oldpwd1);
 		oldpwd1 = NULL;
 		return (0);
 	}
-	return (cd_error(path, env));
+	return (cd_error(path, t_env));
 }
