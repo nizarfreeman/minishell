@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/04 14:18:02 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/04 22:13:27 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/05 01:15:47 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,7 @@ char				*word(char *s, char *e);
 int					check_value(char *str);
 int					export(t_env **t_envr, char **args, int *ex);
 int					ft_lstsize(t_env *t_env);
-char				*get_path(char **cmd, char **t_env);
+char				*get_path(char **cmd, t_env **t_env1);
 char				*trim_last_dir(char *path);
 char				*creat_path(char *cmd, char **path);
 void				printerr(char *cmd, int *ex);

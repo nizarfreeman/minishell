@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:07:02 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/04 14:20:12 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/05 01:11:48 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ char	**lst_to_arr(t_env *t_env)
 	i = 0;
 	while (t_env)
 	{
-		if (t_env->f)
+		if (t_env->f && t_env->f != 2)
 		{
 			ret[i] = ft_strdup(t_env->value);
 			i++;

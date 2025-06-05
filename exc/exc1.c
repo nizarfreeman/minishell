@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 17:45:07 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/04 14:20:12 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/05 00:29:49 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ int	excute2(char **cmd, t_env **t_env, int fd_in, int *ex)
 {
 	if (!ft_strcmp(*cmd, "echo"))
 		return (echo(&cmd[1], ex));
-	else if (!ft_strcmp(*cmd, "t_env"))
+	else if (!ft_strcmp(*cmd, "env"))
 		return (t_envr(*t_env, ex));
 	else if (!ft_strcmp(*cmd, "exit"))
 		(my_exit(&cmd[1], ex));

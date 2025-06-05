@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 12:27:52 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/04 22:24:01 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/05 01:15:33 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,16 +54,16 @@ char	*creat_path(char *cmd, char **path)
 	return (s);
 }
 
-char	*get_path(char **cmd, char **t_env)
+char	*get_path(char **cmd, t_env **t_env1)
 {
 	char	**tmp;
 	char	*path;
+	char	*t_env;
 
+	t_env = get_value(*t_env1, "PATH=");
 	tmp = NULL;
-	while (*t_env && ft_strncmp(*t_env, "PATH=", 5))
-		t_env++;
-	if (*t_env)
-		tmp = ft_split(*t_env + 5, ':');
+	if (t_env)
+		tmp = ft_split(t_env + 5, ':');
 	path = creat_path(*cmd, tmp);
 	return (path);
 }
@@ -75,15 +75,11 @@ void	printerr2(char *cmd, int *ex)
 
 	*ex = 127;
 	s = ": No such file or directory";
-	if (stat(cmd, &sb) == -1)
-	{
-		perror("stat");
-		return ;
-	}
-	if (S_ISDIR(sb.st_mode))
+	if (stat(cmd, &sb) != -1 && S_ISDIR(sb.st_mode))
 	{
 		*ex = 126;
 		s = ": Is a directory";
+
 	}
 	write(STDERR_FILENO, cmd, ft_strlen(cmd));
 	write(STDERR_FILENO, s, ft_strlen(s));
