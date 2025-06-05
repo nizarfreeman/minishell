@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 12:27:52 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/05 01:15:33 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/05 01:17:31 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,6 @@ void	printerr2(char *cmd, int *ex)
 	{
 		*ex = 126;
 		s = ": Is a directory";
-
 	}
 	write(STDERR_FILENO, cmd, ft_strlen(cmd));
 	write(STDERR_FILENO, s, ft_strlen(s));

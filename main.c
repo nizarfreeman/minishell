@@ -6,14 +6,12 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/04 22:16:53 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/05 01:16:31 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/05 01:17:12 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pars/pars.h"
 #include "exc/s.h"
-
-
 
 static int	handle_input(char *s, int *ex)
 {
