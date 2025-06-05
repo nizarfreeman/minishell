@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   deep_copy_tokens.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfaska <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: nfaska <nfaska@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 13:03:47 by nfaska            #+#    #+#             */
 /*   Updated: 2025/06/02 13:04:41 by nfaska           ###   ########.fr       */

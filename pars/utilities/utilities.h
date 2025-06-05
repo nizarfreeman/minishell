@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   utilities.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfaska <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: nfaska <nfaska@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/31 03:34:46 by nfaska            #+#    #+#             */
 /*   Updated: 2025/06/04 21:12:12 by nfaska           ###   ########.fr       */

@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   handle_and_operator.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfaska <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: nfaska <nfaska@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/31 15:47:04 by nfaska            #+#    #+#             */
 /*   Updated: 2025/05/31 15:49:30 by nfaska           ###   ########.fr       */

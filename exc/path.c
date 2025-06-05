@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 12:27:52 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/05 01:17:31 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/05 15:12:45 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,13 +18,37 @@ char	*creat_path2(char *cmd)
 		return (ft_strdup(cmd));
 	else if (ft_strncmp(cmd, "./", 2) == 0 && access(cmd, F_OK) == 0)
 	{
+		*(get_exit_status(NULL)) = 126;
 		write(2, cmd, ft_strlen(cmd));
 		write(2, ": Permission denied\n", 21);
+		
 		return (ft_strdup(""));
 	}
 	return (NULL);
 }
 
+char *creat_path3(char **path, char *tmp)
+{
+	char *s;
+	int	i;
+	i = 0;
+
+	while (path[i])
+	{
+		s = ft_strjoin(ft_strdup(path[i]), ft_strdup(tmp));
+		if (!strchr(path[i], '/') && access(s, F_OK) == 0)
+		{
+			*(get_exit_status(NULL)) = 126;
+			write(2, s, ft_strlen(s));
+			write(2, ": Permission denied\n", 21);
+			return (ft_strdup(""));
+		}
+		if (access(s, X_OK) == 0)
+			break ;
+		(1) && (s = NULL, i++);
+	}
+	return (s);
+}
 char	*creat_path(char *cmd, char **path)
 {
 	int			i;
@@ -44,14 +68,7 @@ char	*creat_path(char *cmd, char **path)
 	if (!path)
 		return (NULL);
 	tmp = ft_strjoin(ft_strdup("/"), ft_strdup(cmd));
-	while (path[i])
-	{
-		s = ft_strjoin(ft_strdup(path[i]), ft_strdup(tmp));
-		if (access(s, X_OK) == 0)
-			break ;
-		(1) && (s = NULL, i++);
-	}
-	return (s);
+	return (creat_path3(path, tmp));
 }
 
 char	*get_path(char **cmd, t_env **t_env1)
@@ -63,7 +80,7 @@ char	*get_path(char **cmd, t_env **t_env1)
 	t_env = get_value(*t_env1, "PATH=");
 	tmp = NULL;
 	if (t_env)
-		tmp = ft_split(t_env + 5, ':');
+		tmp = ft_split(t_env, ':');
 	path = creat_path(*cmd, tmp);
 	return (path);
 }

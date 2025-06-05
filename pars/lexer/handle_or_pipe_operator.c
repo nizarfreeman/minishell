@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   handle_or_pipe_operator.c                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfaska <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: nfaska <nfaska@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/31 15:50:21 by nfaska            #+#    #+#             */
 /*   Updated: 2025/05/31 15:54:14 by nfaska           ###   ########.fr       */

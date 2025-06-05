@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   revise_null.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfaska <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: nfaska <nfaska@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/01 08:27:59 by nfaska            #+#    #+#             */
 /*   Updated: 2025/06/01 08:28:51 by nfaska           ###   ########.fr       */

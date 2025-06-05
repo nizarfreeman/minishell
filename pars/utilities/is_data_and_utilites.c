@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   is_data_and_utilites.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfaska <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: nfaska <nfaska@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/31 03:45:27 by nfaska            #+#    #+#             */
 /*   Updated: 2025/05/31 03:53:58 by nfaska           ###   ########.fr       */

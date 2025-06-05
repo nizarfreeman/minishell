@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   revise_args_follow.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfaska <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: nfaska <nfaska@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/31 17:15:48 by nfaska            #+#    #+#             */
 /*   Updated: 2025/05/31 17:22:07 by nfaska           ###   ########.fr       */

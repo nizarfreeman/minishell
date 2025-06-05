@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   parent_process_2.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfaska <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: nfaska <nfaska@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/01 08:34:37 by nfaska            #+#    #+#             */
 /*   Updated: 2025/06/01 08:51:51 by nfaska           ###   ########.fr       */

@@ -6,14 +6,14 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/04 22:16:53 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/05 01:17:12 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/05 12:24:21 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pars/pars.h"
 #include "exc/s.h"
 
-static int	handle_input(char *s, int *ex)
+int	handle_input(char *s, int *ex)
 {
 	if (!*s)
 	{
@@ -25,7 +25,7 @@ static int	handle_input(char *s, int *ex)
 	return (0);
 }
 
-static void	execute_command(char *s, t_env **env, int *ex)
+void	execute_command(char *s, t_env **env, int *ex)
 {
 	t_token	*head;
 	t_tree	*root;

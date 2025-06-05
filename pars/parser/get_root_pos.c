@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   get_root_pos.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfaska <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: nfaska <nfaska@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 12:59:55 by nfaska            #+#    #+#             */
 /*   Updated: 2025/06/02 13:00:17 by nfaska           ###   ########.fr       */

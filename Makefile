@@ -1,6 +1,6 @@
 NAME        = minishell
 CC          = cc
-CFLAGS      = -Wall -Wextra -Werror
+CFLAGS      = -Wall -Wextra -Werror #-fsanitize=address -g
 OBJDIR      = obj
 INCLUDES    = -Ipars -Ipars/lexer -Ipars/parser -Ipars/syntax_check -Ipars/utilities -Iexc
 LIBS        = -lreadline
@@ -77,25 +77,19 @@ SRC = \
 	pars/utilities/is_data_and_utilites.c \
 	pars/utilities/utilities.c
 
-BONUS_SRC = \
-	bonus/bonus_example.c
-
 OBJ = $(SRC:%.c=$(OBJDIR)/%.o)
-BONUS_OBJ = $(BONUS_SRC:%.c=$(OBJDIR)/%.o)
 
 all: $(NAME)
+
+bonus: all
 
 $(NAME): $(OBJ)
 	@mkdir -p $(OBJDIR)
 	$(CC) $(CFLAGS) $(OBJ) -o $(NAME) $(LIBS)
 
-$(OBJDIR)/%.o: %.c pars/pars.h pars/lexer/lexer.h pars/parser/parser.h pars/syntax_check/syntax_check.h pars/utilities/utilities.h
+$(OBJDIR)/%.o: %.c pars/pars.h pars/lexer/lexer.h pars/parser/parser.h pars/syntax_check/syntax_check.h pars/utilities/utilities.h pars/includes.h exc/s.h
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
-
-bonus: $(OBJ) $(BONUS_OBJ)
-	@mkdir -p $(OBJDIR)
-	$(CC) $(CFLAGS) $(OBJ) $(BONUS_OBJ) -o $(NAME) $(LIBS)
 
 clean:
 	rm -rf $(OBJDIR)

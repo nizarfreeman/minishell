@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   handle_output_redirection.c                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfaska <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: nfaska <nfaska@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/31 15:56:02 by nfaska            #+#    #+#             */
 /*   Updated: 2025/05/31 15:57:48 by nfaska           ###   ########.fr       */

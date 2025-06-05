@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   handle_assignment.h                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfaska <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: nfaska <nfaska@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/31 16:05:59 by nfaska            #+#    #+#             */
 /*   Updated: 2025/05/31 16:07:03 by nfaska           ###   ########.fr       */

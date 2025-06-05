@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   check_parentheses_2.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfaska <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: nfaska <nfaska@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/31 03:21:38 by nfaska            #+#    #+#             */
 /*   Updated: 2025/05/31 03:22:10 by nfaska           ###   ########.fr       */

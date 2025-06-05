@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   validate_remove_args.c                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfaska <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: nfaska <nfaska@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/31 16:45:46 by nfaska            #+#    #+#             */
 /*   Updated: 2025/05/31 16:46:26 by nfaska           ###   ########.fr       */

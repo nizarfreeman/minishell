@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 13:23:15 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/29 13:23:16 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/05 14:42:04 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,8 @@ void	free_split(char **split, int i)
 	}
 }
 
-void	split_with_charset(char **split, char *str, char charset)
+
+static void	split_with_charset(char **split, char *str, char charset)
 {
 	char	*start;
 	char	*end;
@@ -60,7 +61,7 @@ void	split_with_charset(char **split, char *str, char charset)
 	split[i] = 0;
 }
 
-void	split_with_spaces(char **split, char *str)
+static void	split_with_spaces(char **split, char *str)
 {
 	char	*start;
 	char	*end;

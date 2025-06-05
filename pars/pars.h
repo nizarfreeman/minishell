@@ -6,12 +6,12 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/04 21:26:26 by nfaska            #+#    #+#             */
-/*   Updated: 2025/06/05 00:13:00 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/05 13:53:09 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PARS_H
-# define PARS_H
+# define PARS_H 
 
 # include <fcntl.h>
 # include <readline/history.h>

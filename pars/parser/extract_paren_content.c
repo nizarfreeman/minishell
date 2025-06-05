@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   extract_paren_content.c                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfaska <marvin@42.fr>                      +#+  +:+       +#+        */
+/*   By: nfaska <nfaska@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/02 13:05:08 by nfaska            #+#    #+#             */
 /*   Updated: 2025/06/02 13:05:32 by nfaska           ###   ########.fr       */
