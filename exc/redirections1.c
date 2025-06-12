@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 13:12:56 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/04 14:20:12 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/12 20:42:07 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,8 +75,10 @@ void	red_out(t_tree *root, t_env **t_env, int *ex, t_tree *left)
 		*ex = 0;
 		ft_dup2(fd, STDOUT_FILENO);
 		if (root->right->type >= 6 && root->right->type <= 9)
+		{
+			close(fd);
 			redirections(root->right, t_env, ex, left);
-		close(fd);
+		}
 	}
 	else
 	{
@@ -122,8 +124,10 @@ void	red_app(t_tree *root, t_env **t_env, int *ex, t_tree *left)
 		*ex = 0;
 		ft_dup2(fd, STDOUT_FILENO);
 		if (root->right->type >= 6 && root->right->type <= 9)
+		{	
+			close(fd);
 			redirections(root->right, t_env, ex, left);
-		close(fd);
+		}
 	}
 	else
 	{

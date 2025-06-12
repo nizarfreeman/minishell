@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 13:29:07 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/31 14:03:31 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/12 20:38:28 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ int	is_all_empty(char **s)
 	return (1);
 }
 
-pid_t	ft_fork(void)
+pid_t	ft_fork(int fd, int fd1)
 {
 	pid_t	pid;
 
@@ -63,6 +63,10 @@ pid_t	ft_fork(void)
 		perror("fork");
 		gc_free();
 		ft_free();
+		if (fd != -1)
+			close(fd);
+		if (fd1 != -1)
+			close(fd1);
 		exit(1);
 	}
 	return (pid);

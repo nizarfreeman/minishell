@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 16:38:36 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/04 14:20:12 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/12 20:40:36 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ int	pipe_left(t_tree *root, t_env **t_env, int *fds, int *exi)
 	int		ex;
 
 	ex = 1;
-	pid = ft_fork();
+	pid = ft_fork(fds[0], fds[1]);
 	if (pid == 0)
 	{
 		ft_dup2(fds[1], STDOUT_FILENO);
@@ -45,7 +45,7 @@ int	exce_pipe(t_tree *root, t_env **t_env, int *exi)
 		exit(1);
 	}
 	left_pid = pipe_left(root->left, t_env, fds, exi);
-	pid = ft_fork();
+	pid = ft_fork(fds[0], -1);
 	if (pid == 0)
 	{
 		ft_dup2(fds[0], STDIN_FILENO);

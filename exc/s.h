@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/04 14:18:02 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/12 16:42:59 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/12 20:40:08 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ char				*ft_strjoin(char *s1, char *s2);
 void				cd3(char *path, char **tmp, char **pwd, char *oldpwd);
 char				*ft_strrchr(const char *s, int c);
 char				*ft_strchr(char *s, char c);
-pid_t				ft_fork(void);
+pid_t				ft_fork(int fd, int fd1);
 void				search_replace(t_env *t_env, char *key, char *rep);
 int					ft_strcmp(const char *s1, const char *s2);
 int					cd(t_env *t_env, char **path, int *ex);

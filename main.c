@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/04 22:16:53 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/05 12:24:21 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/12 20:48:09 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ int	handle_input(char *s, int *ex)
 	{
 		free(s);
 		*ex = 0;
+		s = NULL;
 		return (1);
 	}
 	add_history(s);

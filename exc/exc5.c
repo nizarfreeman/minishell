@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:08:47 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/05 01:14:16 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/12 20:40:48 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ int	excute_cmd(char **cmd, t_env **t_env, int fd_in, int *status)
 	(1) && (t_envr = lst_to_arr(*t_env), path = get_path(cmd, t_env));
 	if (!path)
 		printerr(cmd[0], status);
-	pid = ft_fork();
+	pid = ft_fork(fd_in, -1);
 	if (pid == 0)
 	{
 		if (fd_in != -1)
