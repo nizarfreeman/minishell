@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/04 14:18:02 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/05 01:15:47 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/12 16:42:59 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,6 +125,7 @@ void				handle_int(int sig);
 char				**lst_to_arr2(t_env *t_env);
 char				*ft_itoa(int n);
 char				**lst_to_arr(t_env *t_env);
+void				printerr(char *cmd, int *ex);
 int					ft_atoi2(const char *str);
 void				my_exit(char **cmd, int *ex);
 void				redirections(t_tree *root, t_env **t_env, int *ex,

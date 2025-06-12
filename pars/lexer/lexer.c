@@ -3,12 +3,13 @@
 /*                                                        :::      ::::::::   */
 /*   lexer.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfaska <nfaska@student.42.fr>              +#+  +:+       +#+        */
+/*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/01 10:33:46 by nfaska            #+#    #+#             */
-/*   Updated: 2025/06/01 10:37:55 by nfaska           ###   ########.fr       */
+/*   Updated: 2025/06/12 18:21:15 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 #include "lexer.h"
 
 int	count(t_token *head)
@@ -31,6 +32,12 @@ t_token	*lexer(char *s)
 	int			i;
 
 	head = NULL;
+	if (!check_quotes(s))
+	{
+		ft_putstr_fd("minishell : syntax error !\n", 2);
+		*(get_exit_status(NULL)) = 2;
+		return (NULL);
+	}
 	tokenize_input(s, &head);
 	revise_args(&head);
 	i = count(head);

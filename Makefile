@@ -1,6 +1,6 @@
 NAME        = minishell
 CC          = cc
-CFLAGS      = -Wall -Wextra -Werror #-fsanitize=address -g
+CFLAGS      = -Wall -Wextra -Werror
 OBJDIR      = obj
 INCLUDES    = -Ipars -Ipars/lexer -Ipars/parser -Ipars/syntax_check -Ipars/utilities -Iexc
 LIBS        = -lreadline
@@ -8,6 +8,7 @@ LIBS        = -lreadline
 SRC = \
 	main.c \
 	exc/atoi.c \
+	exc/err.c \
 	exc/cd.c exc/cd1.c exc/cd2.c \
 	exc/env.c \
 	exc/exc.c exc/exc1.c exc/exc2.c exc/exc3.c exc/exc4.c exc/exc5.c exc/exc6.c exc/exc_tree.c \

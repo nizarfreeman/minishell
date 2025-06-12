@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 12:27:52 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/05 15:12:45 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/12 15:16:40 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,22 +21,21 @@ char	*creat_path2(char *cmd)
 		*(get_exit_status(NULL)) = 126;
 		write(2, cmd, ft_strlen(cmd));
 		write(2, ": Permission denied\n", 21);
-		
 		return (ft_strdup(""));
 	}
 	return (NULL);
 }
 
-char *creat_path3(char **path, char *tmp)
+char	*creat_path3(char **path, char *tmp)
 {
-	char *s;
-	int	i;
-	i = 0;
+	char	*s;
+	int		i;
 
+	i = 0;
 	while (path[i])
 	{
 		s = ft_strjoin(ft_strdup(path[i]), ft_strdup(tmp));
-		if (!strchr(path[i], '/') && access(s, F_OK) == 0)
+		if (!access(s, F_OK) && access(s, X_OK))
 		{
 			*(get_exit_status(NULL)) = 126;
 			write(2, s, ft_strlen(s));
@@ -49,18 +48,17 @@ char *creat_path3(char **path, char *tmp)
 	}
 	return (s);
 }
+
 char	*creat_path(char *cmd, char **path)
 {
-	int			i;
-	char		*s;
 	char		*tmp;
 	struct stat	*sb;
 
 	sb = gc_malloc(sizeof(struct stat));
-	(1) && (ft_memset(sb, 0, sizeof(struct stat)), stat(cmd, sb));
+	ft_memset(sb, 0, sizeof(struct stat));
+	stat(cmd, sb);
 	if (sb && S_ISDIR(sb->st_mode))
 		return (NULL);
-	(1) && (i = 0, s = NULL);
 	if (!path && access(cmd, X_OK) == 0)
 		return (ft_strdup(cmd));
 	if (ft_strncmp(cmd, "./", 2) == 0 || cmd[0] == '/')
@@ -83,37 +81,4 @@ char	*get_path(char **cmd, t_env **t_env1)
 		tmp = ft_split(t_env, ':');
 	path = creat_path(*cmd, tmp);
 	return (path);
-}
-
-void	printerr2(char *cmd, int *ex)
-{
-	char		*s;
-	struct stat	sb;
-
-	*ex = 127;
-	s = ": No such file or directory";
-	if (stat(cmd, &sb) != -1 && S_ISDIR(sb.st_mode))
-	{
-		*ex = 126;
-		s = ": Is a directory";
-	}
-	write(STDERR_FILENO, cmd, ft_strlen(cmd));
-	write(STDERR_FILENO, s, ft_strlen(s));
-	write(STDERR_FILENO, "\n", 1);
-}
-
-void	printerr(char *cmd, int *ex)
-{
-	char	*s;
-
-	*ex = 127;
-	if (ft_strrchr(cmd, '/'))
-		printerr2(cmd, ex);
-	else
-	{
-		s = ": command not found";
-		write(STDERR_FILENO, cmd, ft_strlen(cmd));
-		write(STDERR_FILENO, s, ft_strlen(s));
-		write(STDERR_FILENO, "\n", 1);
-	}
 }
