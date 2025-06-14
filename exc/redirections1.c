@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 13:12:56 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/12 20:42:07 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/14 13:43:59 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,9 +98,10 @@ void	red_in(t_tree *root, t_env **t_env, int *ex, t_tree *left)
 	if (fd != -1)
 	{
 		*ex = 0;
-		if (left->fd != -1)
+		if (left && left->fd != -1)
 			close(left->fd);
-		left->fd = fd;
+		if (left)
+			left->fd = fd;
 		if (root->right->type >= 6 && root->right->type <= 9)
 			redirections(root->right, t_env, ex, left);
 	}

@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 16:29:41 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/04 14:20:12 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/14 13:48:32 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,11 +33,14 @@ void	search_replace(t_env *t_env, char *key, char *rep)
 char	*trim_last_dir(char *path)
 {
 	char	*last_slash;
+	char	*tmp;
 
+	tmp = path;
+	path = ft_strdup(tmp);
+	free(tmp);
 	if (!ft_strcmp("/", path))
 		return (ft_strdup("/"));
 	last_slash = ft_strrchr(path, '/');
-	free(path);
 	return (word((char *)path, last_slash));
 }
 
@@ -58,3 +61,5 @@ void	cd3(char *path, char **tmp, char **pwd, char *oldpwd)
 	free(pwdtmp);
 	pwdtmp = NULL;
 }
+
+// ls > a | ls >> a && ls > a | ls && < a | ls >> a
