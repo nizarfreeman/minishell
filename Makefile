@@ -1,6 +1,6 @@
 NAME        = minishell
 CC          = cc
-CFLAGS      = -Wall -Wextra -Werror -fsanitize=address -g
+CFLAGS      = -Wall -Wextra -Werror
 OBJDIR      = obj
 INCLUDES    = -Ipars -Ipars/lexer -Ipars/parser -Ipars/syntax_check -Ipars/utilities -Iexc
 LIBS        = -lreadline
