@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/04 14:22:00 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/25 18:27:14 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/25 18:36:45 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,12 +20,12 @@ void	no_t_env(t_env **ret)
 	s = get_value(*ret, "OLDPWD", 1);
 	if (!s)
 		ft_lstnew1(ret, "OLDPWD", 0);
-	s = get_value(*ret, "_", 0);
+	s = get_value(*ret, "_", 1);
 	if (!s)
 		ft_lstnew1(ret, "_=/usr/bin/env", 2);
 	else
-		search_replace1(*ret, "_", NULL);
-	s = get_value(*ret, "SHLVL", 0);
+		search_replace1(*ret, "_", "/usr/bin/env");
+	s = get_value(*ret, "SHLVL", 1);
 	if (!s)
 		ft_lstnew1(ret, "SHLVL=1", 1);
 	else if (is_all_num(s + 1) && (int)ft_atoi(s + 1) >= 999)
