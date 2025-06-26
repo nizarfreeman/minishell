@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 12:22:41 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/25 17:31:33 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/26 22:00:40 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,16 +55,21 @@ void	print_export(char **arr)
 
 	while (*arr)
 	{
-		s = export_split(*arr);
-		write(1, "declare -x ", 11);
-		write(1, *s, ft_strlen(*s));
-		if (ft_strchr(*arr, '='))
+		if (!ft_strncmp("_=", *arr, 2))
+			s = NULL;
+		else
 		{
-			write(1, "\"", 1);
-			write(1, *(s + 1), ft_strlen(*(s + 1)));
-			write(1, "\"", 1);
+			s = export_split(*arr);
+			write(1, "declare -x ", 11);
+			write(1, *s, ft_strlen(*s));
+			if (ft_strchr(*arr, '='))
+			{
+				write(1, "\"", 1);
+				write(1, *(s + 1), ft_strlen(*(s + 1)));
+				write(1, "\"", 1);
+			}
+			write(1, "\n", 1);
 		}
-		write(1, "\n", 1);
 		arr++;
 	}
 }

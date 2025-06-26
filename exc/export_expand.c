@@ -6,11 +6,38 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:31:09 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/26 21:08:07 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/26 22:46:07 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "s.h"
+
+char	*rm_q(char *tmp)
+{
+	char	*ret;
+	int		p;
+
+	ret = NULL;
+	while (tmp && *tmp)
+	{
+		if (*tmp && *tmp == '\'')
+		{
+			ret = ft_strjoin(ret, creat_word(++tmp, 1, '\'', &p));
+			tmp += p;
+		}
+		else if (*tmp && *tmp == '"')
+		{
+			ret = ft_strjoin(ret, creat_word(++tmp, 1, '"', &p));
+			tmp += p;
+		}
+		else if (*tmp)
+		{
+			ret = ft_strjoin(ret, creat_word(tmp, 0, 0, &p));
+			tmp += p;
+		}
+	}
+	return (ret);
+}
 
 void	export_expand2(char *tmp, int *ex, t_env **ret1, t_env *t_envr)
 {
@@ -18,7 +45,6 @@ void	export_expand2(char *tmp, int *ex, t_env **ret1, t_env *t_envr)
 	int		p;
 
 	ret = NULL;
-	p = 0;
 	while (tmp && *tmp)
 	{
 		if (*tmp && *tmp == '\'')

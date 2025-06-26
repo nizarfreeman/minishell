@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 12:05:53 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/22 14:54:58 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/26 21:51:36 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,9 @@ void	no_t_env2(t_env **ret)
 {
 	char	*s;
 
+	s = get_value(*ret, "OLDPWD", 1);
+	if (!s)
+		ft_lstnew1(ret, "OLDPWD", 0);
 	s = get_value(*ret, "PATH=", 0);
 	if (!s)
 		ft_lstnew1(ret,

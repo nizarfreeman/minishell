@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/04 14:18:02 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/26 17:12:58 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/26 22:44:56 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@ void				filter_mid2(t_env **files, int found, t_env **tmp,
 						t_env **prev);
 t_env				*ft_lstlast(t_env *lst);
 void				ft_dup2(int a, int b);
+char				*rm_q(char *tmp);
 char				*ft_strdup(const char *s1);
 void				no_t_env2(t_env **ret);
 void				*ft_memcpy(void *dst, const void *src, size_t n);

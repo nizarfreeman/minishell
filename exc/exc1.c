@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 17:45:07 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/26 20:52:48 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/26 22:45:41 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,10 +32,8 @@ char	**pre_expand(char **args, t_env *t_envr, int *ex)
 		tmp = list->value;
 		if (tmp && *tmp && is_wildcard(tmp) && expand_wildcard(tmp, &ret))
 			*ex = *ex;
-		else if (tmp && *tmp && (*tmp == '"' || *tmp == '\''))
-			ft_lstnew(&ret, creat_word(list->value + 1, 1, *tmp, NULL), 0);
 		else
-			ft_lstnew(&ret, list->value, 0);
+			ft_lstnew(&ret, rm_q(list->value), 0);
 		list = list->next;
 	}
 	return (lst_to_arr2(ret));
