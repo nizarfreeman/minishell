@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:31:09 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/26 20:53:17 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/26 21:08:07 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,8 @@ void	export_expand2(char *tmp, int *ex, t_env **ret1, t_env *t_envr)
 		}
 		else if (*tmp)
 		{
-			ret = ft_strjoin(ret, creat_word(tmp, 0, 0, &p));
+			ret = ft_strjoin(ret, expand2(creat_word(tmp, 0, 0, &p), t_envr,
+						ex));
 			tmp += p;
 		}
 	}
