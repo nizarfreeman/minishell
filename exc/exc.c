@@ -6,13 +6,35 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 17:38:28 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/04 14:20:12 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/26 20:51:25 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "s.h"
 
-int		g_han = 0;
+int	g_han;
+
+char	*quote_string(char *str, char quote_char)
+{
+	char	*quoted_str;
+	int		len;
+	int		i;
+
+	if (!str)
+		return (NULL);
+	len = ft_strlen(str);
+	quoted_str = gc_malloc(len + 3);
+	quoted_str[0] = quote_char;
+	i = 0;
+	while (str[i])
+	{
+		quoted_str[i + 1] = str[i];
+		i++;
+	}
+	quoted_str[len + 1] = quote_char;
+	quoted_str[len + 2] = '\0';
+	return (quoted_str);
+}
 
 char	*creat_word(char *str, int f, char c, int *p)
 {
@@ -23,20 +45,20 @@ char	*creat_word(char *str, int f, char c, int *p)
 	{
 		if (*str == c)
 		{
-			*p = 1;
+			if (p)
+				*p = 1;
 			return (ft_strdup(""));
 		}
 		while (*(s) != c)
-		{
 			s++;
-			(*p)++;
-		}
-		(*p) = s - str + 1;
-		return (word(str, s));
+		if (p)
+			(*p) = s - str + 1;
+		return ((word(str, s)));
 	}
 	while (*(str) && *(str) != '\'' && *(str) != '"')
 		str++;
-	(*p) = str - s;
+	if (p)
+		(*p) = str - s;
 	return (word(s, str));
 }
 

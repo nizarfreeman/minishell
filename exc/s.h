@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/04 14:18:02 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/25 17:39:39 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/26 17:12:58 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,6 +105,7 @@ void				get_dir(t_env **ret);
 void				filter_last(t_env **files, t_env *arg);
 void				filter_first(t_env **files, t_env *arg);
 int					is_wildcard(char *s);
+char				*quote_string(char *str, char quote_char);
 int					unset(t_env **t_env, char **str, int *ex);
 int					pwd(t_env *t_env, int *ex);
 int					echo(char **str, int *ex);

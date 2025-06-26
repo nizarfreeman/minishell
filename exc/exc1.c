@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 17:45:07 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/15 17:18:17 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/26 20:52:48 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,18 +16,29 @@ char	**pre_expand(char **args, t_env *t_envr, int *ex)
 {
 	t_env	*list;
 	char	*tmp;
+	t_env	*ret;
 
 	list = NULL;
+	ret = NULL;
 	while (*args)
 	{
 		tmp = *args;
-		if (is_wildcard(tmp) && expand_wildcard(tmp, &list))
-			*ex = *ex;
-		else if (expand5(&list, tmp, t_envr))
+		if (expand5(&list, tmp, t_envr))
 			*ex = *ex;
 		args++;
 	}
-	return (lst_to_arr2(list));
+	while (list)
+	{
+		tmp = list->value;
+		if (tmp && *tmp && is_wildcard(tmp) && expand_wildcard(tmp, &ret))
+			*ex = *ex;
+		else if (tmp && *tmp && (*tmp == '"' || *tmp == '\''))
+			ft_lstnew(&ret, creat_word(list->value + 1, 1, *tmp, NULL), 0);
+		else
+			ft_lstnew(&ret, list->value, 0);
+		list = list->next;
+	}
+	return (lst_to_arr2(ret));
 }
 
 int	excute2(char **cmd, t_env **t_env, int fd_in, int *ex)

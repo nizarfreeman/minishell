@@ -6,21 +6,39 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:31:09 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/25 17:36:16 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/26 20:53:17 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "s.h"
 
-void	export_expand2(char *tmp, int *ex, t_env **ret, t_env *t_envr)
+void	export_expand2(char *tmp, int *ex, t_env **ret1, t_env *t_envr)
 {
-	char	**tmp1;
+	char	*ret;
+	int		p;
 
-	tmp1 = pre_expand(lst_to_arr2(ft_lstnew(NULL, tmp, 0)), t_envr, ex);
-	tmp = NULL;
-	while (tmp1 && *tmp1)
-		tmp = ft_strjoin(tmp, *tmp1++);
-	ft_lstnew(ret, tmp, 0);
+	ret = NULL;
+	p = 0;
+	while (tmp && *tmp)
+	{
+		if (*tmp && *tmp == '\'')
+		{
+			ret = ft_strjoin(ret, creat_word(++tmp, 1, '\'', &p));
+			tmp += p;
+		}
+		else if (*tmp && *tmp == '"')
+		{
+			ret = ft_strjoin(ret, expand2(creat_word(++tmp, 1, '"', &p), t_envr,
+						ex));
+			tmp += p;
+		}
+		else if (*tmp)
+		{
+			ret = ft_strjoin(ret, creat_word(tmp, 0, 0, &p));
+			tmp += p;
+		}
+	}
+	ft_lstnew(ret1, ret, 0);
 }
 
 char	**export_expand(char **s, t_env *t_envr, int *ex)
