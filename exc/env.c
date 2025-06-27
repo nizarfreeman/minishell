@@ -28,8 +28,7 @@ void	no_t_env(t_env **ret)
 	else if (is_all_num(s) && ft_atoi(s) >= 999 && ft_atoi(s) < INT_MAX)
 	{
 		write(2, "bash: warning: shell level (", 29);
-		write(2, ft_itoa(ft_atoi(s) + 1), ft_strlen(ft_itoa(ft_atoi(s)
-					+ 1)));
+		write(2, ft_itoa(ft_atoi(s) + 1), ft_strlen(ft_itoa(ft_atoi(s) + 1)));
 		write(2, ") too high, resetting to 1\n", 28);
 		search_replace1(*ret, "SHLVL", "1");
 	}

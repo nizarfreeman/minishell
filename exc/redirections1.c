@@ -124,7 +124,7 @@ void	red_app(t_tree *root, t_env **t_env, int *ex, t_tree *left)
 		ft_dup2(fd, STDOUT_FILENO);
 		close(fd);
 		if (root->right->type >= 6 && root->right->type <= 9)
-		{	
+		{
 			redirections(root->right, t_env, ex, left);
 		}
 	}

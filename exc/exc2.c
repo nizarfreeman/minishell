@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 11:56:20 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/27 21:13:56 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/27 22:24:01 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,8 +75,8 @@ char	*expand_quotes(t_env *t_envr, int *p, char **tmp1)
 	}
 	if (*tmp == '\'')
 	{
-		ret = ft_strjoin(ret,
-				quote_string(creat_word(++tmp, 1, '\'', p), '\''));
+		ret = ft_strjoin(ret, quote_string(creat_word(++tmp, 1, '\'', p),
+					'\''));
 		*tmp1 += *p + 1;
 		return (ret);
 	}
@@ -103,8 +103,8 @@ int	expand3(char **ret, char **tmp1, t_env **list, t_env *t_envr)
 		tmp1++;
 	if (tmp)
 		*ret = expand2(creat_word(tmp, 0, 0, &p), t_envr, ex);
-	if (ret && *ret && ((**ret + ft_strlen(*ret) - 1) == ' '
-			|| (**ret + ft_strlen(*ret) - 1) == '\t'))
+	if (ret && *ret && ((**ret + ft_strlen(*ret) - 1) == ' ' || (**ret
+				+ ft_strlen(*ret) - 1) == '\t'))
 	{
 		while (*tmp1)
 			ft_lstnew(list, quote_string(*tmp1++, 0), 0);

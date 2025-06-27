@@ -6,13 +6,13 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 17:38:28 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/27 21:12:58 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/27 22:24:29 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "s.h"
 
-int	g_han;
+int		g_han;
 
 char	*quote_string(char *str, char quote_char)
 {
@@ -70,7 +70,6 @@ int	is_wildcard(char *s)
 {
 	char	tmp;
 
-	// printf("%s\n", s);
 	while (*s)
 	{
 		if ((*s == '\'' || *s == '"') && ft_strchr(s + 1, *s))

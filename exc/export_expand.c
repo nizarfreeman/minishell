@@ -6,11 +6,21 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:31:09 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/27 21:05:02 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/27 22:23:36 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "s.h"
+
+char	*char_to_string(char c)
+{
+	char	*str;
+
+	str = gc_malloc(2);
+	str[0] = c;
+	str[1] = '\0';
+	return (str);
+}
 
 char	*rm_q(char *tmp)
 {
@@ -31,11 +41,7 @@ char	*rm_q(char *tmp)
 			tmp += p;
 		}
 		else if (*tmp == '"' || *tmp == '\'')
-		{
-			char v[2] = {*tmp, '\0'};
-			ret =  ft_strjoin(ret, v);
-			tmp++;
-		}
+			ret = ft_strjoin(ret, char_to_string(*tmp++));
 		else if (*tmp)
 		{
 			ret = ft_strjoin(ret, creat_word(tmp, 0, 0, &p));

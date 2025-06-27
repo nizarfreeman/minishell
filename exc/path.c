@@ -61,8 +61,8 @@ char	*creat_path(char *cmd, char **path)
 		return (NULL);
 	if ((!path || !*path || !**path) && access(cmd, X_OK) == 0)
 		return (ft_strdup(cmd));
-	if (ft_strncmp(cmd, "./", 2) == 0 || ft_strchr(cmd, '/')
-		|| (!access(cmd, F_OK) && access(cmd, X_OK) && !path))
+	if (ft_strncmp(cmd, "./", 2) == 0 || ft_strchr(cmd, '/') || (!access(cmd,
+				F_OK) && access(cmd, X_OK) && !path))
 		return (creat_path2(cmd));
 	if (!path)
 		return (NULL);
