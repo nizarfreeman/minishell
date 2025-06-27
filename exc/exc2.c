@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 11:56:20 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/27 22:33:00 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/27 22:38:02 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ char	*expand_quotes(t_env *t_envr, int *p, char **tmp1)
 	ret = NULL;
 	if (*tmp == '"')
 	{
-		ret = ft_strjoin(ret, expand2(quote_string(creat_word(++tmp, 1, '"', p),
+		ret = ft_strjoin(ret, expand2(quote_string(creat_word(++tmp,  1, '"', p),
 						0), t_envr, ex));
 		*tmp1 += *p + 1;
 		return (ret);
