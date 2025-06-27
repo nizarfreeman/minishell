@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/12 15:16:26 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/21 18:14:20 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/27 15:21:08 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ void	printerr2(char *cmd, int *ex)
 
 	*ex = 127;
 	s = ": No such file or directory";
-	if (stat(cmd, &sb) != -1 && S_ISDIR(sb.st_mode))
+	if (stat(cmd, &sb) != -1 && S_ISDIR(sb.st_mode) && ft_strchr(cmd, '/'))
 	{
 		*ex = 126;
 		s = ": Is a directory";
