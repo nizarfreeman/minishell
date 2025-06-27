@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/25 17:31:09 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/26 22:46:07 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/27 21:05:02 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,15 +20,21 @@ char	*rm_q(char *tmp)
 	ret = NULL;
 	while (tmp && *tmp)
 	{
-		if (*tmp && *tmp == '\'')
+		if (*tmp && *tmp == '\'' && ft_strchr(tmp + 1, *tmp))
 		{
 			ret = ft_strjoin(ret, creat_word(++tmp, 1, '\'', &p));
 			tmp += p;
 		}
-		else if (*tmp && *tmp == '"')
+		else if (*tmp && *tmp == '"' && ft_strchr(tmp + 1, *tmp))
 		{
 			ret = ft_strjoin(ret, creat_word(++tmp, 1, '"', &p));
 			tmp += p;
+		}
+		else if (*tmp == '"' || *tmp == '\'')
+		{
+			char v[2] = {*tmp, '\0'};
+			ret =  ft_strjoin(ret, v);
+			tmp++;
 		}
 		else if (*tmp)
 		{

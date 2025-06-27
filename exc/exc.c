@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 17:38:28 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/26 20:51:25 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/27 21:12:58 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,10 @@ char	*quote_string(char *str, char quote_char)
 		return (NULL);
 	len = ft_strlen(str);
 	quoted_str = gc_malloc(len + 3);
+	if (!quote_char && ft_strchr(str, '\''))
+		quote_char = '"';
+	else
+		quote_char = '\'';
 	quoted_str[0] = quote_char;
 	i = 0;
 	while (str[i])
@@ -66,9 +70,10 @@ int	is_wildcard(char *s)
 {
 	char	tmp;
 
+	// printf("%s\n", s);
 	while (*s)
 	{
-		if (*s == '\'' || *s == '"')
+		if ((*s == '\'' || *s == '"') && ft_strchr(s + 1, *s))
 		{
 			tmp = *s;
 			s++;

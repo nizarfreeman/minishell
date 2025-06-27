@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 13:25:31 by aayache           #+#    #+#             */
-/*   Updated: 2025/05/29 13:29:20 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/27 22:13:30 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ int	count_digits(int n)
 	return (count);
 }
 
-char	*ft_itoa(int n)
+char	*ft_itoa(long long n)
 {
 	char	*str;
 	int		digits;

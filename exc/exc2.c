@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 11:56:20 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/26 20:31:04 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/27 21:13:56 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ int	expand5(t_env **list, char *tmp, t_env *t_envr)
 		if (*tmp)
 		{
 			if (expand4(&tmp1, t_envr, &tmp))
-				ret = ft_strjoin(ret, *tmp1);
+				ret = ft_strjoin(ret, quote_string(*tmp1, 0));
 			else if (append_to_lst(&ret, list, *tmp1, tmp))
 				tmp += expand3(&ret, tmp1, list, t_envr);
 		}
@@ -85,7 +85,7 @@ char	*expand_quotes(t_env *t_envr, int *p, char **tmp1)
 
 int	append_to_lst(char **ret, t_env **list, char *tmp1, char *tmp)
 {
-	*ret = ft_strjoin(*ret, tmp1);
+	*ret = ft_strjoin(*ret, quote_string(tmp1, 0));
 	ft_lstnew(list, *ret, 0);
 	*ret = tmp;
 	return (1);
@@ -107,14 +107,14 @@ int	expand3(char **ret, char **tmp1, t_env **list, t_env *t_envr)
 			|| (**ret + ft_strlen(*ret) - 1) == '\t'))
 	{
 		while (*tmp1)
-			ft_lstnew(list, *tmp1++, 0);
+			ft_lstnew(list, quote_string(*tmp1++, 0), 0);
 		tmp1 = NULL;
 		*ret = NULL;
 	}
 	else
 	{
 		while (*tmp1 && *(tmp1 + 1))
-			ft_lstnew(list, *tmp1++, 0);
+			ft_lstnew(list, quote_string(*tmp1++, 0), 0);
 		*ret = *tmp1;
 	}
 	return (p);

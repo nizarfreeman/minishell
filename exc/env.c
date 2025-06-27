@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/04 14:22:00 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/26 21:51:26 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/27 22:13:11 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void	no_t_env(t_env **ret)
 	s = get_value(*ret, "SHLVL", 1);
 	if (!s)
 		ft_lstnew1(ret, "SHLVL=1", 1);
-	else if (is_all_num(s) && (int)ft_atoi(s) >= 999)
+	else if (is_all_num(s) && ft_atoi(s) >= 999 && ft_atoi(s) < INT_MAX)
 	{
 		write(2, "bash: warning: shell level (", 29);
 		write(2, ft_itoa(ft_atoi(s) + 1), ft_strlen(ft_itoa(ft_atoi(s)
