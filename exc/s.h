@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/04 14:18:02 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/27 22:13:44 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/28 17:15:22 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,6 +129,7 @@ void				handle_int(int sig);
 char				**lst_to_arr2(t_env *t_env);
 char				*ft_itoa(long long n);
 char				**lst_to_arr(t_env *t_env);
+int					count_digits(int n);
 void				printerr(char *cmd, int *ex);
 int					ft_atoi2(const char *str);
 void				my_exit(char **cmd, int *ex);

@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/31 03:29:40 by nfaska            #+#    #+#             */
-/*   Updated: 2025/06/27 22:22:45 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/28 16:57:15 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,5 +85,5 @@ char	*process_quotes(char *str, char *ret, int len);
 char	*unquote_string(char *str);
 char	*ft_strrev(char *str);
 char	*ft_itoa(long long n);
-
+char	*ft_itoa1(int n);
 #endif

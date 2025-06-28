@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 13:31:51 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/21 14:31:19 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/28 17:13:10 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,59 +65,4 @@ int	expand_wildcard(char *s, t_env **ret)
 		}
 	}
 	return (1);
-}
-
-char	*expand2_1(char *str, t_env *t_envr, int *ex)
-{
-	char	*ret;
-	char	*s;
-
-	s = NULL;
-	ret = NULL;
-	s = str;
-	while (*str && *(str + 1) != '$')
-		str++;
-	if (*str && *(str + 1) == '$')
-		ret = ft_strjoin(word(s, str + 1), expand2(str + 1, t_envr, ex));
-	else
-		ret = word(s, str);
-	return (ret);
-}
-
-char	*expand2_2(char *str, t_env *t_envr, int *ex)
-{
-	char	*ret;
-	char	*s;
-
-	ret = NULL;
-	if (expand_valid(*(str + 1)))
-	{
-		ret = ft_strjoin(ft_strdup("$"), expand2(str + 1, t_envr, ex));
-		return (ret);
-	}
-	str++;
-	if (*str == '?')
-	{
-		ret = ft_strjoin(ft_itoa(*ex), expand2(str + 1, t_envr, ex));
-		return (ret);
-	}
-	else
-	{
-		s = str;
-		while (*str && !expand_valid(*(str)))
-			str++;
-		ret = ft_strjoin(get_value(t_envr, ft_strjoin(word(s, str), "="), 0),
-				expand2(str, t_envr, ex));
-		return (ret);
-	}
-	return (NULL);
-}
-
-char	*expand2(char *str, t_env *t_envr, int *ex)
-{
-	if (*str != '$')
-		return (expand2_1(str, t_envr, ex));
-	if (*str == '$')
-		return (expand2_2(str, t_envr, ex));
-	return (NULL);
 }

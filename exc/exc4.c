@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/29 16:07:02 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/25 15:15:57 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/28 17:09:38 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ char	**lst_to_arr(t_env *t_env)
 int	expand_valid(char c)
 {
 	return (!(c >= 'a' && c <= 'z') && !(c >= 'A' && c <= 'Z') && c != '_'
-		&& c != '?');
+		&& c != '?' && c != '*');
 }
 
 char	**expand_split(char **args)

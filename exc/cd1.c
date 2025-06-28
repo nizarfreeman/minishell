@@ -6,7 +6,7 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/28 16:27:55 by aayache           #+#    #+#             */
-/*   Updated: 2025/06/21 14:30:35 by aayache          ###   ########.fr       */
+/*   Updated: 2025/06/28 17:14:03 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,12 +59,9 @@ int	echo(char **str, int *ex)
 	p = NULL;
 	while (*str)
 	{
-		if (**str)
-		{
-			p = ft_strjoin(p, *str);
-			if (*(str + 1))
-				p = ft_strjoin(p, " ");
-		}
+		p = ft_strjoin(p, ft_strdup(*str));
+		if (*(str + 1))
+			p = ft_strjoin(p, " ");
 		str++;
 	}
 	if (opt)

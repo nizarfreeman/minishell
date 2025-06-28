@@ -6,10 +6,11 @@
 /*   By: aayache <aayache@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/01 08:52:15 by nfaska            #+#    #+#             */
-/*   Updated: 2025/06/04 10:09:33 by nfaska           ###   ########.fr       */
+/*   Updated: 2025/06/28 16:58:01 by aayache          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-#include "../utilities/utilities.h"
+
+#include "lexer.h"
 
 int	read_heredoc_input(int fd, char *delim)
 {
@@ -42,7 +43,7 @@ int	process_single_heredoc(t_token *token, int comm_fd)
 	int		fd;
 	int		result;
 
-	name = ft_strjoin("/tmp/", ft_itoa((uintptr_t)token));
+	name = ft_strjoin("/tmp/", ft_itoa1((uintptr_t)token));
 	if (!name)
 		return (-1);
 	fd = open(name, O_CREAT | O_RDWR | O_TRUNC, 0644);
